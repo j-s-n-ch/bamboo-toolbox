@@ -1,30 +1,92 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import TabContentWrapper from "./components/Common/TabContentWrapper.vue";
+import Activity from "./components/Activity.vue";
+import Gear from "./components/Gear.vue";
+import Stats from "./components/Stats.vue";
+import Footer from "./components/Footer/Footer.vue";
+
+// Reactive variables
+const activeTab = ref("Activity");
+const isMobile = ref(window.innerWidth <= 768);
+
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
+
+const activeTabComponent = computed(() => {
+  return {
+    Activity,
+    Gear,
+    Stats,
+  }[activeTab.value];
+});
+
+onMounted(() => {
+  checkScreenSize();
+  window.addEventListener("resize", checkScreenSize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", checkScreenSize);
+});
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <!-- Mobile View: Tabs -->
+  <div v-if="isMobile" class="mobile-layout">
+    <!-- Dynamically render the selected component for the active tab -->
+    <div class="mobile-content">
+      <tab-content-wrapper>
+        <component :is="activeTabComponent" />
+      </tab-content-wrapper>
+    </div>
+    <Footer @selectTab="activeTab = $event" />
   </div>
-  <HelloWorld msg="Vite + Vue" />
+
+  <!-- Desktop View: Side-by-Side Layout -->
+  <div v-else class="desktop-layout">
+    <tab-content-wrapper>
+      <Activity />
+    </tab-content-wrapper>
+    <tab-content-wrapper>
+      <Gear />
+    </tab-content-wrapper>
+    <tab-content-wrapper>
+      <Stats />
+    </tab-content-wrapper>
+  </div>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.mobile-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  width: 100vw;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.mobile-content > * {
+  padding: 20px;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.mobile-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.desktop-layout {
+  display: flex;
+  gap: 20px;
+  min-height: 100dvh;
+  /* width: 100%; */
+}
+
+.tab-content {
+  padding: 20px;
+  border: 1px solid #ccc;
 }
 </style>
