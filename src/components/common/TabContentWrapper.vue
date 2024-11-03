@@ -16,7 +16,7 @@
   justify-items: center;
 }
 
-.tab-wrapper * {
+.tab-wrapper {
   flex-grow: 1;
 }
 </style>

@@ -57,16 +57,14 @@ onUnmounted(() => {
   width: 100vw;
 }
 
-.mobile-content > * {
-  padding: 20px;
-}
-
 .mobile-content {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  padding: 20px;
 }
 
 .desktop-layout {
