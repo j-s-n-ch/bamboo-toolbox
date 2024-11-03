@@ -16,6 +16,7 @@ const emit = defineEmits(['click']);
   height: 100%;
   padding: 2rem;
   margin: 0;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 .tab:hover {
