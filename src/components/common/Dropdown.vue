@@ -15,15 +15,16 @@ const props = defineProps({
 
 const emit = defineEmits(["change"]);
 
+const empty = { name: "None", value: -1 };
 const searchQuery = ref("");
-const selection = ref(
-  props.selectedOption ? props.selectedOption : { name: "None", value: -1 }
-);
+const selection = ref(props.selectedOption ? props.selectedOption : empty);
 
 const shownOptions = computed(() => {
-  return props.options.filter((option) =>
+  const filtered = props.options.filter((option) =>
     option.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
+  filtered.unshift(empty);
+  return filtered;
 });
 
 const handleChange = (option) => {
