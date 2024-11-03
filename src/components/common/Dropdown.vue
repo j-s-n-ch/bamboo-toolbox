@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 const props = defineProps({
   options: Array,
@@ -7,11 +7,24 @@ const props = defineProps({
     type: Object,
     default: { name: "None", value: -1 },
   },
+  searchable: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(["change"]);
 
-const selection = ref(props.selectedOption);
+const searchQuery = ref("");
+const selection = ref(
+  props.selectedOption ? props.selectedOption : { name: "None", value: -1 }
+);
+
+const shownOptions = computed(() => {
+  return props.options.filter((option) =>
+    option.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
 
 const handleChange = (option) => {
   selection.value = option;
@@ -31,9 +44,13 @@ const handleChange = (option) => {
     </span>
 
     <template #dropdown>
-      <el-dropdown-menu>
+      <el-dropdown-menu class="dropdown-menu">
+        <div v-if="searchable" class="dropdown-search">
+          <el-input v-model="searchQuery" placeholder="Search..." clearable />
+        </div>
+
         <el-dropdown-item
-          v-for="item in options"
+          v-for="item in shownOptions"
           :key="item.value"
           :command="item"
           :disabled="item.disabled"
@@ -48,5 +65,11 @@ const handleChange = (option) => {
 <style scoped>
 .dropdown-main {
   cursor: pointer;
+}
+
+.dropdown-menu {
+  min-height: auto;
+  max-height: 330px;
+  overflow-y: auto;
 }
 </style>
