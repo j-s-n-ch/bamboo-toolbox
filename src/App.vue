@@ -75,11 +75,5 @@ onUnmounted(() => {
   display: flex;
   gap: 20px;
   min-height: 100dvh;
-  /* width: 100%; */
-}
-
-.tab-content {
-  padding: 20px;
-  border: 1px solid #ccc;
 }
 </style>

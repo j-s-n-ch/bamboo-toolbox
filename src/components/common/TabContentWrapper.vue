@@ -6,7 +6,9 @@
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "@/styles/utils/variables.scss";
+
 .tab-wrapper {
   width: 100%;
 
@@ -14,6 +16,12 @@
   display: flex;
   flex-direction: column;
   justify-items: center;
+
+  background-color: $boxDarkBackground;
+
+  padding: $xlg;
+  border-radius: $base;
+  border: 2px solid $boxDarkOutline;
 }
 
 .tab-wrapper {
