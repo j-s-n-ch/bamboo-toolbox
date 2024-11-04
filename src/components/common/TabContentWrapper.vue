@@ -10,19 +10,17 @@
 @use "@/styles/utils/variables.scss";
 
 .tab-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 
   background-color: variables.$boxDarkBackground;
 
   padding: variables.$xlg;
   border-radius: variables.$base;
   border: 2px solid variables.$boxDarkOutline;
-}
-
-.tab-wrapper {
-  flex-grow: 1;
 }
 </style>
