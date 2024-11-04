@@ -10,3 +10,9 @@ export function search({ skill, name }) {
     params: { skill, name },
   });
 }
+
+export function getActivity({ name, id }) {
+  return axios.get(`${getHost()}activities`, {
+    params: { name, id },
+  });
+}

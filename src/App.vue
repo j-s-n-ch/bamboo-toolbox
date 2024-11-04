@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import Activity from "./components/Activity.vue";
+import Activity from "./components/activity/Activity.vue";
 import Gear from "./components/Gear.vue";
 import Stats from "./components/Stats.vue";
 import Footer from "./components/footer/Footer.vue";
@@ -50,9 +50,9 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
-@import 'styles/app';
-@import 'styles/globals/typography';
-@import 'styles/globals/tailorings';
+@forward 'styles/app';
+@forward 'styles/globals/typography';
+@forward 'styles/globals/tailorings';
 
 .mobile-layout {
   display: flex;

@@ -6,6 +6,12 @@ export const useActivityStore = defineStore("activity", {
     level: 0,
     activity: null,
   }),
+  getters: {
+    activitySelected: (state) =>
+      state.activity &&
+      state.activity.name &&
+      state.activity.name.toLowerCase() !== "none",
+  },
   actions: {
     setSkill(skill) {
       this.skill = skill;

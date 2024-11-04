@@ -1,13 +1,16 @@
 <script setup>
 import { ref, computed } from "vue";
+import { storeToRefs } from 'pinia';
 import { useActivityStore } from "@/stores/activity";
-import TabContentWrapper from "./common/TabContentWrapper.vue";
-import WsLabel from "./common/WsLabel.vue";
-import Dropdown from "./common/Dropdown.vue";
+import TabContentWrapper from "../common/TabContentWrapper.vue";
+import WsLabel from "../common/WsLabel.vue";
+import Dropdown from "../common/Dropdown.vue";
+import ActivityStatPanel from "./ActivityStatPanel.vue";
 import { getSkills, search } from "@/utils/axios/activities";
 import { capitalize } from "@/utils/string";
 
 const activityStore = useActivityStore();
+const { activitySelected } = storeToRefs(activityStore);
 
 const skillKey = ref(0);
 const skills = ref([]);
@@ -23,11 +26,14 @@ getSkills().then(({ data: skillList }) => {
 
 const loadActivities = ({ skill, name } = {}) => {
   search({ skill, name }).then(({ data: activityList }) => {
-    activities.value = activityList.map(({ name: activityName, skills }) => ({
-      name: activityName,
-      value: activityName,
-      skills,
-    }));
+    activities.value = activityList.map(
+      ({ name: activityName, id, icon, skills }) => ({
+        name: activityName,
+        value: id,
+        icon: icon,
+        skills,
+      })
+    );
   });
 };
 
@@ -80,25 +86,26 @@ const handleActivityChange = (activity) => {
           />
         </div>
       </div>
+      <activity-stat-panel v-if="activitySelected" />
     </div>
   </tab-content-wrapper>
 </template>
 
 <style lang="scss" scoped>
-@import "@/styles/utils/variables.scss";
+@use "@/styles/utils/variables.scss";
 
 .tab-content {
   flex-grow: 1;
 
   display: flex;
   flex-direction: column;
-  gap: $xlg;
+  gap: variables.$xlg;
 }
 
 .row {
   display: flex;
   align-items: center;
-  gap: $base;
+  gap: variables.$base;
 }
 
 .label-wrapper {
@@ -106,10 +113,9 @@ const handleActivityChange = (activity) => {
   flex-direction: column;
   align-items: flex-start;
 
-  gap: $xxs;
+  gap: variables.$xxs;
   .label {
-    margin-left: $xxs;
+    margin-left: variables.$xxs;
   }
 }
-
 </style>

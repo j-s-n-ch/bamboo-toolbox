@@ -75,24 +75,24 @@ const handleChange = (option) => {
 </template>
 
 <style lang="scss" scoped>
-@import "@/styles/utils/variables.scss";
+@use "@/styles/utils/variables.scss";
 
 .dropdown-main {
   cursor: pointer;
 
   width: var(--dropdown-width);
 
-  background-color: $boxTransparentDarkOutline;
-  border: 1px solid $boxPrimaryOutline;
-  border-radius: $md;
+  background-color: variables.$boxTransparentDarkOutline;
+  border: 1px solid variables.$boxPrimaryOutline;
+  border-radius: variables.$md;
 
   .el-dropdown {
     width: var(--dropdown-width);
-    padding: $xs;
+    padding: variables.$xs;
   }
 
   span {
-    color: $txPrimary;
+    color: variables.$txPrimary;
   }
 }
 

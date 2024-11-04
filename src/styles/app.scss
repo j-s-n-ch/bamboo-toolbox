@@ -1,8 +1,10 @@
-@import './utils/variables';
-@import './utils/mixins';
+@use './utils/variables.scss';
+@use './globals/typography.scss';
+@forward './utils/variables';
+@forward './utils/mixins';
 
 :root {
-  font-family: $font-family;
+  font-family: variables.$font-family;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -10,8 +12,8 @@
   @extend %typography-body1;
 
   color-scheme: light dark;
-  background-color: $bgPrimary;
-  color: $txPrimary;
+  background-color: variables.$bgPrimary;
+  color: variables.$txPrimary;
 }
 
 html, body, #app {
@@ -31,9 +33,9 @@ button,
 input,
 select,
 textarea {
-  font-family: $font-family;
+  font-family: variables.$font-family;
   @extend %typography-body1;
-  background-color: $bgPrimary;
-  color: $txPrimary;
+  background-color: variables.$bgPrimary;
+  color: variables.$txPrimary;
   border: none;
 }
