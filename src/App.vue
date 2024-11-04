@@ -49,7 +49,11 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss">
+@import 'styles/app';
+@import 'styles/globals/typography';
+@import 'styles/globals/tailorings';
+
 .mobile-layout {
   display: flex;
   flex-direction: column;
