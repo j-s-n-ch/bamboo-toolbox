@@ -36,3 +36,8 @@
 .typography-body1 {
   @extend %typography-body1;
 }
+
+.typography-label {
+  @include typography-base(0.75rem, 600, 1.125, 0.06em);
+  text-transform: uppercase;
+}
