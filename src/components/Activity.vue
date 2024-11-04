@@ -64,7 +64,6 @@ const handleActivityChange = (activity) => {
         <div class="label-wrapper">
           <ws-label class="label" label="Skill" />
           <dropdown
-            :key="`skill-${skillKey}`"
             :options="skills"
             :selected-option="activityStore.skill"
             @change="handleSkillChange"
@@ -73,7 +72,7 @@ const handleActivityChange = (activity) => {
       </div>
       <div class="row">
         <div class="label-wrapper">
-          <ws-label class="label" label="Skill" />
+          <ws-label class="label" label="Activity" />
           <dropdown
             :options="activities"
             :selected-option="activityStore.activity"
@@ -107,9 +106,9 @@ const handleActivityChange = (activity) => {
   flex-direction: column;
   align-items: flex-start;
 
-  gap: $sm;
+  gap: $xxs;
   .label {
-    margin-left: $sm;
+    margin-left: $xxs;
   }
 }
 
