@@ -16,12 +16,14 @@ const changeTab = (tabName) => {
   </footer>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "@/styles/utils/variables.scss";
+
 .footer {
   width: 100%;
   display: flex;
   justify-content: space-around;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid $chipOutline;
   padding: 0;
 }
 </style>

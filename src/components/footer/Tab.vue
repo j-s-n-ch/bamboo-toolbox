@@ -10,16 +10,15 @@ const emit = defineEmits(['click']);
   <button class="tab" @click="emit('click', name)">{{ name }}</button>
 </template>
 
-<style scoped>
-.tab {
+<style lang="scss" scoped>
+@import "@/styles/utils/variables.scss";
+
+.tab {                                     
   width: 100%;
-  height: 100%;
-  padding: 2rem;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.87);
+  padding: $xxxlg;
 }
 
 .tab:hover {
-  background-color: #2a2a2a;
+  background-color: $boxTransparentPrimaryBackground;
 }
 </style>

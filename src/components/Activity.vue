@@ -2,6 +2,7 @@
 import { ref, computed } from "vue";
 import { useActivityStore } from "@/stores/activity";
 import TabContentWrapper from "./common/TabContentWrapper.vue";
+import WsLabel from "./common/WsLabel.vue";
 import Dropdown from "./common/Dropdown.vue";
 import { getSkills, search } from "@/utils/axios/activities";
 import { capitalize } from "@/utils/string";
@@ -60,38 +61,56 @@ const handleActivityChange = (activity) => {
   <tab-content-wrapper>
     <div class="tab-content">
       <div class="row">
-        <p>Skill:</p>
-        <dropdown
-          :key="`skill-${skillKey}`"
-          :options="skills"
-          :selected-option="activityStore.skill"
-          @change="handleSkillChange"
-        />
+        <div class="label-wrapper">
+          <ws-label class="label" label="Skill" />
+          <dropdown
+            :key="`skill-${skillKey}`"
+            :options="skills"
+            :selected-option="activityStore.skill"
+            @change="handleSkillChange"
+          />
+        </div>
       </div>
       <div class="row">
-        <p>Activity:</p>
-        <dropdown
-          :options="activities"
-          :selected-option="activityStore.activity"
-          @change="handleActivityChange"
-        />
+        <div class="label-wrapper">
+          <ws-label class="label" label="Skill" />
+          <dropdown
+            :options="activities"
+            :selected-option="activityStore.activity"
+            @change="handleActivityChange"
+          />
+        </div>
       </div>
     </div>
   </tab-content-wrapper>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "@/styles/utils/variables.scss";
+
 .tab-content {
   flex-grow: 1;
 
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: $xlg;
 }
 
 .row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: $base;
 }
+
+.label-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: $sm;
+  .label {
+    margin-left: $sm;
+  }
+}
+
 </style>

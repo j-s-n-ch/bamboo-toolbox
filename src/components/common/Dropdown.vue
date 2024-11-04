@@ -11,6 +11,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  width: {
+    type: String,
+    default: "20rem",
+  },
 });
 
 const emit = defineEmits(["change"]);
@@ -20,11 +24,17 @@ const searchQuery = ref("");
 const selection = ref(props.selectedOption ? props.selectedOption : empty);
 
 const shownOptions = computed(() => {
-  const filtered = props.options.filter((option) =>
+  const opts = [empty].concat(props.options);
+  const filtered = opts.filter((option) =>
     option.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
-  filtered.unshift(empty);
   return filtered;
+});
+
+const cssProps = computed(() => {
+  return {
+    "--dropdown-width": props.width,
+  };
 });
 
 const handleChange = (option) => {
@@ -38,6 +48,7 @@ const handleChange = (option) => {
     trigger="click"
     placement="bottom-start"
     class="dropdown-main"
+    :style="cssProps"
     @command="handleChange"
   >
     <span class="el-dropdown">
@@ -63,9 +74,26 @@ const handleChange = (option) => {
   </el-dropdown>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "@/styles/utils/variables.scss";
+
 .dropdown-main {
   cursor: pointer;
+  padding: $xs;
+
+  width: var(--dropdown-width);
+
+  background-color: $boxTransparentDarkOutline;
+  border: 1px solid $boxPrimaryOutline;
+  border-radius: $md;
+
+  .el-dropdown {
+    width: var(--dropdown-width);
+  }
+
+  span {
+    color: $txPrimary;
+  }
 }
 
 .dropdown-menu {
