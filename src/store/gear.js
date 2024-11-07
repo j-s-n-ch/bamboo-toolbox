@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { search as itemSearch } from "@/utils/axios/items";
+import { searchItems } from "@/utils/axios/items";
 
 export const useGearStore = defineStore("gearStore", {
   state: () => ({
@@ -30,13 +30,14 @@ export const useGearStore = defineStore("gearStore", {
       this[slot] = item;
     },
     getSlotTypes(slot) {
-      if (slot == "service") return ["service"];
-      if (["potion", "consumable"].includes(slot)) return ["consumable"];
+      if (slot === "service") return ["service"];
+      else if (slot === "potion") return ["potion"];
+      else if (slot === "consumable") return ["consumable"];
       return ["loot", "crafted"];
     },
     getSearchEndpoint(slot) {
-      if (slot == "service") return () => ({ name: "None", id: "-1" });
-      return itemSearch;
+      if (slot === "service") return () => ({ name: "None", id: "-1" });
+      return searchItems;
     },
   },
 });

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import { useActivityStore } from "@/stores/activity";
+import { useActivityStore } from "@/store/activity";
 import TabContentWrapper from "../common/TabContentWrapper.vue";
 import WsLabel from "../common/WsLabel.vue";
 import Dropdown from "../common/Dropdown.vue";

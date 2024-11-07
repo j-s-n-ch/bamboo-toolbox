@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
-import { useGearStore } from "@/stores/gear";
-import { useActivityStore } from "@/stores/activity";
+import { useGearStore } from "@/store/gear";
+import { useActivityStore } from "@/store/activity";
 import { storeToRefs } from "pinia";
 import { getItem, searchItems } from "@/utils/axios/items";
 import WsIcon from "@/components/common/WsIcon.vue";

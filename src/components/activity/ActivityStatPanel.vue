@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
-import { useActivityStore } from "@/stores/activity";
+import { useActivityStore } from "@/store/activity";
 import { getActivity } from "@/utils/axios/activities";
 import ActivityInfoCard from "./ActivityInfoCard.vue";
 
