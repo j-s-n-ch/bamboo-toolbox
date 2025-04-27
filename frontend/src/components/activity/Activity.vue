@@ -25,16 +25,7 @@ getSkills().then(({ data: skillList }) => {
 });
 
 const loadActivities = ({ skill, name } = {}) => {
-  search({ skill, name }).then(({ data: activityList }) => {
-    activities.value = activityList.map(
-      ({ name: activityName, id, icon, skills }) => ({
-        name: activityName,
-        value: id,
-        icon: icon,
-        skills,
-      })
-    );
-  });
+  search({ skill }).then(data => console.log(data));
 };
 
 loadActivities();
@@ -43,7 +34,7 @@ const handleSkillChange = (skill) => {
   activityStore.setSkill(skill);
   if (skill !== activityStore.skill)
     handleActivityChange({ name: "None", value: -1 });
-  loadActivities({ skill: skill.value });
+  loadActivities({ skill: skill });
 };
 
 const handleActivityChange = (activity) => {

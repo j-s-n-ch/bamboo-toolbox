@@ -15,16 +15,26 @@ const props = defineProps({
     type: String,
     default: "20rem",
   },
+  addNone: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(["change"]);
 
 const empty = { name: "None", value: -1 };
 const searchQuery = ref("");
-const selection = ref(props.selectedOption ? props.selectedOption : empty);
+
+let initialValue;
+if (props.addNone && !props.selectedOption) initialValue = empty;
+else if (props.selectedOption) initialValue = props.selectedOption;
+else initialValue = props.options[0];
+
+const selection = ref(initialValue);
 
 const shownOptions = computed(() => {
-  const opts = [empty].concat(props.options);
+  const opts = props.addNone ? [empty].concat(props.options) : props.options;
   const filtered = opts.filter((option) =>
     option.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );

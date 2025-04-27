@@ -29,5 +29,7 @@ const changeTab = (tabName) => {
   flex-shrink: 0;
   position: sticky;
   bottom: 0;
+
+  z-index: 500;
 }
 </style>
