@@ -1,0 +1,16 @@
+services:
+  walkscape-tools-server:
+    image: ghcr.io/schamppu/walkscape-tools-server:latest
+    container_name: walkscape-tools-server
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV
+      - API_SECRET
+    profiles: [prod, dev]
+
+networks:
+  default:
+    name: ${DOCKER_NETWORK_NAME:-dev_default}
+    external: ${USE_EXTERNAL_NETWORK:-false}
