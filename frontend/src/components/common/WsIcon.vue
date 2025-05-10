@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onUnmounted, watch } from "vue";
-import { getIcon } from "@/utils/axios/icons"; // Update with the correct path
+import { getIcon } from "@/utils/axios/routes";
 
 // Define props
 const props = defineProps({
@@ -24,7 +24,7 @@ const loading = ref(true);
 const fetchIcon = async () => {
   loading.value = true;
   try {
-    const response = await getIcon({ path: props.iconPath });
+    const response = await getIcon({ iconPath: props.iconPath });
     iconSrc.value = URL.createObjectURL(response.data);
   } catch (error) {
     console.error("Failed to load icon:", error);
@@ -48,10 +48,10 @@ const iconSize = computed(() => {
     xs: "16px",
     sm: "24px",
     md: "32px",
+    default: "32px",
     lg: "48px",
     xl: "64px",
     xxl: "96px",
-    default: "32px",
   };
   return sizeMap[props.size];
 });
