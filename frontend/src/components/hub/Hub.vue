@@ -4,6 +4,7 @@ import { getSkills } from "@/utils/axios/routes";
 import TabContentWrapper from "@/components/common/TabContentWrapper.vue";
 import SkillLevelDisplay from "./SkillLevelDisplay.vue";
 import AchievementPointDisplay from "./AchievementPointDisplay.vue";
+import ItemSelection from "./ItemSelection.vue";
 
 const skills = ref([]);
 
@@ -22,6 +23,7 @@ getSkills().then(({ data }) => (skills.value = data));
         <achievement-point-display />
       </div>
     </div>
+    <item-selection />
   </tab-content-wrapper>
 </template>
 
