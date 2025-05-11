@@ -12,8 +12,37 @@ const props = defineProps({
 
 const emit = defineEmits(["toggle"]);
 
+const qualityOrder = [
+  "common",
+  "uncommon",
+  "rare",
+  "epic",
+  "legendary",
+  "ethereal",
+];
+
+const qualityRank = Object.fromEntries(
+  qualityOrder.map((q, index) => [q, index])
+);
+
+function sortItems(items) {
+  return items.slice().sort((a, b) => {
+    const aRank = qualityRank[a.quality] ?? Infinity;
+    const bRank = qualityRank[b.quality] ?? Infinity;
+
+    if (aRank !== bRank) {
+      return aRank - bRank;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
+}
+
 const itemStore = useItemsStore();
-const items = computed(() => itemStore.itemsByCategory[props.itemCategory]);
+const items = computed(() => {
+  const source = itemStore.itemsByCategory[props.itemCategory];
+  return sortItems(source);
+});
 </script>
 
 <template>
@@ -42,7 +71,6 @@ const items = computed(() => itemStore.itemsByCategory[props.itemCategory]);
   justify-content: space-between;
   background: variables.$boxPrimaryBackground;
 
-  border-radius: variables.$sm variables.$sm 0 0;
   border: 1px solid variables.$bgPrimary;
   padding: variables.$xxs;
   color: white;

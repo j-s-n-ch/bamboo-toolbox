@@ -109,7 +109,6 @@ const resolveCategories = () => {
       });
     }
 
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
     itemsStore.setItems(cat.key, filtered);
     return { ...cat, items: filtered };
   });
@@ -155,7 +154,9 @@ function toggleCategory(category) {
   </div>
 </template>
 
-<style langs="scss" scoped>
+<style lang="scss" scoped>
+@use "@/styles/utils/variables.scss";
+
 .wrapper {
   display: flex;
   flex-direction: column;
