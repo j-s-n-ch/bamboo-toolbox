@@ -7,6 +7,7 @@ import {
   getLoot,
   getActivityItems,
   getChestItems,
+  getRewards,
   getShops,
 } from "@/utils/axios/routes";
 import ItemCategoryPanel from "./ItemCategoryPanel.vue";
@@ -14,6 +15,7 @@ import LoadingThrobber from "@/components/common/LoadingThrobber.vue";
 import { capitalize } from "@/utils/string.js";
 import {
   resolveActivityCategory,
+  resolveRewardsCategories,
   resolveShopsCategory,
   resolveChestCategories,
   misc_loot,
@@ -33,6 +35,7 @@ const fetchConfigs = [
   { method: getChestItems, key: "chest_tables" },
   { method: getActivityItems, key: "activity_items" },
   { method: getShops, key: "shops" },
+  { method: getRewards, key: "rewards" },
 ];
 
 Promise.all(
@@ -44,8 +47,12 @@ Promise.all(
 
   const loot = itemsStore.itemsByCategory["loot"];
   const chestTables = itemsStore.itemsByCategory["chest_tables"];
-  const activityItems = itemsStore.itemsByCategory["activity_items"]
+  const activityItems = itemsStore.itemsByCategory["activity_items"];
   const shopsTable = itemsStore.itemsByCategory["shops"];
+  const rewardItems = itemsStore.itemsByCategory["rewards"];
+
+  const rewardCategories = resolveRewardsCategories(loot, rewardItems);
+  categories.push(...rewardCategories);
 
   const { chestCategories, chestItems } = resolveChestCategories(
     loot,
@@ -56,7 +63,7 @@ Promise.all(
   categories.push(shopsCategory);
 
   const activityCategory = resolveActivityCategory(loot, activityItems);
-  categories.push(activityCategory)
+  categories.push(activityCategory);
 
   categories.push(...chestCategories);
   categories.push(misc_loot);

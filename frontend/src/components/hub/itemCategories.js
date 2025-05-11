@@ -47,6 +47,38 @@ export const resolveActivityCategory = (loot, activitiesTable) => {
   };
 };
 
+export const resolveRewardsCategories = (loot, rewards) => {
+  const achievement_rewards = new Set(
+    rewards
+      .filter(({ type }) => type === "achievementPoints")
+      .flatMap(({ rewardItems }) => rewardItems)
+  );
+  const reputation_rewards = new Set(
+    rewards
+      .filter(({ type }) => type === "factionReputation")
+      .flatMap(({ rewardItems }) => rewardItems)
+  );
+  const achievement_items = loot.filter(({ id }) =>
+    achievement_rewards.has(id)
+  );
+  const reputation_items = loot.filter(({ id }) => reputation_rewards.has(id));
+
+  return [
+    {
+      title: "Achievement point rewards",
+      key: "achievement_items",
+      source: "loot",
+      filter: (item) => achievement_items.some((i) => i.id === item.id),
+    },
+    {
+      title: "Repuation Rewards",
+      key: "reputation_rewards",
+      source: "loot",
+      filter: (item) => reputation_items.some((i) => i.id === item.id),
+    },
+  ];
+};
+
 export const resolveShopsCategory = (loot, shops, chestItems) => {
   const shopItems = new Set(shops.flatMap((shop) => shop.soldItems));
   const filtered = loot.filter(
