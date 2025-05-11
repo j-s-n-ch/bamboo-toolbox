@@ -6,6 +6,7 @@ export function wrapController(serviceFunction, options = {}) {
     notFoundStatus = 404,
     notFoundMessage = "Not Found",
     errorMessage = "Internal Server Error",
+    mapFunction,
   } = options;
 
   return async (req, res, next) => {
@@ -16,7 +17,8 @@ export function wrapController(serviceFunction, options = {}) {
         return res.status(notFoundStatus).json({ message: notFoundMessage });
       }
 
-      return res.status(successStatus).json(result);
+      const mappedResult = mapFunction ? mapFunction(result) : result;
+      return res.status(successStatus).json(mappedResult);
     } catch (error) {
       return errorHandler(error, req, res, next);
     }
