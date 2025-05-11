@@ -1,14 +1,19 @@
 <script setup>
 import WsIcon from "@/components/common/WsIcon.vue";
 
-defineProps({
+const props = defineProps({
   item: Object,
   qualities: Number,
 });
+
+const colorClass = props.item.quality ? `color-${props.item.quality}` : '';
 </script>
 
 <template>
-  <div class="item-entry" @click="item.checked != item.checked">
+  <div
+    :class="['item-entry', colorClass]"
+    @click="item.checked != item.checked"
+  >
     <input type="checkbox" v-model="item.checked" />
     <ws-icon :iconPath="item.icon" />
     <span>{{ item.name }}</span>
