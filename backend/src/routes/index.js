@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { achievementRoutes } from "./achievementRoutes.js";
 import { activityRoutes } from "./activityRoutes.js";
 import { itemRoutes } from "./itemRoutes.js";
 import { lootTableRoutes } from "./lootTableRoutes.js";
@@ -10,6 +11,7 @@ import iconRoutes from "./iconRoutes.js";
 export function registerRoutes(app) {
   const router = Router();
 
+  router.use("/achievements", achievementRoutes);
   router.use("/activities", activityRoutes);
   router.use("/icons", iconRoutes);
   router.use("/items", itemRoutes);
