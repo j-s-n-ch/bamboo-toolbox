@@ -10,7 +10,7 @@ import {
   getRewards,
   getAchievementRewards,
   getShops,
-} from "@/utils/axios/routes";
+} from "@/utils/axios/api_routes";
 import ItemCategoryPanel from "./ItemCategoryPanel.vue";
 import LoadingThrobber from "@/components/common/LoadingThrobber.vue";
 import { capitalize } from "@/utils/string.js";

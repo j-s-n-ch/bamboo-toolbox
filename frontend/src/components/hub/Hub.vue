@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { getSkills } from "@/utils/axios/routes";
+import { getSkills } from "@/utils/axios/api_routes";
 import TabContentWrapper from "@/components/common/TabContentWrapper.vue";
 import SkillLevelDisplay from "./SkillLevelDisplay.vue";
 import AchievementPointDisplay from "./AchievementPointDisplay.vue";

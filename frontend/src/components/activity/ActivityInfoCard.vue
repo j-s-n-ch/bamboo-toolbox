@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
 import SkillBubble from "@/components/common/SkillBubble.vue";
-import { getKeyword } from "@/utils/axios/routes.js";
+import { getKeyword } from "@/utils/axios/api_routes";
 
 const props = defineProps({
   activityInfo: {

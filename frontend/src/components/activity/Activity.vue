@@ -6,7 +6,7 @@ import TabContentWrapper from "../common/TabContentWrapper.vue";
 import WsLabel from "../common/WsLabel.vue";
 import Dropdown from "../common/Dropdown.vue";
 import ActivityStatPanel from "./ActivityStatPanel.vue";
-import { getSkills } from "@/utils/axios/routes";
+import { getSkills } from "@/utils/axios/api_routes";
 import { capitalize } from "@/utils/string";
 
 const activityStore = useActivityStore();

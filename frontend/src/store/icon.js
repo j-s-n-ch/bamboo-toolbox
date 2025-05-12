@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getIcon } from "@/utils/axios/routes";
+import { getIcon } from "@/utils/axios/api_routes";
 
 export const useIconStore = defineStore("iconStore", {
   state: () => ({

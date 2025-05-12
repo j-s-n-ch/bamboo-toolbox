@@ -1,0 +1,113 @@
+import getHost from "../getHost";
+import { axiosInstance as axios } from "./axiosConfig";
+
+const proxy = ({ url, options = {} }) => {
+  return axios.get(`${getHost()}/api/${url}`, options);
+};
+
+export function getIcon({ iconPath }) {
+  return proxy({
+    url: `icons/${iconPath}`,
+    options: {
+      responseType: "blob",
+    },
+  });
+}
+
+export function getLocalization({ key, locale = en }) {
+  return proxy({
+    url: "translate",
+    options: { params: { key, locale } },
+  });
+}
+
+export function getSkills() {
+  return proxy({
+    url: "skills",
+  });
+}
+
+export function getKeyword({ id }) {
+  return proxy({
+    url: "keywords",
+    options: { params: { id } },
+  });
+}
+
+export function getCollectibles() {
+  return proxy({
+    url: "items/collectibles",
+  });
+}
+
+export function getCrafted() {
+  return proxy({
+    url: "items/crafted",
+  });
+}
+
+export function getLoot() {
+  return proxy({
+    url: "items/loot",
+  });
+}
+
+export function getItem({ name, id, quality }) {
+  return proxy({
+    url: "items/",
+    options: {
+      params: { name, id, quality },
+    },
+  });
+}
+
+export function getActivityItems() {
+  return proxy({
+    url: "loot_tables/activity_items",
+  });
+}
+
+export function getChestItems() {
+  return proxy({
+    url: "loot_tables/chest_items",
+  });
+}
+
+export function getShops() {
+  return proxy({
+    url: "shops",
+  });
+}
+
+export function getRewards() {
+  return proxy({
+    url: "rewards",
+  });
+}
+
+export function getAchievementRewards() {
+  return proxy({
+    url: "achievements/item_rewards",
+  });
+}
+
+export function searchItems({ types, gearType, search }) {
+  return proxy({
+    url: "items/search",
+    options: {
+      params: { types, gearType, search },
+    },
+  });
+}
+
+export function getActivities() {
+  return proxy({
+    url: "activities",
+  });
+}
+
+export function getActivity({ id }) {
+  return proxy({
+    url: `activities/id/${id}`,
+  });
+}
