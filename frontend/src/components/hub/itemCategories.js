@@ -11,6 +11,7 @@ export const misc_crafted = {
   title: "Misc. Crafted",
   key: "misc_crafted",
   source: "crafted",
+  qualities: 1,
   filter: null,
 };
 
@@ -21,14 +22,15 @@ export const crafted_categories = [
   { suffix: "fishing tools", keyword: "fishingTool" },
   { suffix: "diving gear", keyword: "itemset_diving_gear" },
   { suffix: "amulets", keyword: "item_amulet" },
-  { suffix: "rings", keyword: "item_ring" },
+  { suffix: "rings", keyword: "item_ring", qualities: 2 },
   { suffix: "weapons", keyword: "weapon" },
   { suffix: "shields", keyword: "shield" },
-].map(({ suffix, keyword }) => {
+].map(({ suffix, keyword, qualities }) => {
   return {
     title: `Crafted ${capitalize(suffix)}`,
     key: `crafted_${suffix}`,
     source: "crafted",
+    qualities: qualities || 1,
     filter: (item) => item.keywords.includes(keyword),
   };
 });
