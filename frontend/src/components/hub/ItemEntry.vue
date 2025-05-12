@@ -41,7 +41,7 @@ const updateQuality = () => {
     </div>
 
     <div v-if="qualities > 0" class="quality-inputs">
-      <select v-model="item.quality">
+      <select v-model="item.quality" @click.stop>
         <option
           v-for="q in craftingQualityOptions"
           :key="'q1-' + q.value"
@@ -51,7 +51,7 @@ const updateQuality = () => {
           {{ q.name }}
         </option>
       </select>
-      <select v-if="qualities === 2" v-model="item.quality2">
+      <select v-if="qualities === 2" v-model="item.quality2" @click.stop>
         <option
           v-for="q in craftingQualityOptions"
           :key="'q2-' + q.value"
