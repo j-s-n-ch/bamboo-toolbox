@@ -147,6 +147,7 @@ const resolveCategories = () => {
 
 function toggleCategory(category) {
   openCategory.value = openCategory.value === category ? null : category;
+  document.getElementById(category).scrollIntoView();
 }
 </script>
 
