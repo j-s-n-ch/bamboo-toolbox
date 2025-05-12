@@ -1,4 +1,6 @@
 <script setup>
+import { computed } from "vue";
+import { useItemsStore } from "@/store/items";
 import WsIcon from "@/components/common/WsIcon.vue";
 
 const props = defineProps({
@@ -6,15 +8,25 @@ const props = defineProps({
   qualities: Number,
 });
 
-const colorClass = props.item.quality ? `color-${props.item.quality}` : '';
+const itemsStore = useItemsStore();
+
+const isOwned = computed(() => !!itemsStore.ownedItems[props.item.id]);
+const itemState = computed(() => itemsStore.ownedItems[props.item.id] || {});
+
+const colorClass = props.item.quality ? `color-${props.item.quality}` : "";
+
+const toggleChecked = () => {
+  itemsStore.toggleItem(props.item.id);
+};
+
+const updateQuality = (q1, q2) => {
+  itemsStore.setItemQuality(props.item.id, q1, q2);
+};
 </script>
 
 <template>
-  <div
-    :class="['item-entry', colorClass]"
-    @click="item.checked != item.checked"
-  >
-    <input type="checkbox" v-model="item.checked" />
+  <div :class="['item-entry', colorClass]" @click="toggleChecked">
+    <input type="checkbox" v-model="isOwned" @click.stop />
     <ws-icon :iconPath="item.icon" />
     <span>{{ item.name }}</span>
 
