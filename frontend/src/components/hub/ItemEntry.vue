@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue";
+import { craftingQualityOptions } from "@/utils/quality";
 import { useItemsStore } from "@/store/items";
 import WsIcon from "@/components/common/WsIcon.vue";
 
@@ -14,37 +15,50 @@ const isOwned = computed(() => !!itemsStore.ownedItems[props.item.id]);
 const itemState = computed(() => itemsStore.ownedItems[props.item.id] || {});
 
 const colorClass = props.item.quality ? `color-${props.item.quality}` : "";
+const ownedBgClass = computed(() => {
+  return isOwned.value && props.item.quality
+    ? `bg-${props.item.quality}-dark`
+    : "";
+});
 
 const toggleChecked = () => {
-  itemsStore.toggleItem(props.item.id);
+  const { id, quality, quality2 } = props.item;
+  itemsStore.toggleItem(id, quality, quality2);
 };
 
-const updateQuality = (q1, q2) => {
-  itemsStore.setItemQuality(props.item.id, q1, q2);
+const updateQuality = () => {
+  const { id, quality, quality2 } = props.item;
+  itemsStore.setItemQuality(id, quality, quality2);
 };
 </script>
 
 <template>
-  <div :class="['item-entry', colorClass]" @click="toggleChecked">
-    <input type="checkbox" v-model="isOwned" @click.stop />
-    <ws-icon :iconPath="item.icon" />
-    <span>{{ item.name }}</span>
+  <div :class="['item-entry', colorClass, ownedBgClass]" @click="toggleChecked">
+    <div class="base-info">
+      <input type="checkbox" v-model="isOwned" @click.stop />
+      <ws-icon :iconPath="item.icon" />
+      <span :class="`color-${item.quality}`">{{ item.name }}</span>
+    </div>
 
-    <select v-if="qualities === 1" v-model="item.quality">
-      <option v-for="q in [1, 2, 3, 4, 5, 6]" :key="q" :value="q">
-        Q{{ q }}
-      </option>
-    </select>
-
-    <div v-if="qualities === 2">
-      <select v-model="item.quality1">
-        <option v-for="q in [1, 2, 3, 4, 5, 6]" :key="'q1-' + q" :value="q">
-          Q{{ q }}
+    <div v-if="qualities > 0" class="quality-inputs">
+      <select v-model="item.quality">
+        <option
+          v-for="q in craftingQualityOptions"
+          :key="'q1-' + q.value"
+          :value="q.value"
+          :class="`color-${q.value}`"
+        >
+          {{ q.name }}
         </option>
       </select>
-      <select v-model="item.quality2">
-        <option v-for="q in [1, 2, 3, 4, 5, 6]" :key="'q2-' + q" :value="q">
-          Q{{ q }}
+      <select v-if="qualities === 2" v-model="item.quality2">
+        <option
+          v-for="q in craftingQualityOptions"
+          :key="'q2-' + q.value"
+          :value="q.value"
+          :class="`color-${q.value}`"
+        >
+          {{ q.name }}
         </option>
       </select>
     </div>
@@ -57,7 +71,7 @@ const updateQuality = (q1, q2) => {
 .item-entry {
   display: flex;
   align-items: center;
-  gap: variables.$xxs;
+  justify-content: space-between;
 
   cursor: pointer;
 
@@ -66,5 +80,17 @@ const updateQuality = (q1, q2) => {
   border: 1px solid variables.$bgPrimary;
 
   padding: variables.$xxxs variables.$xxs;
+
+  .base-info {
+    display: flex;
+    align-items: center;
+    gap: variables.$xxs;
+  }
+
+  .quality-inputs {
+    display: flex;
+    align-items: flex;
+    gap: variables.$xs;
+  }
 }
 </style>
