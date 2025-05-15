@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { postUserLevels } from "../controllers/dbController.js";
+import { getUserInfo, upsertUserInfo } from "../controllers/dbController.cjs";
 
 const router = Router();
 
-router.post("/user_levels", postUserLevels);
+router.get("/user_stats", getUserInfo);
+router.post("/user_stats", upsertUserInfo);
 
 export { router as dbRoutes };
