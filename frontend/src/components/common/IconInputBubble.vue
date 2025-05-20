@@ -2,6 +2,8 @@
 import { computed } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
 
+const emit = defineEmits(["input"]);
+
 const props = defineProps({
   id: { type: [String, Number], required: true },
   icon: { type: String, default: null },
@@ -18,6 +20,7 @@ const value = computed({
   set: (val) => {
     const clamped = Math.min(props.max, Math.max(props.min, Number(val)));
     props.setValue(props.id, clamped);
+    emit("input", clamped);
   },
 });
 </script>
@@ -25,13 +28,7 @@ const value = computed({
 <template>
   <div :class="['wrapper', borderClass]">
     <ws-icon v-if="icon" :iconPath="icon" size="md" />
-    <input
-      v-model="value"
-      class="input"
-      type="number"
-      :min="min"
-      :max="max"
-    />
+    <input v-model="value" class="input" type="number" :min="min" :max="max" />
   </div>
 </template>
 
@@ -52,13 +49,13 @@ const value = computed({
   background: variables.$boxPrimaryBackground;
 }
 
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button {
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 </style>

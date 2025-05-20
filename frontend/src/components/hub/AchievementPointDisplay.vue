@@ -2,6 +2,7 @@
 import IconInputBubble from "@/components/common/IconInputBubble.vue";
 import { usePlayerStore } from "@/store/player";
 
+const emit = defineEmits(['input']);
 const store = usePlayerStore();
 
 const getAP = (_) => store.achievementPoints;
@@ -18,5 +19,6 @@ const setAP = (_, val) => store.setAchievementPoints(val);
     :getValue="getAP"
     :setValue="setAP"
     :borderClass="''"
+    @input="(value) => emit('input', value)"
   />
 </template>

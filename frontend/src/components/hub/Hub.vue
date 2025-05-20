@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { getSkills } from "@/utils/axios/api_routes";
-import { fetchPlayerStats } from "@/utils/axios/db_routes";
+import { fetchPlayerStats, upsertPlayerStats } from "@/utils/axios/db_routes";
 import { usePlayerStore } from "@/store/player";
 import TabContentWrapper from "@/components/common/TabContentWrapper.vue";
 import SkillLevelDisplay from "./SkillLevelDisplay.vue";
 import AchievementPointDisplay from "./AchievementPointDisplay.vue";
 import ItemSelection from "./ItemSelection.vue";
+import debounce from "@/utils/debounce";
 
 const playerStore = usePlayerStore();
 const skills = ref([]);
@@ -26,6 +27,16 @@ onMounted(async () => {
 
   playerStore.setAchievementPoints(playerStatsResponse.achievementPoints ?? 0);
 });
+
+const postPlayerStats = () => {
+  const payload = {
+    ...playerStore.skillLevels,
+    achievementPoints: playerStore.achievementPoints,
+  };
+  upsertPlayerStats(payload);
+};
+
+const updatePlayerStats = debounce(postPlayerStats, 1000);
 </script>
 
 <template>
@@ -36,8 +47,9 @@ onMounted(async () => {
           v-for="skill in skills"
           :key="skill.name"
           :skill="skill"
+          @input="updatePlayerStats"
         />
-        <achievement-point-display />
+        <achievement-point-display @input="updatePlayerStats" />
       </div>
     </div>
     <item-selection />
