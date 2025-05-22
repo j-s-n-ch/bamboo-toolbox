@@ -1,25 +1,50 @@
 import { defineStore } from "pinia";
+import { upsertOwnedItems } from "@/utils/axios/db_routes";
+import debounce from "@/utils/debounce";
 
 export const useItemsStore = defineStore("itemStore", {
   state: () => ({
     itemsByCategory: {},
     ownedItems: {},
+    changedOwnedItems: {},
   }),
   actions: {
     setItems(category, items) {
       this.itemsByCategory[category] = items;
     },
-    toggleItem(itemId, quality = null, quality2 = null) {
-      if (this.ownedItems[itemId]) {
-        delete this.ownedItems[itemId];
-      } else {
-        this.ownedItems[itemId] = { quality, quality2 };
+    setOwned(itemId, data) {
+      this.ownedItems[itemId] = data;
+    },
+    setOwnedItems(items) {
+      items.forEach(({ itemId, ...data }) => this.setOwned(itemId, data));
+    },
+    toggleItem(itemId, owned = true, quality = null, quality2 = null) {
+      this.changedOwnedItems[itemId] = { owned, quality, quality2 };
+      this.scheduleOwnedItemsFlush();
+    },
+    async flushChangedOwnedItems() {
+      const changed = Object.entries(this.changedOwnedItems).map(
+        ([itemId, data]) => {
+          return { itemId, ...data };
+        }
+      );
+      if (changed.length === 0) return;
+
+      try {
+        await upsertOwnedItems({ items: changed });
+        this.setOwned(changed);
+      } catch (error) {
+        console.error("error updating owned items", error);
       }
+
+      this.changedOwnedItems = {};
     },
-    setItemQuality(itemId, quality = null, quality2 = null) {
-      if (!this.ownedItems[itemId]) this.ownedItems[itemId] = {};
-      this.ownedItems[itemId].quality = quality;
-      this.ownedItems[itemId].quality2 = quality2;
-    },
+    scheduleOwnedItemsFlush: debounce(
+      function () {
+        this.flushChangedOwnedItems();
+      },
+      5000,
+      this
+    ),
   },
 });
