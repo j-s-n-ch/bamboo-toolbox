@@ -42,7 +42,7 @@ model OwnedItem {
   userUuid  String
   itemId    String
   owned     Boolean
-  quality1  String?
+  quality   String?
   quality2  String?
 
   user      User   @relation(fields: [userUuid], references: [userUuid])

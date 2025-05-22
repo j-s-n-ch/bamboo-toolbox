@@ -3385,7 +3385,7 @@ export namespace Prisma {
     userUuid: string | null
     itemId: string | null
     owned: boolean | null
-    quality1: string | null
+    quality: string | null
     quality2: string | null
   }
 
@@ -3393,7 +3393,7 @@ export namespace Prisma {
     userUuid: string | null
     itemId: string | null
     owned: boolean | null
-    quality1: string | null
+    quality: string | null
     quality2: string | null
   }
 
@@ -3401,7 +3401,7 @@ export namespace Prisma {
     userUuid: number
     itemId: number
     owned: number
-    quality1: number
+    quality: number
     quality2: number
     _all: number
   }
@@ -3411,7 +3411,7 @@ export namespace Prisma {
     userUuid?: true
     itemId?: true
     owned?: true
-    quality1?: true
+    quality?: true
     quality2?: true
   }
 
@@ -3419,7 +3419,7 @@ export namespace Prisma {
     userUuid?: true
     itemId?: true
     owned?: true
-    quality1?: true
+    quality?: true
     quality2?: true
   }
 
@@ -3427,7 +3427,7 @@ export namespace Prisma {
     userUuid?: true
     itemId?: true
     owned?: true
-    quality1?: true
+    quality?: true
     quality2?: true
     _all?: true
   }
@@ -3508,7 +3508,7 @@ export namespace Prisma {
     userUuid: string
     itemId: string
     owned: boolean
-    quality1: string | null
+    quality: string | null
     quality2: string | null
     _count: OwnedItemCountAggregateOutputType | null
     _min: OwnedItemMinAggregateOutputType | null
@@ -3533,7 +3533,7 @@ export namespace Prisma {
     userUuid?: boolean
     itemId?: boolean
     owned?: boolean
-    quality1?: boolean
+    quality?: boolean
     quality2?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["ownedItem"]>
@@ -3542,7 +3542,7 @@ export namespace Prisma {
     userUuid?: boolean
     itemId?: boolean
     owned?: boolean
-    quality1?: boolean
+    quality?: boolean
     quality2?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["ownedItem"]>
@@ -3551,7 +3551,7 @@ export namespace Prisma {
     userUuid?: boolean
     itemId?: boolean
     owned?: boolean
-    quality1?: boolean
+    quality?: boolean
     quality2?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["ownedItem"]>
@@ -3560,11 +3560,11 @@ export namespace Prisma {
     userUuid?: boolean
     itemId?: boolean
     owned?: boolean
-    quality1?: boolean
+    quality?: boolean
     quality2?: boolean
   }
 
-  export type OwnedItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userUuid" | "itemId" | "owned" | "quality1" | "quality2", ExtArgs["result"]["ownedItem"]>
+  export type OwnedItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userUuid" | "itemId" | "owned" | "quality" | "quality2", ExtArgs["result"]["ownedItem"]>
   export type OwnedItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -3584,7 +3584,7 @@ export namespace Prisma {
       userUuid: string
       itemId: string
       owned: boolean
-      quality1: string | null
+      quality: string | null
       quality2: string | null
     }, ExtArgs["result"]["ownedItem"]>
     composites: {}
@@ -4013,7 +4013,7 @@ export namespace Prisma {
     readonly userUuid: FieldRef<"OwnedItem", 'String'>
     readonly itemId: FieldRef<"OwnedItem", 'String'>
     readonly owned: FieldRef<"OwnedItem", 'Boolean'>
-    readonly quality1: FieldRef<"OwnedItem", 'String'>
+    readonly quality: FieldRef<"OwnedItem", 'String'>
     readonly quality2: FieldRef<"OwnedItem", 'String'>
   }
     
@@ -4474,7 +4474,7 @@ export namespace Prisma {
     userUuid: 'userUuid',
     itemId: 'itemId',
     owned: 'owned',
-    quality1: 'quality1',
+    quality: 'quality',
     quality2: 'quality2'
   };
 
@@ -4723,7 +4723,7 @@ export namespace Prisma {
     userUuid?: StringFilter<"OwnedItem"> | string
     itemId?: StringFilter<"OwnedItem"> | string
     owned?: BoolFilter<"OwnedItem"> | boolean
-    quality1?: StringNullableFilter<"OwnedItem"> | string | null
+    quality?: StringNullableFilter<"OwnedItem"> | string | null
     quality2?: StringNullableFilter<"OwnedItem"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
@@ -4732,7 +4732,7 @@ export namespace Prisma {
     userUuid?: SortOrder
     itemId?: SortOrder
     owned?: SortOrder
-    quality1?: SortOrderInput | SortOrder
+    quality?: SortOrderInput | SortOrder
     quality2?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
   }
@@ -4745,7 +4745,7 @@ export namespace Prisma {
     userUuid?: StringFilter<"OwnedItem"> | string
     itemId?: StringFilter<"OwnedItem"> | string
     owned?: BoolFilter<"OwnedItem"> | boolean
-    quality1?: StringNullableFilter<"OwnedItem"> | string | null
+    quality?: StringNullableFilter<"OwnedItem"> | string | null
     quality2?: StringNullableFilter<"OwnedItem"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "userUuid_itemId">
@@ -4754,7 +4754,7 @@ export namespace Prisma {
     userUuid?: SortOrder
     itemId?: SortOrder
     owned?: SortOrder
-    quality1?: SortOrderInput | SortOrder
+    quality?: SortOrderInput | SortOrder
     quality2?: SortOrderInput | SortOrder
     _count?: OwnedItemCountOrderByAggregateInput
     _max?: OwnedItemMaxOrderByAggregateInput
@@ -4768,7 +4768,7 @@ export namespace Prisma {
     userUuid?: StringWithAggregatesFilter<"OwnedItem"> | string
     itemId?: StringWithAggregatesFilter<"OwnedItem"> | string
     owned?: BoolWithAggregatesFilter<"OwnedItem"> | boolean
-    quality1?: StringNullableWithAggregatesFilter<"OwnedItem"> | string | null
+    quality?: StringNullableWithAggregatesFilter<"OwnedItem"> | string | null
     quality2?: StringNullableWithAggregatesFilter<"OwnedItem"> | string | null
   }
 
@@ -4929,7 +4929,7 @@ export namespace Prisma {
   export type OwnedItemCreateInput = {
     itemId: string
     owned: boolean
-    quality1?: string | null
+    quality?: string | null
     quality2?: string | null
     user: UserCreateNestedOneWithoutItemsInput
   }
@@ -4938,14 +4938,14 @@ export namespace Prisma {
     userUuid: string
     itemId: string
     owned: boolean
-    quality1?: string | null
+    quality?: string | null
     quality2?: string | null
   }
 
   export type OwnedItemUpdateInput = {
     itemId?: StringFieldUpdateOperationsInput | string
     owned?: BoolFieldUpdateOperationsInput | boolean
-    quality1?: NullableStringFieldUpdateOperationsInput | string | null
+    quality?: NullableStringFieldUpdateOperationsInput | string | null
     quality2?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutItemsNestedInput
   }
@@ -4954,7 +4954,7 @@ export namespace Prisma {
     userUuid?: StringFieldUpdateOperationsInput | string
     itemId?: StringFieldUpdateOperationsInput | string
     owned?: BoolFieldUpdateOperationsInput | boolean
-    quality1?: NullableStringFieldUpdateOperationsInput | string | null
+    quality?: NullableStringFieldUpdateOperationsInput | string | null
     quality2?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -4962,14 +4962,14 @@ export namespace Prisma {
     userUuid: string
     itemId: string
     owned: boolean
-    quality1?: string | null
+    quality?: string | null
     quality2?: string | null
   }
 
   export type OwnedItemUpdateManyMutationInput = {
     itemId?: StringFieldUpdateOperationsInput | string
     owned?: BoolFieldUpdateOperationsInput | boolean
-    quality1?: NullableStringFieldUpdateOperationsInput | string | null
+    quality?: NullableStringFieldUpdateOperationsInput | string | null
     quality2?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -4977,7 +4977,7 @@ export namespace Prisma {
     userUuid?: StringFieldUpdateOperationsInput | string
     itemId?: StringFieldUpdateOperationsInput | string
     owned?: BoolFieldUpdateOperationsInput | boolean
-    quality1?: NullableStringFieldUpdateOperationsInput | string | null
+    quality?: NullableStringFieldUpdateOperationsInput | string | null
     quality2?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -5211,7 +5211,7 @@ export namespace Prisma {
     userUuid?: SortOrder
     itemId?: SortOrder
     owned?: SortOrder
-    quality1?: SortOrder
+    quality?: SortOrder
     quality2?: SortOrder
   }
 
@@ -5219,7 +5219,7 @@ export namespace Prisma {
     userUuid?: SortOrder
     itemId?: SortOrder
     owned?: SortOrder
-    quality1?: SortOrder
+    quality?: SortOrder
     quality2?: SortOrder
   }
 
@@ -5227,7 +5227,7 @@ export namespace Prisma {
     userUuid?: SortOrder
     itemId?: SortOrder
     owned?: SortOrder
-    quality1?: SortOrder
+    quality?: SortOrder
     quality2?: SortOrder
   }
 
@@ -5570,14 +5570,14 @@ export namespace Prisma {
   export type OwnedItemCreateWithoutUserInput = {
     itemId: string
     owned: boolean
-    quality1?: string | null
+    quality?: string | null
     quality2?: string | null
   }
 
   export type OwnedItemUncheckedCreateWithoutUserInput = {
     itemId: string
     owned: boolean
-    quality1?: string | null
+    quality?: string | null
     quality2?: string | null
   }
 
@@ -5655,7 +5655,7 @@ export namespace Prisma {
     userUuid?: StringFilter<"OwnedItem"> | string
     itemId?: StringFilter<"OwnedItem"> | string
     owned?: BoolFilter<"OwnedItem"> | boolean
-    quality1?: StringNullableFilter<"OwnedItem"> | string | null
+    quality?: StringNullableFilter<"OwnedItem"> | string | null
     quality2?: StringNullableFilter<"OwnedItem"> | string | null
   }
 
@@ -5742,28 +5742,28 @@ export namespace Prisma {
   export type OwnedItemCreateManyUserInput = {
     itemId: string
     owned: boolean
-    quality1?: string | null
+    quality?: string | null
     quality2?: string | null
   }
 
   export type OwnedItemUpdateWithoutUserInput = {
     itemId?: StringFieldUpdateOperationsInput | string
     owned?: BoolFieldUpdateOperationsInput | boolean
-    quality1?: NullableStringFieldUpdateOperationsInput | string | null
+    quality?: NullableStringFieldUpdateOperationsInput | string | null
     quality2?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OwnedItemUncheckedUpdateWithoutUserInput = {
     itemId?: StringFieldUpdateOperationsInput | string
     owned?: BoolFieldUpdateOperationsInput | boolean
-    quality1?: NullableStringFieldUpdateOperationsInput | string | null
+    quality?: NullableStringFieldUpdateOperationsInput | string | null
     quality2?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OwnedItemUncheckedUpdateManyWithoutUserInput = {
     itemId?: StringFieldUpdateOperationsInput | string
     owned?: BoolFieldUpdateOperationsInput | boolean
-    quality1?: NullableStringFieldUpdateOperationsInput | string | null
+    quality?: NullableStringFieldUpdateOperationsInput | string | null
     quality2?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
