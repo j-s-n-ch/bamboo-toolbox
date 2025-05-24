@@ -85,20 +85,19 @@ const handleActivityChange = (activity) => {
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .tab-content {
   flex-grow: 1;
 
   display: flex;
   flex-direction: column;
-  gap: variables.$xlg;
+  gap: $xlg;
 }
 
 .row {
   display: flex;
   align-items: center;
-  gap: variables.$base;
+  gap: $base;
 }
 
 .label-wrapper {
@@ -106,9 +105,9 @@ const handleActivityChange = (activity) => {
   flex-direction: column;
   align-items: flex-start;
 
-  gap: variables.$xxs;
+  gap: $xxs;
   .label {
-    margin-left: variables.$xxs;
+    margin-left: $xxs;
   }
 }
 </style>

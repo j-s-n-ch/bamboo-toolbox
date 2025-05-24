@@ -52,7 +52,6 @@ const handleClick = (item) => {
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .search-wrapper {
   width: 100%;
@@ -75,12 +74,12 @@ const handleClick = (item) => {
 
     justify-content: center;
 
-    padding: variables.$xs;
-    border: 2px solid variables.$chipOutline;
+    padding: $xs;
+    border: 2px solid $chipOutline;
     cursor: pointer;
 
     &:hover {
-      background-color: variables.$chipBackground;
+      background-color: $chipBackground;
     }
   }
 }

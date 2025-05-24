@@ -92,24 +92,23 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .dropdown-main {
   cursor: pointer;
 
   width: var(--dropdown-width);
 
-  background-color: variables.$boxTransparentDarkOutline;
-  border: 1px solid variables.$boxPrimaryOutline;
-  border-radius: variables.$md;
+  background-color: $boxTransparentDarkOutline;
+  border: 1px solid $boxPrimaryOutline;
+  border-radius: $md;
 
   .el-dropdown {
     width: var(--dropdown-width);
-    padding: variables.$xs;
+    padding: $xs;
   }
 
   span {
-    color: variables.$txPrimary;
+    color: $txPrimary;
   }
 }
 

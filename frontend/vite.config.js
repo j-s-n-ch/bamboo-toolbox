@@ -13,6 +13,16 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "happy-dom",
-    setupFiles: './vitest.setup.js',
+    setupFiles: "./vitest.setup.js",
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler',
+        additionalData: `
+          @use "@/styles/variables" as *;
+        `,
+      },
+    },
   },
 });

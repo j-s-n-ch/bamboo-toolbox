@@ -15,18 +15,17 @@ const props = defineProps({
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .bubble-wrapper {
   width: fit-content;
 
   display: flex;
-  gap: variables.$xs;
-  border-radius: variables.$sm;
-  padding: variables.$xxxxs variables.$xxxs;
+  gap: $xs;
+  border-radius: $sm;
+  padding: $xxxxs $xxxs;
 
-  border: 2px solid variables.$boxPrimaryOutline;
-  background-color: variables.$boxPrimaryBackground;
+  border: 2px solid $boxPrimaryOutline;
+  background-color: $boxPrimaryBackground;
 }
 
 .text {

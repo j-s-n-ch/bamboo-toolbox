@@ -8,7 +8,12 @@
   src: url("/fonts/worksans/WorkSans-SemiBold.ttf") format("truetype");
 }
 
-@mixin typography-base($font-size, $font-weight, $line-height, $letter-spacing) {
+@mixin typography-base(
+  $font-size,
+  $font-weight,
+  $line-height,
+  $letter-spacing
+) {
   font-size: $font-size;
   font-weight: $font-weight;
   line-height: $line-height;
@@ -41,3 +46,5 @@
   @include typography-base(0.75rem, 600, 1.125, 0.06em);
   text-transform: uppercase;
 }
+
+$font-family: "Notototo", "Worksans", Helvetica, Arial, sans-serif;

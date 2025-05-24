@@ -1,10 +1,8 @@
-@use './utils/variables.scss';
-@use './globals/typography.scss';
-@forward './utils/variables';
-@forward './utils/mixins';
+@use "@/styles/globals/typography.scss";
+@use "@/styles/variables";
 
 :root {
-  font-family: variables.$font-family;
+  font-family: typography.$font-family;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -16,13 +14,19 @@
   color: variables.$txPrimary;
 }
 
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-h1, h2, h3, p, ul {
+h1,
+h2,
+h3,
+p,
+ul {
   margin: 0;
   padding: 0;
 }
@@ -38,7 +42,7 @@ button,
 input,
 select,
 textarea {
-  font-family: variables.$font-family;
+  font-family: typography.$font-family;
   @extend %typography-body1;
   background-color: variables.$bgPrimary;
   color: variables.$txPrimary;
