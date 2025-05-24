@@ -11,14 +11,13 @@ const emit = defineEmits(['click']);
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .tab {                                     
   width: 100%;
-  padding: variables.$xxxlg;
+  padding: $xxxlg;
 }
 
 .tab:hover {
-  background-color: variables.$boxPrimaryBackground;
+  background-color: $boxPrimaryBackground;
 }
 </style>

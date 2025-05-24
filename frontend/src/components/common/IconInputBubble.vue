@@ -33,20 +33,19 @@ const value = computed({
 </template>
 
 <style scoped lang="scss">
-@use "@/styles/utils/variables.scss";
 
 .wrapper {
   display: flex;
-  padding: variables.$xs;
-  gap: variables.$xs;
-  border-radius: variables.$xs;
+  padding: $xs;
+  gap: $xs;
+  border-radius: $xs;
   border: solid 1px white;
-  background: variables.$boxDarkBackground;
+  background: $boxDarkBackground;
 }
 
 .input {
-  color: variables.$txLighter;
-  background: variables.$boxPrimaryBackground;
+  color: $txLighter;
+  background: $boxPrimaryBackground;
 }
 
 input[type="number"]::-webkit-outer-spin-button,

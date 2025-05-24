@@ -54,9 +54,7 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
-@forward "styles/app";
-@forward "styles/globals/typography";
-@forward "styles/globals/tailorings";
+@use "styles/app";
 
 .mobile-layout {
   display: flex;

@@ -31,16 +31,15 @@ watch(() => activityStore.activity.value, loadActivity);
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .activity-wrapper {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 
-  padding: variables.$md;
-  border-radius: variables.$md;
-  background-color: variables.$boxTransparentDarkBackground;
-  border: 2px solid variables.$boxTransparentDarkOutline;
+  padding: $md;
+  border-radius: $md;
+  background-color: $boxTransparentDarkBackground;
+  border: 2px solid $boxTransparentDarkOutline;
 }
 </style>

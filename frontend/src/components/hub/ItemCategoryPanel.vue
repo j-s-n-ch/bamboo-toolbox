@@ -72,25 +72,24 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .header {
   cursor: pointer;
   display: flex;
   justify-content: space-between;
-  background: variables.$boxPrimaryBackground;
+  background: $boxPrimaryBackground;
 
-  border: 1px solid variables.$bgPrimary;
-  padding: variables.$xxs;
+  border: 1px solid $bgPrimary;
+  padding: $xxs;
   color: white;
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: variables.$xxxs;
+  gap: $xxxs;
 
-  background: variables.$boxDarkOutline;
-  padding: variables.$xxxxs;
+  background: $boxDarkOutline;
+  padding: $xxxxs;
 }
 </style>

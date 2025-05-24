@@ -74,12 +74,11 @@ console.log(props.activityInfo);
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .info-card-wrapper {
   display: flex;
   align-items: center;
-  gap: variables.$lg;
+  gap: $lg;
 
   width: 100%;
 }
@@ -88,7 +87,7 @@ console.log(props.activityInfo);
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: variables.$md;
+  gap: $md;
 }
 
 .row {
@@ -99,11 +98,11 @@ console.log(props.activityInfo);
 
 .skill-bubbles {
   display: flex;
-  gap: variables.$sm;
+  gap: $sm;
 }
 
 .keyword-list {
-  padding-left: variables.$lg;
+  padding-left: $lg;
   text-align: start;
 }
 </style>

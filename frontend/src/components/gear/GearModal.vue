@@ -84,7 +84,6 @@ const handleSelectQuality = async (id, quality) => {
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .backdrop {
   position: fixed;
@@ -106,11 +105,11 @@ const handleSelectQuality = async (id, quality) => {
   width: 100%;
   max-width: 550px;
   padding: 0;
-  background-color: variables.$boxDarkBackground;
-  border: 2px solid variables.$boxDarkOutline;
+  background-color: $boxDarkBackground;
+  border: 2px solid $boxDarkOutline;
 
-  border-top-left-radius: variables.$base;
-  border-top-right-radius: variables.$base;
+  border-top-left-radius: $base;
+  border-top-right-radius: $base;
   z-index: 1001;
 
   display: flex;
@@ -150,33 +149,33 @@ const handleSelectQuality = async (id, quality) => {
 .tab-navigation {
   display: flex;
   justify-content: center;
-  margin-bottom: variables.$base;
+  margin-bottom: $base;
 
   button {
     flex-grow: 1;
-    background-color: variables.$boxDarkBackground;
-    padding: variables.$base variables.$base variables.$xs;
+    background-color: $boxDarkBackground;
+    padding: $base $base $xs;
     border: none;
     cursor: pointer;
-    color: variables.$txPrimary;
+    color: $txPrimary;
 
     &:first-child {
-      border-top-left-radius: variables.$base;
+      border-top-left-radius: $base;
     }
 
     &:last-child {
-      border-top-right-radius: variables.$base;
+      border-top-right-radius: $base;
     }
   }
 
   button.active {
     font-weight: bold;
-    color: variables.$txLighter;
-    border-bottom: 2px solid variables.$txLighter;
+    color: $txLighter;
+    border-bottom: 2px solid $txLighter;
   }
 
   button:hover {
-    background-color: variables.$chipBackground;
+    background-color: $chipBackground;
   }
 
   .close-button {

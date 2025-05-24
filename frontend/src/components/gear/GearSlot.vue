@@ -59,14 +59,13 @@ const handleClick = () => emit("select", props.gearType, storeKey);
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .gear-slot-wrapper {
   width: 80px;
   height: 80px;
-  background-color: variables.$boxDarkBackground;
-  border: 1px solid variables.$boxDarkOutline;
-  border-radius: variables.$md;
+  background-color: $boxDarkBackground;
+  border: 1px solid $boxDarkOutline;
+  border-radius: $md;
 
   cursor: pointer;
   overflow: hidden;
@@ -82,6 +81,6 @@ const handleClick = () => emit("select", props.gearType, storeKey);
 }
 
 .label {
-  margin-top: variables.$md;
+  margin-top: $md;
 }
 </style>

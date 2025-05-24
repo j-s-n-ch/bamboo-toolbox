@@ -7,7 +7,6 @@
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .tab-wrapper {
   width: 100%;
@@ -17,10 +16,10 @@
   display: flex;
   flex-direction: column;
 
-  background-color: variables.$boxDarkBackground;
+  background-color: $boxDarkBackground;
 
-  padding: variables.$xlg;
-  border-radius: variables.$base;
-  border: 2px solid variables.$boxDarkOutline;
+  padding: $xlg;
+  border-radius: $base;
+  border: 2px solid $boxDarkOutline;
 }
 </style>

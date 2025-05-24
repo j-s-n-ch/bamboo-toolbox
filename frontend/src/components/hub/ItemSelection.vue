@@ -65,19 +65,18 @@ function toggleCategory(category) {
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: variables.$base;
+  margin-top: $base;
 
   .detail-groups {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: variables.$base;
+    margin-top: $base;
   }
 }
 

@@ -78,31 +78,41 @@ const updateQuality = () => {
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .item-entry {
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  cursor: pointer;
+  background-color: $boxDarkBackground;
+  border-radius: $sm;
+  border: 1px solid $bgPrimary;
 
-  background-color: variables.$boxDarkBackground;
-  border-radius: variables.$sm;
-  border: 1px solid variables.$bgPrimary;
-
-  padding: variables.$xxxs variables.$xxs;
+  padding: $xxxs $xxs;
 
   .base-info {
     display: flex;
     align-items: center;
-    gap: variables.$xxs;
+    gap: $xxs;
+    cursor: pointer;
+  }
+
+  .quality-and-attributes {
+    display: flex;
+    align-items: center;
+    gap: $xs;
+
+    .toggle {
+      cursor: pointer;
+      padding: 0 $xs;
+      color: $txPrimary !important;
+    }
   }
 
   .quality-inputs {
     display: flex;
-    align-items: flex;
-    gap: variables.$xs;
+    align-items: center;
+    gap: $xs;
   }
 }
 </style>

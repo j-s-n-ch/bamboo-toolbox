@@ -76,7 +76,6 @@ const updateVisible = (visibility) => {
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .tab-content {
   flex-grow: 1;
@@ -89,28 +88,28 @@ const updateVisible = (visibility) => {
 
   display: flex;
   flex-direction: column;
-  gap: variables.$xlg;
+  gap: $xlg;
 }
 
 .items {
   display: flex;
 
-  gap: variables.$xxxlg;
+  gap: $xxxlg;
 
   .left {
     align-items: flex-end;
   }
 
   .middle {
-    margin-top: variables.$xxxlg;
+    margin-top: $xxxlg;
   }
 
   .primary {
-    margin-right: variables.$xxxlg;
+    margin-right: $xxxlg;
   }
 
   .secondary {
-    margin-left: variables.$xxxlg;
+    margin-left: $xxxlg;
   }
 }
 
@@ -118,7 +117,7 @@ const updateVisible = (visibility) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: variables.$lg;
+  gap: $lg;
   flex-wrap: wrap;
 
   .tool-wrapper {
@@ -133,11 +132,11 @@ const updateVisible = (visibility) => {
 .column {
   display: flex;
   flex-direction: column;
-  gap: variables.$xlg;
+  gap: $xlg;
 }
 
 .row {
   display: flex;
-  gap: variables.$xxxlg;
+  gap: $xxxlg;
 }
 </style>

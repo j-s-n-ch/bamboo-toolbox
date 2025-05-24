@@ -57,14 +57,13 @@ const updatePlayerStats = debounce(postPlayerStats, 1000);
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .tab-content {
   flex-grow: 1;
 
   display: flex;
   flex-direction: column;
-  gap: variables.$xlg;
+  gap: $xlg;
   justify-content: center;
 }
 
@@ -73,7 +72,7 @@ const updatePlayerStats = debounce(postPlayerStats, 1000);
   grid-template-columns: repeat(3, max-content);
   justify-content: center;
 
-  column-gap: variables.$md;
-  row-gap: variables.$md;
+  column-gap: $md;
+  row-gap: $md;
 }
 </style>

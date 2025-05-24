@@ -95,7 +95,6 @@ const handleQualityChange = (quality) => {
 </template>
 
 <style lang="scss" scoped>
-@use "@/styles/utils/variables.scss";
 
 .preview-wrapper {
   display: flex;
@@ -103,10 +102,10 @@ const handleQualityChange = (quality) => {
   align-items: center;
 
   .base-info {
-    padding: variables.$md;
+    padding: $md;
     display: flex;
     align-items: center;
-    gap: variables.$md;
+    gap: $md;
   }
 }
 
@@ -115,9 +114,9 @@ const handleQualityChange = (quality) => {
   flex-direction: column;
   align-items: flex-start;
 
-  gap: variables.$xxs;
+  gap: $xxs;
   .label {
-    margin-left: variables.$xxs;
+    margin-left: $xxs;
   }
 }
 </style>
