@@ -26,9 +26,10 @@ export const sumAttrs = (itemAttrs, qualityAttrs, quality) => {
         return;
       }
 
-      attrs[prev].stats[0].value =
-        Math.round(100 * attrs[prev].stats[0].value + 100 * stat.value) / 100;
-      attrs[prev].stats[0].isNegative = attrs[prev].stats[0].value < 0;
+      const oldStat = attrs[prev].stats[0]
+      oldStat.value =
+        Math.round(100 * oldStat.value + 100 * stat.value) / 100;
+        oldStat.isNegative = oldStat.isNegative && oldStat.value < 0;
     });
   }
 
