@@ -1,5 +1,6 @@
 import { createApp } from "vue";
-import { createPinia } from 'pinia';
+import { createPinia } from "pinia";
+import directives from "@/directives";
 import App from "./App.vue";
 
 // Import Element Plus and its CSS
@@ -11,5 +12,9 @@ const pinia = createPinia();
 
 app.use(pinia);
 app.use(ElementPlus);
+
+Object.entries(directives).forEach(([name, directive]) => {
+  app.directive(name, directive);
+});
 
 app.mount("#app");
