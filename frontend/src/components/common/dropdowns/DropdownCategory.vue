@@ -1,7 +1,7 @@
 
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import LabelWithIcon from "../LabelWithIcon.vue";
 import DropdownItem from "./DropdownItem.vue";
 
@@ -10,6 +10,7 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  forceOpen: { type: Boolean, default: false },
   noBorder: {
     type: Boolean,
     default: false,
@@ -27,6 +28,14 @@ function toggle() {
 function handleSelect(item) {
   emit("select", item);
 }
+
+watch(
+  () => props.forceOpen,
+  (val) => {
+    if (val) isOpen.value = true;
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
