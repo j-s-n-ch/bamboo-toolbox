@@ -1,9 +1,7 @@
 <script setup>
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import { useGearStore } from "@/store/gear";
-import { useActivityStore } from "@/store/activity";
 import { storeToRefs } from "pinia";
-import { getItem, searchItems } from "@/utils/axios/api_routes";
 import WsIcon from "@/components/common/WsIcon.vue";
 
 const emit = defineEmits(["select"]);
@@ -18,9 +16,6 @@ const props = defineProps({
   },
 });
 
-const activityStore = useActivityStore();
-const { skill } = storeToRefs(activityStore);
-
 const gearStore = useGearStore();
 const storeRefs = storeToRefs(gearStore);
 const getDynamicRef = (key) => computed(() => storeRefs[key]);
@@ -29,24 +24,8 @@ const storeKey = props.index
   ? `${props.gearType}${props.index}`
   : props.gearType;
 const gearRef = getDynamicRef(storeKey);
-// const itemRef = ref(null);
-
-const itemSearch = async ({ searchKey } = {}) => {
-  const types = gearStore.getSlotTypes(storeKey);
-  const gearType = ["service", "consumable", "potion"].includes(props.gearType)
-    ? null
-    : props.gearType;
-  // const searchEndpoint = search;
-  searchItems({ types, search: searchKey, gearType: gearType }).then(
-    ({ data }) => {
-      return data;
-    }
-  );
-};
 
 const handleClick = () => emit("select", props.gearType, storeKey);
-
-// itemSearch();
 </script>
 
 <template>
@@ -59,7 +38,6 @@ const handleClick = () => emit("select", props.gearType, storeKey);
 </template>
 
 <style lang="scss" scoped>
-
 .gear-slot-wrapper {
   width: 80px;
   height: 80px;
@@ -82,5 +60,6 @@ const handleClick = () => emit("select", props.gearType, storeKey);
 
 .label {
   margin-top: $md;
+  text-align: center;
 }
 </style>
