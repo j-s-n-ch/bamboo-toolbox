@@ -26,9 +26,8 @@ const selected = ref("");
 const searchTerm = ref("");
 
 onMounted(() => {
-  const noneOption = props.data
-    .filter(({ value }) => value === "None")
-  if (noneOption.length) selected.value = noneOption[0];
+  const noneOption = props.data.filter(({ value }) => value === "None");
+  if (noneOption.length) selectItem(noneOption[0]);
 });
 
 const toggle = () => {
