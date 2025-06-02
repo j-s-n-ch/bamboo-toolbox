@@ -1,6 +1,9 @@
 <script setup>
-import { ref, useTemplateRef } from "vue";
+import { ref, computed } from "vue";
 import { useGearStore } from "@/store/gear";
+import { useItemsStore } from "@/store/items";
+import { useActivityStore } from "@/store/activity";
+import { showItemForActivity } from "@/utils/gear";
 import WsIcon from "@/components/common/WsIcon.vue";
 
 const props = defineProps({
@@ -17,27 +20,53 @@ const props = defineProps({
 const emit = defineEmits(["selectItem"]);
 
 const gearStore = useGearStore();
-const searchValue = useTemplateRef("");
-const itemOptions = ref([]);
+const itemsStore = useItemsStore();
+const activityStore = useActivityStore();
 
-const search = async ({ gt, searchKey }) =>
-  await gearStore.itemSearch({ gearType: gt, searchKey }).then((data) => {
-    itemOptions.value = data;
-  });
+const searchTerm = ref("");
+const slotItems = Object.values(itemsStore.allItems).filter(
+  ({ gearType }) => gearType === props.gearType
+);
 
-search({ gt: props.gearType });
+const filteredItems = computed(() => {
+  const activity = activityStore.activity;
+  const term = searchTerm.value.trim().toLowerCase();
+  const useOwned = gearStore.useOwned;
+
+  const filterActivity = (item) => {
+    const { id } = item;
+    const owned = id in itemsStore.ownedItems;
+    const quality = owned ? itemsStore.ownedItems[id].quality : item.quality;
+    return showItemForActivity(item, activity, quality);
+  };
+  const filterSearch = ({ name }) =>
+    (term && name.toLowerCase().includes(term)) || !term;
+  const filterOwned = (item) =>
+    (useOwned && item.id in itemsStore.ownedItems) || !useOwned;
+
+  return slotItems.filter(
+    (item) => filterActivity(item) && filterSearch(item) && filterOwned(item)
+  );
+});
 
 const handleClick = (item) => {
-  emit("selectItem", item.id, item.quality);
-} 
+  emit("selectItem", item.id);
+};
 </script>
 
 <template>
   <div class="search-wrapper">
-    <el-input placeholder="Filter..." v-model="searchValue" />
+    <input
+      v-focus
+      ref="searchInput"
+      v-model="searchTerm"
+      type="text"
+      placeholder="Search..."
+      class="gear-search"
+    />
     <div class="items-wrapper">
       <div
-        v-for="item in itemOptions"
+        v-for="item in filteredItems"
         :key="item"
         class="item"
         @click="handleClick(item)"
@@ -52,13 +81,14 @@ const handleClick = (item) => {
 </template>
 
 <style lang="scss" scoped>
-
-.search-wrapper {
+.gear-search {
   width: 100%;
-  display: flex;
-  flex-direction: column;
+  padding: $sm;
+  border-bottom: 1px solid $boxPrimaryOutline;
 
-  height: 100%;
+  &:focus {
+    outline: 1px solid $chipOutline;
+  }
 }
 
 .items-wrapper {
