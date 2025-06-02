@@ -10,7 +10,7 @@ export const useActivityStore = defineStore("activity", {
       this.activity = activity;
     },
     async loadActivity(id) {
-      const activity = await getActivity({ id });
+      const { data: activity } = await getActivity({ id });
       this.setActivity(activity);
     },
   },
