@@ -32,7 +32,7 @@ const handleClick = () => emit("select", props.gearType, storeKey);
   <div class="gear-slot-wrapper" @click="handleClick">
     <p v-if="!gearRef.value" class="typography-label label">{{ gearType }}</p>
     <div v-else class="content">
-      <ws-icon :icon-path="gearRef.value.itemIcon" size="xl" />
+      <ws-icon :icon-path="gearRef.value.icon" size="xl" />
     </div>
   </div>
 </template>

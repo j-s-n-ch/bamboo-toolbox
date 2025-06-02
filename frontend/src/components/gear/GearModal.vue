@@ -40,14 +40,10 @@ const selectTab = (index) => {
 // Track which tab is selected
 const selectedTab = ref(gearStore.slotFilled(props.slotName) ? 0 : 1);
 
-const handleSelectItem = async (id, quality) => {
-  await gearStore.loadItem(props.slotName, id, quality);
+const handleSelectItem = async (id) => {
+  await gearStore.loadItem(props.slotName, id);
   selectTab(0);
 };
-
-const handleSelectQuality = async (id, quality) => {
-  await gearStore.loadItem(props.slotName, id, quality);
-}
 </script>
 
 <template>
@@ -76,7 +72,6 @@ const handleSelectQuality = async (id, quality) => {
           :gear-type="gearType"
           :slot-name="slotName"
           @select-item="handleSelectItem"
-          @select-quality="handleSelectQuality"
         />
       </div>
     </div>
@@ -84,7 +79,6 @@ const handleSelectQuality = async (id, quality) => {
 </template>
 
 <style lang="scss" scoped>
-
 .backdrop {
   position: fixed;
   top: 0;
