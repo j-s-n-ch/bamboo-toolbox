@@ -40,12 +40,9 @@ export function getCategorizedItems() {
   });
 }
 
-export function getItem({ name, id, quality }) {
+export function getItem({ id }) {
   return proxy({
-    url: "items/",
-    options: {
-      params: { name, id, quality },
-    },
+    url: `items/id/${id}`,
   });
 }
 
