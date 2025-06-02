@@ -29,7 +29,7 @@ function handleClick() {
   background-color: $boxTransparentDarkBackground;
 
   &:hover {
-    background-color: #eef3fc;
+    background-color: $chipBackground;
   }
 }
 </style>
