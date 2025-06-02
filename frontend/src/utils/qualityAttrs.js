@@ -1,7 +1,10 @@
 import { qualityOptions } from "@/utils/quality";
 
 export const sumAttrs = (itemAttrs, qualityAttrs, quality) => {
-  const qIndex = qualityOptions.findIndex(({ value }) => value === quality);
+  const qIndex = Math.min(
+    qualityAttrs.length,
+    qualityOptions.findIndex(({ value }) => value === quality)
+  );
 
   const attrs = [...itemAttrs.slice()].map((attribute) => {
     return {
@@ -26,10 +29,9 @@ export const sumAttrs = (itemAttrs, qualityAttrs, quality) => {
         return;
       }
 
-      const oldStat = attrs[prev].stats[0]
-      oldStat.value =
-        Math.round(100 * oldStat.value + 100 * stat.value) / 100;
-        oldStat.isNegative = oldStat.isNegative && oldStat.value < 0;
+      const oldStat = attrs[prev].stats[0];
+      oldStat.value = Math.round(100 * oldStat.value + 100 * stat.value) / 100;
+      oldStat.isNegative = oldStat.isNegative && oldStat.value < 0;
     });
   }
 
