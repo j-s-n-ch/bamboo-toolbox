@@ -1,29 +1,25 @@
+import { createBaseRouter } from "./baseRouter.js";
+
 import { Router } from "express";
-import { achievementRoutes } from "./achievementRoutes.js";
-import { activityRoutes } from "./activityRoutes.js";
 import { dbRoutes } from "./dbRoutes.js";
 import { itemRoutes } from "./itemRoutes.js";
-import { keywordRoutes } from "./keywordRoutes.js";
-import { lootTableRoutes } from "./lootTableRoutes.js";
-import { rewardRoutes } from "./rewardsRoutes.js";
-import { shopRoutes } from "./shopRoutes.js";
-import { skillRoutes } from "./skillRoutes.js";
-import { statRoutes } from "./statRoutes.js";
 import iconRoutes from "./iconRoutes.js";
+import {
+  activityService,
+  keywordService,
+  skillService,
+  statService,
+} from "../services/index.js";
 
 export function registerRoutes(app) {
   const apiRouter = Router();
 
-  apiRouter.use("/achievements", achievementRoutes);
-  apiRouter.use("/activities", activityRoutes);
+  apiRouter.use("/activities", createBaseRouter("Activity", activityService));
   apiRouter.use("/icons", iconRoutes);
   apiRouter.use("/items", itemRoutes);
-  apiRouter.use("/keywords", keywordRoutes)
-  apiRouter.use("/loot_tables", lootTableRoutes);
-  apiRouter.use("/rewards", rewardRoutes);
-  apiRouter.use("/shops", shopRoutes);
-  apiRouter.use("/skills", skillRoutes);
-  apiRouter.use("/stats", statRoutes);
+  apiRouter.use("/keywords", createBaseRouter("Keyword", keywordService));
+  apiRouter.use("/skills", createBaseRouter("Skill", skillService));
+  apiRouter.use("/stats", createBaseRouter("Stat", statService));
 
   const dbRouter = Router();
   dbRouter.use("/", dbRoutes);
