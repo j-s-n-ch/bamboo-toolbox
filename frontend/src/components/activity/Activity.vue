@@ -1,22 +1,26 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useActivityStore } from "@/store/activity";
+import {
+  getSkills,
+  getActivities,
+  getKeywords,
+} from "@/utils/axios/api_routes";
 import TabContentWrapper from "../common/TabContentWrapper.vue";
 import NestedDropdown from "@/components/common/dropdowns/NestedDropdown.vue";
-import { getSkills, getActivities } from "@/utils/axios/api_routes";
+import ActivityInfo from "./ActivityInfo.vue";
 
 const activityStore = useActivityStore();
 
 const skills = ref([]);
+const keywords = ref([]);
 const isLoading = ref(true);
 
 const activitiesBySkill = ref([]);
 
 onMounted(async () => {
-  const [skillsResponse, activitiesResponse] = await Promise.all([
-    getSkills(),
-    getActivities(),
-  ]);
+  const [skillsResponse, activitiesResponse, keywordsResponse] =
+    await Promise.all([getSkills(), getActivities(), getKeywords()]);
 
   const { data: skillList } = skillsResponse;
   skills.value = skillList.map(({ name, id, icon }) => ({
@@ -24,6 +28,9 @@ onMounted(async () => {
     value: id,
     icon,
   }));
+
+  const { data: keywordList } = keywordsResponse;
+  keywords.value = keywordList;
 
   const { data: activities } = activitiesResponse;
 
@@ -64,6 +71,11 @@ const selectActivity = (activity) => {
       label="Activity"
       :data="activitiesBySkill"
       @select="selectActivity"
+    />
+    <activity-info
+      v-if="activityStore.activitySelected"
+      :activity="activityStore.activity"
+      :keywords="keywords"
     />
   </tab-content-wrapper>
 </template>
