@@ -17,22 +17,20 @@ const props = defineProps({
 });
 
 const gearStore = useGearStore();
-const storeRefs = storeToRefs(gearStore);
-const getDynamicRef = (key) => computed(() => storeRefs[key]);
 
 const storeKey = props.index
   ? `${props.gearType}${props.index}`
   : props.gearType;
-const gearRef = getDynamicRef(storeKey);
+const gearRef = computed(() => gearStore.gearSlots[storeKey]);
 
 const handleClick = () => emit("select", props.gearType, storeKey);
 </script>
 
 <template>
   <div class="gear-slot-wrapper" @click="handleClick">
-    <p v-if="!gearRef.value" class="typography-label label">{{ gearType }}</p>
+    <p v-if="!gearRef" class="typography-label label">{{ gearType }}</p>
     <div v-else class="content">
-      <ws-icon :icon-path="gearRef.value.icon" size="xl" />
+      <ws-icon :icon-path="gearRef.icon" size="xl" />
     </div>
   </div>
 </template>
