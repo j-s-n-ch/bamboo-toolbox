@@ -1,6 +1,7 @@
 <script setup>
 import TabContentWrapper from "@/components/common/TabContentWrapper.vue";
 import GearSelection from "./GearSelection.vue";
+import Stats from "../stats/Stats.vue";
 import { useGearStore } from "@/store/gear";
 
 const gearStore = useGearStore();
@@ -21,8 +22,8 @@ const gearStore = useGearStore();
       </section>
     </details>
     <details open>
-      <summary>Stats</summary>
-      <section class="stats"></section>
+      <summary>Skill Modifiers</summary>
+      <stats />
     </details>
   </tab-content-wrapper>
 </template>
