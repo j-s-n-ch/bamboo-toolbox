@@ -5,7 +5,7 @@ import { intersect } from "./intersect";
 export const showItemForActivity = (itemProxy, activity, quality) => {
   const item = getRawData(itemProxy);
 
-  const skill = activity.relatedSkillsList.length
+  const skill = activity?.relatedSkillsList.length
     ? activity.relatedSkillsList[0]
     : null;
   const skillReq = checksSkillRequirements(item, skill);
@@ -17,6 +17,7 @@ export const showItemForActivity = (itemProxy, activity, quality) => {
 };
 
 const usefulKeywords = (item, activity) => {
+  if (!activity) return false;
   const { requiredKeywords: kw } = activity;
   if (!kw) return false;
   const kws = kw.map(({ keyword }) => keyword);
@@ -24,9 +25,14 @@ const usefulKeywords = (item, activity) => {
 };
 
 const usefulAttrs = (item, activity, quality, isRecipe) => {
-  const { id } = activity;
-  const isTravel = id === "activity-travelling";
-  const skill = activity.relatedSkillsList.length
+  const baseAttrs = sumAttrs(
+    item.itemAttrs,
+    item.itemQualityAttrs || [],
+    quality
+  );
+
+  const isTravel = activity?.id === "activity-travelling";
+  const skill = activity?.relatedSkillsList.length
     ? activity.relatedSkillsList[0]
     : null;
 
@@ -53,18 +59,13 @@ const usefulAttrs = (item, activity, quality, isRecipe) => {
     });
   };
 
-  const attrs = sumAttrs(
-    item.itemAttrs,
-    item.itemQualityAttrs || [],
-    quality
-  ).filter((attr) => {
+  return baseAttrs.filter((attr) => {
     const co = filterCO(attr);
     const global = filterGlobal(attr);
     const skill = filterSkill(attr);
 
     return co && (global || skill);
   });
-  return attrs;
 };
 
 const checksSkillRequirements = (item, skill) => {
