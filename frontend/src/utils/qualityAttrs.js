@@ -2,7 +2,7 @@ import { qualityOptions } from "@/utils/quality";
 
 export const sumAttrs = (itemAttrs, qualityAttrs, quality) => {
   const qIndex = Math.min(
-    qualityAttrs.length,
+    qualityAttrs?.length || 0,
     qualityOptions.findIndex(({ value }) => value === quality)
   );
 
