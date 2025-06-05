@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from "vue";
 import Tab from "./Tab.vue";
 
 const props = defineProps({
@@ -9,20 +10,23 @@ const props = defineProps({
 });
 const emit = defineEmits(["selectTab"]);
 
+const activeTab = ref(0);
 const tabNames = Object.keys(props.tabs);
 
-const changeTab = (tabName) => {
-  emit("selectTab", tabName);
+const changeTab = (index) => {
+  activeTab.value = index;
+  emit("selectTab", tabNames[index]);
 };
 </script>
 
 <template>
   <div class="footer">
     <tab
-      v-for="name in tabNames"
+      v-for="(name, index) in tabNames"
       :key="name"
+      :active="activeTab === index"
       :name="name"
-      @click="changeTab"
+      @click="changeTab(index)"
     ></tab>
   </div>
 </template>
