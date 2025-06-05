@@ -5,6 +5,11 @@ export const useActivityStore = defineStore("activity", {
   state: () => ({
     activity: null,
   }),
+  getters: {
+    activitySelected: (state) => {
+      return state.activity !== null && state.activity.id !== "activity-none";
+    },
+  },
   actions: {
     setActivity(activity) {
       this.activity = activity;
