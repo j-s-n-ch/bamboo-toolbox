@@ -41,32 +41,20 @@ const updatePlayerStats = debounce(postPlayerStats, 1000);
 
 <template>
   <tab-content-wrapper>
-    <div class="tab-content">
-      <div class="skill-bubbles">
-        <skill-level-display
-          v-for="skill in skills"
-          :key="skill.name"
-          :skill="skill"
-          @input="updatePlayerStats"
-        />
-        <achievement-point-display @input="updatePlayerStats" />
-      </div>
+    <div class="skill-bubbles">
+      <skill-level-display
+        v-for="skill in skills"
+        :key="skill.name"
+        :skill="skill"
+        @input="updatePlayerStats"
+      />
+      <achievement-point-display @input="updatePlayerStats" />
     </div>
     <item-selection />
   </tab-content-wrapper>
 </template>
 
 <style lang="scss" scoped>
-
-.tab-content {
-  flex-grow: 1;
-
-  display: flex;
-  flex-direction: column;
-  gap: $xlg;
-  justify-content: center;
-}
-
 .skill-bubbles {
   display: grid;
   grid-template-columns: repeat(3, max-content);
