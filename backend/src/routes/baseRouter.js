@@ -22,5 +22,13 @@ export const createBaseRouter = (name, service) => {
     )
   );
 
+  router.get(
+    "/search/",
+    wrapController((req) => {
+      const params = req.query;
+      return service.search(params);
+    })
+  );
+
   return router;
 };
