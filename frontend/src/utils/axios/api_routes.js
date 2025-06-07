@@ -45,6 +45,15 @@ export function getItem({ id }) {
   });
 }
 
+export function searchLocations({ activityList }) {
+  return proxy({
+    url: "locations/search",
+    options: {
+      params: { activityList, detailed: true },
+    },
+  });
+}
+
 export function searchItems({ types, gearType, search }) {
   return proxy({
     url: "items/search",
