@@ -30,12 +30,11 @@ const getStatText = (stat) => {
 const getRequirementText = (base, requirements) => {
   if (!requirements.length) return `Global ${base}`;
 
-  const reqTypes = requirements.flatMap((r) => r.map((ri) => ri.type));
+  const reqTypes = requirements.flatMap(({ type }) => type);
   let text = !reqTypes.includes("mainSkill") ? `Global ${base}` : base;
 
   const reqToText = (prev, req) => {
-    const reqPar = req[0];
-    const { type, opposite, requirement } = reqPar;
+    const { type, opposite, requirement } = req;
     const { value, isPercentage, skill, keywordNames, quantity, realmName } =
       requirement;
     const not = opposite ? "NOT " : "";

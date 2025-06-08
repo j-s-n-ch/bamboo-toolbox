@@ -41,21 +41,18 @@ const usefulAttrs = (item, activity, quality, isRecipe) => {
   };
 
   const filterGlobal = (attr) => {
-    return attr.requirements?.every((reqs) => {
-      const reqTypes = reqs.map(({ type }) => type);
+    return attr.requirements?.every(({ type }) => {
       const filteredTypes = ["mainSkill", "traveling"];
-      return !intersect(reqTypes, filteredTypes).length;
+      return !intersect([type], filteredTypes).length;
     });
   };
 
   const filterSkill = (attr) => {
-    return attr.requirements?.some((reqs) => {
-      return reqs.some((req) => {
-        return (
-          (req.type === "mainSkill" && req.requirement.skill === skill) ||
-          (req.type === "traveling" && isTravel)
-        );
-      });
+    return attr.requirements?.some((req) => {
+      return (
+        (req.type === "mainSkill" && req.requirement.skill === skill) ||
+        (req.type === "traveling" && isTravel)
+      );
     });
   };
 
@@ -79,9 +76,5 @@ const skillsInRequirements = (item) => {
   const { requirements } = item;
   if (!requirements) return [];
 
-  return requirements.flatMap((reqs) =>
-    reqs
-      .filter((req) => req.type === "skillLevel")
-      .flatMap((req) => req.requirement)
-  );
+  return requirements.filter((req) => req.type === "skillLevel");
 };
