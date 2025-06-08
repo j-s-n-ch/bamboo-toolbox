@@ -40,6 +40,7 @@ const getRequirementKeywords = (requirements) => {
 
 const sections = computed(() => {
   const {
+    id,
     workRequired,
     maxWorkEfficiency,
     levelRequirementsMap,
@@ -47,13 +48,16 @@ const sections = computed(() => {
     requirements,
     xpRewardsMap,
   } = props.activity;
+
+  const isTravel = id === "activity-travelling";
+  
   return [
     {
       label: "Info",
       display: "bubbles",
       data: [
         {
-          text: workRequired,
+          text: workRequired || 1000,
           icon: "assets/icons/text/general_icons/steps.png",
         },
         {
@@ -82,9 +86,11 @@ const sections = computed(() => {
     },
     {
       label: "Locations",
-      data: props.locations.map(({ name: text, icon }) => {
-        return { text, icon };
-      }),
+      data: isTravel
+        ? props.locations.map(({ name: text, icon }) => {
+            return { text, icon };
+          })
+        : [],
       display: "bubbles",
     },
   ].filter(({ data }) => !isEmpty(data));
