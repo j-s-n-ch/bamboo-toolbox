@@ -13,9 +13,6 @@ export function useEffectiveAttrs() {
   const items = useItemsStore();
   const player = usePlayerStore();
 
-  const owned = items.ownedItems;
-  const gearSet = gear.filledGearSlots;
-
   const allItems = computed(() => {
     const owned = items.ownedItems;
     const gearSet = gear.filledGearSlots;
@@ -60,9 +57,29 @@ export function useEffectiveAttrs() {
     );
   });
 
+  const totalsByStat = computed(() => {
+    const totals = {};
+
+    for (const attr of effectiveAttrs.value) {
+      for (const stat of attr.stats) {
+        const { type, isPercent, value } = stat;
+
+        if (!(type in totals)) {
+          totals[type] = { flat: 0, percent: 0 };
+        }
+
+        const key = isPercent ? "percent" : "flat";
+        totals[type][key] += value;
+      }
+    }
+
+    return totals;
+  });
+
   return {
     allItems,
     allAttrs,
     effectiveAttrs,
+    totalsByStat,
   };
 }

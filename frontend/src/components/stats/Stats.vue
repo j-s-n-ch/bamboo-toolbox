@@ -15,8 +15,6 @@ onMounted(async () => {
   stats.value = statList.filter(({ type }) => !filteredStats.includes(type));
   statOrder.value = stats.value.map(({ id }) => id);
   loading.value = false;
-
-  console.log(includedStats.value);
 });
 
 const { allAttrs } = useEffectiveAttrs();

@@ -12,8 +12,7 @@ const props = defineProps({
   isPercent: Boolean,
 });
 
-const { allAttrs, effectiveAttrs } = useEffectiveAttrs();
-const { isPercent } = props.stat;
+const { allAttrs, totalsByStat } = useEffectiveAttrs();
 
 const sumStats = (stats) => {
   return stats.reduce((a, { value: b }) => a + b, 0);
@@ -32,8 +31,15 @@ const sumTotal = computed(() => {
 });
 
 const sumApplicable = computed(() => {
-  const statAttrs = effectiveAttrs.value.filter(filterStat);
-  const total = sumStats(statAttrs.map((attr) => attr.stats[0]));
+  const key = props.isPercent ? "percent" : "flat";
+  const type = props.stat.type;
+
+  const total = !(type in totalsByStat.value)
+    ? 0
+    : !(key in totalsByStat.value[type])
+    ? 0
+    : totalsByStat.value[type][key];
+
   const value = Math.round(props.isPercent ? 100 * total : total);
   return props.isPercent ? `${value}%` : value;
 });
