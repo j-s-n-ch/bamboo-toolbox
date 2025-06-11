@@ -39,8 +39,46 @@ function sortItems(items) {
   });
 }
 
-const itemStore = useItemsStore();
-const items = sortItems(itemStore.itemsByCategory[props.itemCategory]);
+const itemsStore = useItemsStore();
+const items = sortItems(itemsStore.itemsByCategory[props.itemCategory]);
+
+const selectedItems = ref(new Set(
+  items.filter(item => itemsStore.ownedItems[item.id]?.owned).map(item => item.id)
+));
+
+const allSelected = computed(() => {
+  return (
+    items.length > 0 && items.every((item) => selectedItems.value.has(item.id))
+  );
+});
+
+function toggleSelectAll(e) {
+  if (e.target.checked) {
+    const newSet = new Set();
+    items.forEach((item) => {
+      newSet.add(item.id);
+      itemsStore.toggleItem(item.id, true, item.quality, item.quality2);
+    });
+    selectedItems.value = newSet;
+  } else {
+    items.forEach((item) => {
+      itemsStore.toggleItem(item.id, false, item.quality, item.quality2);
+    });
+    selectedItems.value = new Set();
+  }
+}
+
+function toggleItemSelection(data) {
+  const { itemId, owned, quality, quality2 } = data;
+  if (owned) {
+    selectedItems.value.add(itemId);
+  } else {
+    selectedItems.value.delete(itemId);
+  }
+  // Force reactivity
+  selectedItems.value = new Set(selectedItems.value);
+  itemsStore.toggleItem(itemId, owned, quality, quality2);
+}
 
 watch(
   () => props.isOpen,
@@ -50,11 +88,28 @@ watch(
     }
   }
 );
+
+watch(
+  () => items.map(item => itemsStore.ownedItems[item.id]?.owned),
+  (ownedArr) => {
+    selectedItems.value = new Set(
+      items.filter((item, i) => ownedArr[i]).map(item => item.id)
+    );
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
   <div class="category-panel" :id="title">
     <div class="header" @click="emit('toggle')">
+      <input
+        type="checkbox"
+        :checked="allSelected"
+        @click.stop
+        @change="toggleSelectAll"
+        aria-label="Select all"
+      />
       <h3>{{ title }}</h3>
       <span>{{ isOpen ? "▲" : "▼" }}</span>
     </div>
@@ -65,6 +120,8 @@ watch(
           :key="item.id"
           :item="item"
           :qualities="qualities || 0"
+          :selected="selectedItems.has(item.id)"
+          @change="toggleItemSelection"
         />
       </div>
     </div>
@@ -72,7 +129,6 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-
 .header {
   cursor: pointer;
   display: flex;

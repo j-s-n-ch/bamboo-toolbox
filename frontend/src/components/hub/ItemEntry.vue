@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import { craftingQualityOptions, qualityOptions } from "@/utils/quality";
 import { useItemsStore } from "@/store/items";
 import WsIcon from "@/components/common/WsIcon.vue";
@@ -8,7 +8,10 @@ import AttributeDisplay from "@/components/hub/AttributeDisplay.vue";
 const props = defineProps({
   item: Object,
   qualities: Number,
+  selected: Boolean,
 });
+
+const emit = defineEmits(["change"]);
 
 const defaultQuality = qualityOptions[0].value;
 const itemsStore = useItemsStore();
@@ -20,9 +23,18 @@ const isOpen = ref(false);
 onMounted(() => {
   const entry = itemsStore.ownedItems[props.item.id];
   isOwned.value = entry?.owned ?? false;
-  quality.value = entry?.quality ?? defaultQuality;
+  quality.value = entry?.quality ?? props.item?.quality ?? defaultQuality;
   quality2.value = entry?.quality2 ?? defaultQuality;
 });
+
+watch(
+  () => props.selected,
+  (val) => {
+    if (val !== isOwned.value) {
+      isOwned.value = val;
+    }
+  }
+);
 
 const colorClass = computed(() => {
   return `color-${quality.value}`;
@@ -35,15 +47,27 @@ const hasAttrs = computed(() => {
   return props.item.itemAttrs.length > 0;
 });
 
-const toggleChecked = () => {
-  isOwned.value = !isOwned.value;
-  const { id: itemId } = props.item;
-  itemsStore.toggleItem(itemId, isOwned.value, quality.value, quality2.value);
+const toggleChecked = (e) => {
+  e.stopPropagation();
+  const data = {
+    itemId: props.item.id,
+    owned: !props.selected,
+    quality: quality.value,
+    quality2: quality2.value,
+  };
+
+  emit("change", data);
 };
 
 const updateQuality = () => {
-  const { id: itemId } = props.item;
-  itemsStore.toggleItem(itemId, isOwned.value, quality.value, quality2.value);
+  const data = {
+    itemId: props.item.id,
+    owned: props.selected,
+    quality: quality.value,
+    quality2: quality2.value,
+  };
+
+  emit("change", data);
 };
 
 const toggleOpen = () => {
@@ -154,12 +178,11 @@ const toggleOpen = () => {
     display: flex;
     align-items: center;
     gap: $xs;
-    
+
     .quality-input {
       background-color: $boxDarkBackground;
       cursor: pointer;
     }
-
   }
 }
 </style>
