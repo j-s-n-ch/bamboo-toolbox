@@ -76,48 +76,61 @@ const sections = computed(() => {
   return [
     {
       label: "Stats (current / base)",
-      display: "bubbles",
-      data: [
+      component: InfoBubble,
+      items: [
         {
           text: `${steps} / ${workRequired || 1000}`,
-          icon: "assets/icons/text/general_icons/steps.png",
+          iconPath: "assets/icons/text/general_icons/steps.png",
         },
         {
           text: `${Math.round(we * 100)} / ${
             Math.round(maxWorkEfficiency * 100) - 100
           }%`,
-          icon: "assets/icons/text/stats/skilling/work_efficiency.png",
+          iconPath: "assets/icons/text/stats/skilling/work_efficiency.png",
         },
       ],
+      itemProps: (item) => ({ ...item }),
     },
     {
       label: "Skill requirements",
-      data: levelRequirementsMap,
-      display: "skill-bubbles",
+      component: SkillBubble,
+      items: Object.entries(levelRequirementsMap || {}).map(
+        ([skill, level]) => ({
+          skill,
+          text: level.toString(),
+        })
+      ),
+      itemProps: (item) => ({ ...item }),
     },
     {
       label: "Keyword requirements",
-      data: [
+      component: KeywordDisplay,
+      items: [
         ...(requiredKeywords || []).map(getKeyword),
         ...getRequirementKeywords(requirements),
       ],
-      display: "keywords",
+      itemProps: (keyword) => ({ keyword }),
     },
     {
       label: "XP rewards (current / base)",
-      data: xpRewards,
-      display: "skill-bubbles",
+      component: SkillBubble,
+      items: Object.entries(xpRewards).map(([skill, text]) => ({
+        skill,
+        text,
+      })),
+      itemProps: (item) => ({ ...item }),
     },
     {
       label: "Locations",
-      data: !isTravel
-        ? props.locations.map(({ name: text, icon }) => {
-            return { text, icon };
+      component: InfoBubble,
+      items: !isTravel
+        ? props.locations.map(({ name: text, icon: iconPath }) => {
+            return { text, iconPath };
           })
         : [],
-      display: "bubbles",
+      itemProps: (item) => ({ ...item }),
     },
-  ].filter(({ data }) => !isEmpty(data));
+  ].filter(({ items }) => !isEmpty(items));
 });
 </script>
 
@@ -125,32 +138,16 @@ const sections = computed(() => {
   <section :class="['activity-info', borderClass]">
     <div v-for="section in sections" class="info-section" :key="section.label">
       <ws-label :label="section.label" />
-      <div v-if="section.display === 'bubbles'" class="info-row">
-        <info-bubble
-          v-for="({ text, icon }, index) in section.data"
-          :key="index"
-          :text="text.toString()"
-          :iconPath="icon"
-        />
-      </div>
-      <div v-if="section.display === 'skill-bubbles'" class="info-row">
-        <skill-bubble
-          v-for="(level, skill) in section.data"
-          :key="skill"
-          :skill="skill"
-          :text="level.toString()"
-        />
-      </div>
-      <div v-if="section.display === 'keywords'" class="info-row">
-        <keyword-display
-          v-for="(keyword, index) in section.data"
-          :key="index"
-          :keyword="keyword"
+      <div class="info-row">
+        <component
+          v-for="(item, idx) in section.items"
+          :is="section.component"
+          v-bind="section.itemProps(item)"
+          :key="idx"
         />
       </div>
     </div>
   </section>
-  <!-- {{ activity }} -->
 </template>
 
 <style lang="scss" scoped>
