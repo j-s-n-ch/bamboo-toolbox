@@ -47,7 +47,7 @@ export const useItemsStore = defineStore("itemStore", {
       function () {
         this.flushChangedOwnedItems();
       },
-      5000,
+      500,
       this
     ),
   },
