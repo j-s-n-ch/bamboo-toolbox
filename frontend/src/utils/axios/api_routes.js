@@ -1,9 +1,5 @@
-import getHost from "../getHost";
-import { axiosInstance as axios } from "./axiosConfig";
-
-const proxy = ({ url, options = {} }) => {
-  return axios.get(`${getHost()}/api/${url}`, options);
-};
+import { createProxyInstance } from "./proxy";
+const proxy = createProxyInstance("/api");
 
 export function getIcon({ iconPath }) {
   return proxy({
@@ -78,5 +74,15 @@ export function getActivity({ id }) {
 export function getStats() {
   return proxy({
     url: "stats",
+  });
+}
+
+export function getMultipleLootTables(ids) {
+  return proxy({
+    method: "POST",
+    url: "loot_tables/multiple",
+    options: {
+      body: { ids },
+    },
   });
 }
