@@ -11,7 +11,7 @@ const PORT = process.env.BACKEND_PORT || 3001;
 
 app.use(
   cors({
-    origin: ["http://localhost", "https://gear.dev.walkscape.app/"],
+    origin: ["http://localhost:5173", "https://gear.dev.walkscape.app/"],
   })
 );
 app.use(morgan("dev"));
