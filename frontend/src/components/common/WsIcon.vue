@@ -15,6 +15,10 @@ const props = defineProps({
     validator: (value) =>
       ["xs", "sm", "md", "lg", "xl", "xxl", "default"].includes(value),
   },
+  outlineClass: {
+    type: String,
+    default: "",
+  },
 });
 
 // State variables
@@ -57,6 +61,7 @@ const iconSize = computed(() => {
       :src="iconUrl"
       :alt="iconPath"
       :style="{ width: '100%', height: '100%' }"
+      :class="outlineClass"
     />
   </div>
 </template>

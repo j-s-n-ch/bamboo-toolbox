@@ -48,6 +48,14 @@ $quality-colors: (
   .border-#{$name} {
     border: 2px solid $color !important;
   }
+
+  .outline-#{$name} {
+    filter:
+      drop-shadow(1px 0 0 $color)
+      drop-shadow(-1px 0 0 $color)
+      drop-shadow(0 1px 0 $color)
+      drop-shadow(0 -1px 0 $color);
+  }
 }
 
 $skill-colors: (
