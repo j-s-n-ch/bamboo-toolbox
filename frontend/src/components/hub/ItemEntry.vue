@@ -120,9 +120,9 @@ const toggleOpen = () => {
         </div>
       </div>
 
-      <span class="toggle" v-if="hasAttrs" @click="toggleOpen">{{
-        isOpen ? "▲" : "▼"
-      }}</span>
+      <button class="toggle" v-if="hasAttrs" @click="toggleOpen">
+        {{ isOpen ? "▲" : "▼" }}
+      </button>
     </section>
 
     <section v-if="hasAttrs && isOpen">
@@ -173,6 +173,9 @@ const toggleOpen = () => {
     cursor: pointer;
     padding: 0 $xs;
     color: $txPrimary !important;
+    background: none;
+    border: none;
+    font: inherit;
   }
 }
 </style>

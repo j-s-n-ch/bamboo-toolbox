@@ -42,9 +42,13 @@ function sortItems(items) {
 const itemsStore = useItemsStore();
 const items = sortItems(itemsStore.itemsByCategory[props.itemCategory]);
 
-const selectedItems = ref(new Set(
-  items.filter(item => itemsStore.ownedItems[item.id]?.owned).map(item => item.id)
-));
+const selectedItems = ref(
+  new Set(
+    items
+      .filter((item) => itemsStore.ownedItems[item.id]?.owned)
+      .map((item) => item.id)
+  )
+);
 
 const allSelected = computed(() => {
   return (
@@ -90,10 +94,10 @@ watch(
 );
 
 watch(
-  () => items.map(item => itemsStore.ownedItems[item.id]?.owned),
+  () => items.map((item) => itemsStore.ownedItems[item.id]?.owned),
   (ownedArr) => {
     selectedItems.value = new Set(
-      items.filter((item, i) => ownedArr[i]).map(item => item.id)
+      items.filter((item, i) => ownedArr[i]).map((item) => item.id)
     );
   },
   { immediate: true }
@@ -111,7 +115,7 @@ watch(
         aria-label="Select all"
       />
       <h3>{{ title }}</h3>
-      <span>{{ isOpen ? "▲" : "▼" }}</span>
+      <button class="toggle">{{ isOpen ? "▲" : "▼" }}</button>
     </div>
     <div v-show="isOpen" class="content">
       <div v-if="hasLoaded">
@@ -146,5 +150,14 @@ watch(
   gap: $xxxs;
 
   padding: $xxxxs;
+}
+
+.toggle {
+  cursor: pointer;
+  padding: 0 $xs;
+  color: $txPrimary !important;
+  background: none;
+  border: none;
+  font: inherit;
 }
 </style>
