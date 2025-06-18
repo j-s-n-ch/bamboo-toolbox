@@ -80,7 +80,10 @@ const toggleOpen = () => {
     <section :class="['item-entry', colorClass, ownedBgClass]">
       <div class="base-info" @click="toggleChecked">
         <input type="checkbox" :checked="isOwned" readonly />
-        <ws-icon :iconPath="item.icon" />
+        <ws-icon
+          :iconPath="item.icon"
+          :outline-class="`outline-${quality}`"
+        />
         <span :class="`color-${quality}`">{{ item.name }}</span>
       </div>
 
@@ -158,6 +161,7 @@ const toggleOpen = () => {
   .base-info {
     display: flex;
     align-items: center;
+    text-align: left;
     gap: $xxs;
     cursor: pointer;
   }
@@ -177,7 +181,9 @@ const toggleOpen = () => {
   .quality-inputs {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: $xs;
+    justify-content: flex-end;
 
     .quality-input {
       background-color: $boxDarkBackground;
