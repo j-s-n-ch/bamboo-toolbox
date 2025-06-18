@@ -89,49 +89,14 @@ const resolveActivityCategory = (loot, activitiesTable) => {
 };
 
 const resolveChestCategories = (loot, chestTables) => {
-  const excludedForMultipleCheck = ["jarvonia chest table", "gdte chest table"];
-  const itemToTablesMap = {};
-  const multipleSourcesItems = new Set();
+  const chestItemsList = new Set();
   const chestTableCategories = [];
 
-  // Step 1: Build mapping of which item belongs to which chest
   for (const table of chestTables) {
-    const tableName = table.name;
-    for (const item of table.items) {
-      if (!itemToTablesMap[item]) itemToTablesMap[item] = [];
-      itemToTablesMap[item].push(tableName);
-    }
-  }
-
-  // Step 2: Identify multiple-source items (excluding Jarvonia and GDTE)
-  for (const [itemId, tables] of Object.entries(itemToTablesMap)) {
-    const nonExcludedTables = tables.filter(
-      (t) => !excludedForMultipleCheck.includes(t)
-    );
-    if (nonExcludedTables.length > 1) {
-      multipleSourcesItems.add(parseInt(itemId));
-    }
-  }
-
-  // Step 3: Create chest categories
-  for (const table of chestTables) {
-    const isExcludedFromMulti = excludedForMultipleCheck.includes(table.name);
     const itemIds = new Set(table.items);
 
     let filteredItems = loot.filter((item) => itemIds.has(item.id));
-
-    // If this is Jarvonia or GDTE, only include items that appear *only* in this chest
-    if (isExcludedFromMulti) {
-      filteredItems = filteredItems.filter((item) => {
-        const tables = itemToTablesMap[item.id] || [];
-        return tables.length === 1 && tables[0] === table.name;
-      });
-    } else {
-      // Otherwise, remove multiple-source items
-      filteredItems = filteredItems.filter(
-        (item) => !multipleSourcesItems.has(item.id)
-      );
-    }
+    filteredItems.forEach((item) => chestItemsList.add(item.id));
 
     if (filteredItems.length > 0) {
       chestTableCategories.push({
@@ -142,19 +107,6 @@ const resolveChestCategories = (loot, chestTables) => {
     }
   }
 
-  // Multiple chest sources category
-  const multipleItems = loot.filter((item) =>
-    multipleSourcesItems.has(item.id)
-  );
-  if (multipleItems.length > 0) {
-    chestTableCategories.unshift({
-      title: "Multiple Chest Sources",
-      key: "chest_multiple",
-      items: multipleItems,
-    });
-  }
-
-  const chestItemsList = new Set(Object.keys(itemToTablesMap));
   return { chestCategories: chestTableCategories, chestItemsList };
 };
 
