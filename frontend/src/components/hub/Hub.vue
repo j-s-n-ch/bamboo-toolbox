@@ -18,7 +18,7 @@ onMounted(async () => {
     fetchPlayerStats(),
   ]);
 
-  skills.value = skillsResponse.data;
+  skills.value = skillsResponse.data.sort((a, b) => a.name.localeCompare(b.name));
 
   // Initialize store
   skillsResponse.data.forEach(({ id }) => {
