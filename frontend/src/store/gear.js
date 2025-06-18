@@ -27,7 +27,8 @@ export const useGearStore = defineStore("gearStore", {
       consumable: null,
       service: null,
     },
-    useOwned: true,
+    showOwned: true,
+    showUseful: true,
   }),
   getters: {
     filledGearSlots: (state) => {

@@ -31,24 +31,36 @@ const slotItems = Object.values(itemsStore.allItems).filter(
 const filteredItems = computed(() => {
   const activity = activityStore.activity;
   const term = searchTerm.value.trim().toLowerCase();
-  const useOwned = gearStore.useOwned;
+  const showOwned = gearStore.showOwned;
+  const showUseful = gearStore.showUseful;
 
   const filterActivity = (item) => {
     const { id } = item;
     const owned = id in itemsStore.ownedItems;
     const quality = owned ? itemsStore.ownedItems[id].quality : item.quality;
+
+    if (!activity || !showUseful) {
+      return true;
+    }
+  
     return (
-      (activity && showItemForActivity(item, activity, quality)) || !activity
+      showUseful && activity && showItemForActivity(item, activity, quality)
     );
   };
   const filterSearch = ({ name }) =>
     (term && name.toLowerCase().includes(term)) || !term;
   const filterOwned = (item) =>
-    (useOwned && item.id in itemsStore.ownedItems) || !useOwned;
+    (showOwned && item.id in itemsStore.ownedItems) || !showOwned;
 
-  return slotItems.filter(
-    (item) => filterActivity(item) && filterSearch(item) && filterOwned(item)
-  );
+  return slotItems
+    .filter(
+      (item) => filterActivity(item) && filterSearch(item) && filterOwned(item)
+    )
+    .sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      return aName.localeCompare(bName);
+    });
 });
 
 const handleClick = (item) => {
