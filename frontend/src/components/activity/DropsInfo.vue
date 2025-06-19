@@ -49,8 +49,6 @@ onMounted(async () => {
   align-items: flex-start;
   gap: $lg;
 
-  padding: $md;
-
   border: 1px solid $boxDarkOutline;
 }
 </style>
