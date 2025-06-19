@@ -123,7 +123,7 @@ const updateVisible = (visibility) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: $lg;
+  row-gap: $lg;
   flex-wrap: wrap;
 
   .tool-wrapper {
