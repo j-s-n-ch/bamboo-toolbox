@@ -14,7 +14,6 @@ export function categorizeItems(data) {
     { title: "Collectibles", source: collectibles, excludedItems: [] },
     { title: "Loot", source: loot, excludedItems: chestCategories },
   ].map((cat) => resolveCategories(cat, sourceInfo));
-  console.log(categoryGroups);
 
   categoryGroups.push({ title: "Chests", categories: chestCategories });
   categoryGroups.push({
@@ -128,6 +127,7 @@ const resolveShopsCategory = (category, shopItems) => {
 
 const resolveChestCategories = (loot, chestTables, containers) => {
   const chestTableCategories = [];
+
   const nameLookup = Object.fromEntries(
     containers.flatMap(({ tables, name }) =>
       tables.flatMap(({ tables: ts }) => ts.map((id) => [id, name]))
