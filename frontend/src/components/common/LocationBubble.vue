@@ -25,17 +25,25 @@ function handleClick() {
 </script>
 
 <template>
-  <info-bubble
-    :icon-path="location.icon"
-    :text="location.name"
-    :tooltip="location.name"
-    :class="{ 'selected-border': isSelected }"
-    @click="handleClick"
-    style="cursor: pointer"
-  />
+  <button class="button-wrapper" @click="handleClick">
+    <info-bubble
+      :icon-path="location.icon"
+      :text="location.name"
+      :tooltip="location.name"
+      :class="{ 'selected-border': isSelected }"
+      style="cursor: pointer"
+    />
+  </button>
 </template>
 
 <style lang="scss" scoped>
+.button-wrapper {
+  padding: 0;
+  margin: 0;
+  background-color: none;
+  border-radius: $sm;
+}
+
 .selected-border {
   border-color: $chipOutline;
   box-shadow: 0 0 0 1px $chipOutline;
