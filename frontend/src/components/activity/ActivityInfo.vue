@@ -98,12 +98,14 @@ const sections = computed(() => {
       items: [
         {
           text: `${steps} / ${workRequired || 1000}`,
+          tooltip: `${steps} steps per action`,
           iconPath: "assets/icons/text/general_icons/steps.png",
         },
         {
           text: `${Math.round(we * 100)} / ${
             Math.round(maxWorkEfficiency * 100) - 100
           }%`,
+          tooltip: `${Math.round(we * 100)}% work efficiency`,
           iconPath: "assets/icons/text/stats/skilling/work_efficiency.png",
         },
       ],
