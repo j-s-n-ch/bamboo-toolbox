@@ -17,10 +17,20 @@ const borderClass = computed(() => {
       : "border-red"
     : "border-red";
 });
+
+const tooltip = computed(() => {
+  const { name, quantity } = props.keyword;
+  return quantity ? `Requires ${quantity} ${name}` : `Requires ${name}`;
+});
 </script>
 
 <template>
-  <div class="keyword-display" :class="[borderClass]">
+  <div
+    class="keyword-display"
+    :title="tooltip"
+    :aria-label="tooltip"
+    :class="[borderClass]"
+  >
     <ws-icon v-if="keyword.icon" :iconPath="keyword.icon" />
     <p class="text">
       <span v-if="keyword.quantity">{{ keyword.quantity }}</span>

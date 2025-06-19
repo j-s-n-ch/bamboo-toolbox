@@ -61,12 +61,12 @@ const sections = computed(() => {
   } = props.activity;
 
   const isTravel = id === "activity-travelling";
-  const we = Math.min(
-    getStat("workEfficiency"),
-    maxWorkEfficiency - 1
-  );
+  const we = Math.min(getStat("workEfficiency"), maxWorkEfficiency - 1);
   const stepsRequired = getStat("stepsRequired", "flat");
-  const steps = Math.max(10, Math.ceil((workRequired || 1000) / (1 + we)) + stepsRequired);
+  const steps = Math.max(
+    10,
+    Math.ceil((workRequired || 1000) / (1 + we)) + stepsRequired
+  );
 
   const flatXp = getStat("bonusExperience", "flat");
   const percentXp = getStat("bonusExperience");
@@ -115,6 +115,7 @@ const sections = computed(() => {
         ([skill, level]) => ({
           skill,
           text: level.toString(),
+          tooltipText: `Requires ${level} ${skill}`,
         })
       ),
       itemProps: (item) => ({ ...item }),
@@ -134,6 +135,7 @@ const sections = computed(() => {
       items: xpRewards.map(({ skill, current, base }) => ({
         skill,
         text: `${Math.round(100 * current) / 100} / ${base}`,
+        tooltipText: `Rewards ${Math.round(100 * current) / 100} ${skill} XP`,
         current,
         base,
       })),

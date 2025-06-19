@@ -4,18 +4,18 @@ import WsIcon from "@/components/common/WsIcon.vue";
 const props = defineProps({
   iconPath: String,
   text: String,
+  tooltip: String,
 });
 </script>
 
 <template>
-  <div class="bubble-wrapper">
+  <div class="bubble-wrapper" :title="tooltip" :aria-label="tooltip">
     <ws-icon :icon-path="iconPath" size="sm" />
     <p class="text">{{ text }}</p>
   </div>
 </template>
 
 <style lang="scss" scoped>
-
 .bubble-wrapper {
   width: fit-content;
 
@@ -31,4 +31,4 @@ const props = defineProps({
 .text {
   margin: 0;
 }
-</style> 
+</style>
