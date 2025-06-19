@@ -4,6 +4,7 @@ import { useGearStore } from "@/store/gear";
 import { useItemsStore } from "@/store/items";
 import { useActivityStore } from "@/store/activity";
 import { showItemForActivity } from "@/utils/gear";
+import { itemQualityNameSort } from "@/utils/quality";
 import WsIcon from "@/components/common/WsIcon.vue";
 
 const props = defineProps({
@@ -42,7 +43,7 @@ const filteredItems = computed(() => {
     if (!activity || !showUseful) {
       return true;
     }
-  
+
     return (
       showUseful && activity && showItemForActivity(item, activity, quality)
     );
@@ -56,11 +57,8 @@ const filteredItems = computed(() => {
     .filter(
       (item) => filterActivity(item) && filterSearch(item) && filterOwned(item)
     )
-    .sort((a, b) => {
-      const aName = a.name.toLowerCase();
-      const bName = b.name.toLowerCase();
-      return aName.localeCompare(bName);
-    });
+    .sort(itemQualityNameSort)
+    .reverse();
 });
 
 const handleClick = (item) => {
@@ -79,17 +77,20 @@ const handleClick = (item) => {
       class="gear-search"
     />
     <div class="items-wrapper">
-      <div
+      <button
         v-for="item in filteredItems"
         :key="item"
         class="item"
         @click="handleClick(item)"
       >
-        <ws-icon :icon-path="item.icon" />
-        <span class="text">
+        <ws-icon
+          :iconPath="item.icon"
+          :outline-class="`outline-${item.quality}`"
+        />
+        <span :class="`color-${item.quality}`">
           {{ item.name }}
         </span>
-      </div>
+      </button>
     </div>
   </div>
 </template>
@@ -111,15 +112,21 @@ const handleClick = (item) => {
 
   display: flex;
   flex-direction: column;
+  gap: $xxxs;
+  background-color: $bgPrimary;
 
   .item {
     display: flex;
-    gap: 16px;
+    gap: $xxs;
 
     justify-content: center;
+    align-items: center;
 
-    padding: $xs;
-    border: 2px solid $chipOutline;
+    background-color: $boxDarkBackground;
+    border-radius: $sm;
+    border: 1px solid $bgPrimary;
+
+    padding: $xxxs $xxs;
     cursor: pointer;
 
     &:hover {
