@@ -52,8 +52,8 @@ const handleClick = () => emit("select", props.gearType, storeKey);
   display: flex;
   flex-direction: column;
 
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border: 1px solid $boxPrimaryOutline;
   border-radius: $md;
 
