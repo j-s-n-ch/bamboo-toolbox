@@ -72,8 +72,6 @@ onUnmounted(() => {
   align-items: center;
 
   overflow: hidden;
-
-  padding: 20px;
 }
 
 .desktop-layout {
