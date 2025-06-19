@@ -129,7 +129,8 @@ const handleClick = (item) => {
     padding: $xxxs $xxs;
     cursor: pointer;
 
-    &:hover {
+    &:hover,
+    &:focus {
       background-color: $chipBackground;
     }
   }
