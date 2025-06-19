@@ -26,7 +26,7 @@ const handleClick = () => emit("select", props.gearType, storeKey);
 </script>
 
 <template>
-  <div class="gear-slot-wrapper" @click="handleClick">
+  <button class="gear-slot-wrapper" @click="handleClick">
     <p
       v-if="!gearRef"
       class="typography-label label"
@@ -44,11 +44,14 @@ const handleClick = () => emit("select", props.gearType, storeKey);
         :outline-class="`outline-${gearRef.quality}`"
       />
     </div>
-  </div>
+  </button>
 </template>
 
 <style lang="scss" scoped>
 .gear-slot-wrapper {
+  display: flex;
+  flex-direction: column;
+
   width: 64px;
   height: 64px;
   border: 1px solid $boxPrimaryOutline;
