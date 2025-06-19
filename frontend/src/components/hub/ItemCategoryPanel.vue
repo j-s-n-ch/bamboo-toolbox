@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { useItemsStore } from "@/store/items";
 import ItemEntry from "./ItemEntry.vue";
+import { itemQualityNameSort } from "@/utils/quality";
 
 const props = defineProps({
   title: String,
@@ -13,34 +14,9 @@ const props = defineProps({
 const emit = defineEmits(["toggle"]);
 const hasLoaded = ref(false);
 
-const qualityOrder = [
-  "common",
-  "uncommon",
-  "rare",
-  "epic",
-  "legendary",
-  "ethereal",
-];
-
-const qualityRank = Object.fromEntries(
-  qualityOrder.map((q, index) => [q, index])
-);
-
-function sortItems(items) {
-  return items.slice().sort((a, b) => {
-    const aRank = qualityRank[a.quality] ?? Infinity;
-    const bRank = qualityRank[b.quality] ?? Infinity;
-
-    if (aRank !== bRank) {
-      return aRank - bRank;
-    }
-
-    return a.name.localeCompare(b.name);
-  });
-}
-
 const itemsStore = useItemsStore();
-const items = sortItems(itemsStore.itemsByCategory[props.itemCategory]);
+const items =
+  itemsStore.itemsByCategory[props.itemCategory].sort(itemQualityNameSort);
 
 const selectedItems = ref(
   new Set(

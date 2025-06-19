@@ -51,3 +51,18 @@ export const qualityOptions = [
     value: "ethereal",
   },
 ];
+
+const qualityRank = Object.fromEntries(
+  qualityOptions.map(({ value }, index) => [value, index])
+);
+
+export function itemQualityNameSort(a, b) {
+  const aRank = qualityRank[a.quality] ?? Infinity;
+  const bRank = qualityRank[b.quality] ?? Infinity;
+
+  if (aRank !== bRank) {
+    return aRank - bRank;
+  }
+
+  return a.name.localeCompare(b.name);
+}
