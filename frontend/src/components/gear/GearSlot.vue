@@ -51,6 +51,7 @@ const handleClick = () => emit("select", props.gearType, storeKey);
 .gear-slot-wrapper {
   display: flex;
   flex-direction: column;
+  align-content: center;
 
   width: 72px;
   height: 72px;
@@ -71,6 +72,7 @@ const handleClick = () => emit("select", props.gearType, storeKey);
 }
 
 .label {
+  width: 100%;
   margin-top: $md;
   text-align: center;
 }
