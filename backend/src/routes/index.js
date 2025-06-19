@@ -4,6 +4,7 @@ import { Router } from "express";
 import { dbRoutes } from "./dbRoutes.js";
 import { itemRoutes } from "./itemRoutes.js";
 import iconRoutes from "./iconRoutes.js";
+import lootTableRoutes from "./lootTableRoutes.js";
 import {
   activityService,
   keywordService,
@@ -20,6 +21,7 @@ export function registerRoutes(app) {
   apiRouter.use("/items", itemRoutes);
   apiRouter.use("/keywords", createBaseRouter("Keyword", keywordService));
   apiRouter.use("/locations", createBaseRouter("Location", locationService));
+  apiRouter.use("/lootTables", lootTableRoutes);
   apiRouter.use("/skills", createBaseRouter("Skill", skillService));
   apiRouter.use("/stats", createBaseRouter("Stat", statService));
 
