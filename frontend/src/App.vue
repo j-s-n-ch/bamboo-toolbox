@@ -63,7 +63,7 @@ onUnmounted(() => {
 .mobile-layout {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: calc(100dvh - 64px);
   width: 100%;
   overflow-x: hidden;
   padding-bottom: 64px;
@@ -83,7 +83,7 @@ onUnmounted(() => {
 
 .mobile-layout .tab-panel {
   display: none;
-  min-height: 100dvh;
+  min-height: calc(100dvh - 64px);
 }
 .mobile-layout .tab-panel.active {
   display: block;
