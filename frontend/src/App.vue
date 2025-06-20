@@ -53,7 +53,12 @@ onUnmounted(() => {
     >
       <component :is="tabs[tabName]" />
     </div>
-    <Footer v-if="isMobile" :tabs="tabs" @selectTab="scrollToTab" />
+    <Footer
+      v-if="isMobile"
+      :tabs="tabs"
+      :active-tab="activeTab"
+      @selectTab="scrollToTab"
+    />
   </div>
 </template>
 
