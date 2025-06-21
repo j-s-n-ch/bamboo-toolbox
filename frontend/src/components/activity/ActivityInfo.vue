@@ -102,7 +102,7 @@ const sections = computed(() => {
           iconPath: "assets/icons/text/general_icons/steps.png",
         },
         {
-          text: `${Math.round(we * 100)} / ${
+          text: `${Math.round(we * 10000) / 100} / ${
             Math.round(maxWorkEfficiency * 100) - 100
           }%`,
           tooltip: `${Math.round(we * 100)}% work efficiency`,
