@@ -43,12 +43,12 @@ const statList = computed(() => {
           ><span v-if="!(stat.value <= 0)">+</span>{{ stat.value }}
         </span>
         <ws-icon
-          v-if="item.icon"
+          v-if="item && item.icon"
           :icon-path="item.icon"
           size="sm"
           :outlineClass="`outline-${item.quality}`"
         />
-        <span :class="effective ? 'postitive' : 'negative'">{{
+        <span v-if="item" :class="effective ? 'postitive' : 'negative'">{{
           item.name
         }}</span>
       </p>

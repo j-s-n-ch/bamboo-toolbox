@@ -2,11 +2,14 @@ import { computed } from "vue";
 import { useGearStore } from "@/store/gear";
 import { useItemsStore } from "@/store/items";
 import { useRequirements } from "./useRequirements";
+import { useLevelBonus } from "./useLevelBonus";
 import { sumAttrs } from "./qualityAttrs";
 import { toDeepRaw } from "./rawData";
 
 export function useEffectiveAttrs() {
   const { checkRequirements } = useRequirements();
+  const { workEfficiencyBonus } = useLevelBonus();
+
   const gear = useGearStore();
   const items = useItemsStore();
 
@@ -44,11 +47,15 @@ export function useEffectiveAttrs() {
   });
 
   const allAttrs = computed(() => {
-    return allEquippedItems.value.flatMap((item) => {
+    const mappedAttrs = allEquippedItems.value.flatMap((item) => {
       return item.attrs.map((attr) => {
         return { ...attr, item };
       });
     });
+    if (workEfficiencyBonus.value) {
+      mappedAttrs.push(workEfficiencyBonus.value);
+    }
+    return mappedAttrs;
   });
 
   const effectiveAttrs = computed(() => {
