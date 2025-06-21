@@ -45,7 +45,7 @@ const getRequirementKeywords = (requirements) => {
 const getStat = (stat, key = "percent") => {
   return stat in totalsByStat.value
     ? key in totalsByStat.value[stat]
-      ? totalsByStat.value[stat][key]
+      ? totalsByStat.value[stat][key]["sum"]
       : 0
     : 0;
 };

@@ -62,14 +62,26 @@ export function useEffectiveAttrs() {
 
     for (const attr of effectiveAttrs.value) {
       for (const stat of attr.stats) {
-        const { type, isPercent, value } = stat;
+        const { type, isPercent, value, isNegative } = stat;
 
         if (!(type in totals)) {
-          totals[type] = { flat: 0, percent: 0 };
+          totals[type] = {
+            flat: {
+              sum: 0,
+              positive: 0,
+              negative: 0,
+            },
+            percent: {
+              sum: 0,
+              positive: 0,
+              negative: 0,
+            },
+          };
         }
 
         const key = isPercent ? "percent" : "flat";
-        totals[type][key] += value;
+        totals[type][key]["sum"] += value;
+        totals[type][key][isNegative ? "negative" : "positive"] += value;
       }
     }
 
