@@ -4,7 +4,7 @@ import { useActivityStore } from "../store/activity";
 
 export function useSkillModifiers() {
   const activityStore = useActivityStore();
-  const { effectiveAttrs, totalsByStat } = useEffectiveAttrs();
+  const { totalsByStat } = useEffectiveAttrs();
 
   const getStat = (stat, key = "percent") => {
     return stat in totalsByStat.value
@@ -37,6 +37,26 @@ export function useSkillModifiers() {
 
   const doubleRewards = computed(() => {
     return getStat("doubleRewards", "percent");
+  });
+
+  const findCollectibles = computed(() => {
+    return 1 + getStat("findCollectibles", "percent");
+  });
+
+  const findGems = computed(() => {
+    return 1 + getStat("findGems", "percent");
+  });
+
+  const findBirdNests = computed(() => {
+    return 1 + getStat("findBirdNests", "percent");
+  });
+
+  const fineMaterialFind = computed(() => {
+    return 1 + getStat("fineMaterialFinding", "percent");
+  });
+
+  const chestFind = computed(() => {
+    return 1 + getStat("chestFind", "percent");
   });
 
   const stepsPerCompletion = computed(() => {
@@ -99,7 +119,13 @@ export function useSkillModifiers() {
   return {
     maxWorkEfficiency,
     workEfficiency,
+    findCollectibles,
+    findGems,
+    findBirdNests,
+    fineMaterialFind,
+    chestFind,
     stepsPerCompletion,
+    stepsPerRewardRoll,
     xpRewards,
     xpPerStep,
   };
