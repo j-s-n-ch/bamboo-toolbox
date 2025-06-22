@@ -7,6 +7,7 @@ import SkillBubble from "@/components/common/SkillBubble.vue";
 import KeywordDisplay from "@/components/common/KeywordDisplay.vue";
 import { useSkillModifiers } from "@/utils/useSkillModifiers";
 import { isEmpty } from "@/utils/isEmpty";
+import { n } from "@/utils/number";
 
 const props = defineProps({
   activity: Object,
@@ -25,10 +26,6 @@ const {
 const borderClass = computed(
   () => `border-${props.activity?.relatedSkillsList[0]}`
 );
-
-const n = (value) => {
-  return parseFloat(value.toFixed(3));
-};
 
 const getKeyword = (kw) => {
   const findKw = (kwId) => props.keywords.find(({ id }) => id === kwId);
