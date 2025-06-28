@@ -52,7 +52,7 @@ export function useSkillModifiers() {
   });
 
   const fineMaterialFind = computed(() => {
-    return 1 + getStat("fineMaterialFinding", "percent");
+    return (1 + getStat("fineMaterialFind", "percent")) / 100;
   });
 
   const chestFind = computed(() => {

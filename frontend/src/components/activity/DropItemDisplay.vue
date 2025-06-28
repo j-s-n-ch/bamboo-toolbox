@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
 import { useSkillModifiers } from "@/utils/useSkillModifiers";
+import { useItemsStore } from "@/store/items";
 import { n } from "@/utils/number";
 
 const props = defineProps({
@@ -10,6 +11,8 @@ const props = defineProps({
   totalWeight: Number,
   type: Array,
 });
+
+const itemsStore = useItemsStore();
 
 const {
   stepsPerRewardRoll,
@@ -53,6 +56,18 @@ const stepsPerItem = computed(() => {
 
   return stepsPerRewardRoll.value / dropChance.value / avgAmount;
 });
+
+const canDropFine = computed(() => {
+  return (
+    !props.type.includes("chestTable") &&
+    !(props.item.rowItemID in itemsStore.allItems)
+  );
+});
+
+const stepsPerFine = computed(() => {
+  if (!canDropFine.value) return 0;
+  return stepsPerItem.value / fineMaterialFind.value;
+});
 </script>
 
 <template>
@@ -68,6 +83,10 @@ const stepsPerItem = computed(() => {
       <ws-icon iconPath="assets/icons/text/general_icons/steps.png" size="xs" />
       <span>{{ n(stepsPerItem, 1) }}</span>
     </div>
+    <div v-if="canDropFine" class="steps-line border-fine">
+      <ws-icon iconPath="assets/icons/text/general_icons/steps.png" size="xs" />
+      <span>{{ n(stepsPerFine, 1) }}</span>
+    </div>
   </div>
 </template>
 
@@ -78,11 +97,21 @@ const stepsPerItem = computed(() => {
   align-items: center;
   justify-content: center;
 
+  padding: $xs;
+  gap: $xxxxs;
+
+
+  background-color: $boxDarkBackground;
+  border: 1px solid $boxDarkOutline;
+  border-radius: $sm;
+
   font-size: 0.75rem;
 }
 
 .steps-line {
   display: flex;
   align-items: center;
+  border-radius: $sm;
+  padding: $xxxxs;
 }
 </style>
