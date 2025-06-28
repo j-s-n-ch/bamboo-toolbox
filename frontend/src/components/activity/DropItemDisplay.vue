@@ -6,13 +6,11 @@ import { useItemsStore } from "@/store/items";
 import { n } from "@/utils/number";
 
 const props = defineProps({
-  item: Object,
-  rollAmount: Number,
-  totalWeight: Number,
-  type: Array,
+  sources: Array,
 });
 
 const itemsStore = useItemsStore();
+const item = computed(() => props.sources?.[0] || {});
 
 const {
   stepsPerRewardRoll,
@@ -23,44 +21,69 @@ const {
   findBirdNests,
 } = useSkillModifiers();
 
-const dropChanceMultipliers = computed(() => {
+const dropChanceMultipliers = (type) => {
   let multiplier = 1;
-  if (props.type.includes("chestTable")) {
+  if (type.includes("chestTable")) {
     multiplier *= chestFind.value;
   }
-  if (props.type.includes("collectible")) {
+  if (type.includes("collectible")) {
     multiplier *= findCollectibles.value;
   }
-  if (props.type.includes("gem")) {
+  if (type.includes("gem")) {
     multiplier *= findGems.value;
   }
-  if (props.type.includes("birdNest")) {
+  if (type.includes("birdNest")) {
     multiplier *= findBirdNests.value;
   }
 
   return multiplier;
-});
+};
 
-const dropChance = computed(() => {
-  const { rowWeight, noDropChance } = props.item;
+const sourceDropChance = (source) => {
+  const { rowWeight, tableWeight, noDropChance, type, rollAmount } = source;
   const odds =
     (1 - noDropChance) *
-    (rowWeight / props.totalWeight) *
-    dropChanceMultipliers.value;
-  return 1 - (1 - odds) ** props.rollAmount;
+    (rowWeight / tableWeight) *
+    dropChanceMultipliers(type);
+
+  return 1 - (1 - odds) ** rollAmount;
+};
+
+const totalDropChance = computed(() => {
+  const probabilityNone = props.sources
+    .map(sourceDropChance)
+    .reduce((acc, prob) => acc * (1 - prob), 1);
+  return 100 * (1 - probabilityNone);
 });
 
 const stepsPerItem = computed(() => {
-  const { rowMinimumAmount, rowMaximumAmount } = props.item;
-  const avgAmount = (rowMaximumAmount + rowMinimumAmount) / 2;
+  const stepsPerSource = props.sources.map((source) => {
+    const { rowMinimumAmount, rowMaximumAmount } = source;
+    const avgAmount = (rowMaximumAmount + rowMinimumAmount) / 2;
 
-  return stepsPerRewardRoll.value / dropChance.value / avgAmount;
+    return stepsPerRewardRoll.value / sourceDropChance(source) / avgAmount;
+  });
+  return (
+    1 / stepsPerSource.map((steps) => 1 / steps).reduce((a, b) => a + b, 0)
+  );
+});
+
+const dropCounts = computed(() => {
+  return props.sources
+    .map((source) => {
+      const { rowMinimumAmount, rowMaximumAmount } = source;
+      if (rowMinimumAmount === rowMaximumAmount) {
+        return `${rowMinimumAmount}`;
+      }
+      return `${rowMinimumAmount} - ${rowMaximumAmount}`;
+    })
+    .join(", ");
 });
 
 const canDropFine = computed(() => {
   return (
-    !props.type.includes("chestTable") &&
-    !(props.item.rowItemID in itemsStore.allItems)
+    !props.sources[0].type.includes("chestTable") &&
+    !(item.value.rowItemID in itemsStore.allItems)
   );
 });
 
@@ -71,14 +94,15 @@ const stepsPerFine = computed(() => {
 </script>
 
 <template>
-  <div class="drop-item-display" :title="item.name" :aria-label="item.name">
+  <div
+    v-if="item && item.name"
+    class="drop-item-display"
+    :title="item.name"
+    :aria-label="item.name"
+  >
     <ws-icon :icon-path="item.icon" size="md" />
-    <span>{{ n(100 * dropChance) }}%</span>
-
-    <span v-if="item.rowMinimumAmount !== item.rowMaximumAmount"
-      >{{ item.rowMinimumAmount }} - {{ item.rowMaximumAmount }}</span
-    >
-    <span v-else>{{ item.rowMinimumAmount }}</span>
+    <span>{{ n(totalDropChance, 3) }}%</span>
+    <span>{{ dropCounts }}</span>
     <div class="steps-line">
       <ws-icon iconPath="assets/icons/text/general_icons/steps.png" size="xs" />
       <span>{{ n(stepsPerItem, 1) }}</span>
@@ -99,7 +123,6 @@ const stepsPerFine = computed(() => {
 
   padding: $xs;
   gap: $xxxxs;
-
 
   background-color: $boxDarkBackground;
   border: 1px solid $boxDarkOutline;

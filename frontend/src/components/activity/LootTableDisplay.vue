@@ -7,6 +7,26 @@ const props = defineProps({
   lootTable: Object,
 });
 
+const lootTableLabels = computed(() => {
+  const { rollAmount, tables, type } = props.lootTable;
+  const labels = [];
+  if (type.includes("chestTable")) {
+    labels.push("Chests");
+  } else if (type.includes("collectible")) {
+    labels.push("Collectibles");
+  } else {
+    labels.push.apply(
+      labels,
+      tables.map(({ name }) => name)
+    );
+  }
+
+  if (rollAmount > 1) {
+    labels.push(`Roll${labels.length > 1 ? "" : "s"} ${rollAmount} times`);
+  }
+  return labels;
+});
+
 const tableItems = computed(() => {
   const { rollAmount, type } = props.lootTable;
   return props.lootTable?.tables?.flatMap(({ noDropChance, tableRows }) => {
@@ -19,35 +39,36 @@ const tableItems = computed(() => {
     const tableWeight = mappedRows.reduce((acc, row) => {
       return acc + (row.rowWeight || 0);
     }, 0);
-    return { mappedRows, tableWeight, rollAmount, type };
+    return mappedRows.map((row) => {
+      return [
+        {
+          ...row,
+          tableWeight,
+          rollAmount,
+          type,
+        },
+      ];
+    });
   });
 });
 </script>
 
 <template>
   <section v-if="lootTable.rollAmount > 0" class="loot-table-display">
-    <div
-      v-for="(
-        { mappedRows, tableWeight, rollAmount, type }, index
-      ) in tableItems"
-      :key="index"
-      class="loot-table"
-    >
+    <div class="labels">
       <ws-label
-        v-if="rollAmount > 1"
-        :label="`rolls ${rollAmount}x`"
+        v-for="(label, index) in lootTableLabels"
+        :key="`label-${index}`"
+        :label="label"
         class="label"
       />
-      <div class="table">
-        <drop-item-display
-          v-for="(item, itemIndex) in mappedRows"
-          :key="itemIndex"
-          :item="item"
-          :total-weight="tableWeight"
-          :roll-amount="rollAmount"
-          :type="type"
-        />
-      </div>
+    </div>
+    <div class="loot-table">
+      <drop-item-display
+        v-for="(sources, index) in tableItems"
+        :key="index"
+        :sources="sources"
+      />
     </div>
   </section>
 </template>
@@ -55,37 +76,33 @@ const tableItems = computed(() => {
 <style lang="scss" scoped>
 .loot-table-display {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+
+  padding: $sm;
   gap: $sm;
+  border: 1px solid $chipOutline;
+  border-radius: $sm;
+
+  .labels {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $xxxs $xxxlg;
+    flex-wrap: wrap;
+
+    .label {
+      background-color: $bgPrimary;
+      padding: 0;
+    }
+  }
 
   .loot-table {
     position: relative;
     display: flex;
-    flex-direction: column;
     align-items: flex-start;
     flex-wrap: wrap;
     gap: $sm;
-
-    padding: $sm;
-    border: 1px solid $chipOutline;
-    border-radius: $sm;
-
-    .table {
-      width: 100%;
-      display: flex;
-      flex-wrap: wrap;
-      gap: $sm;
-      justify-content: center;
-    }
-
-    .label {
-      background-color: $bgPrimary;
-      border-radius: $xs;
-      padding: $xxxxs;
-      margin-top: -$lg;
-      margin-bottom: -$sm;
-      white-space: nowrap;
-    }
   }
 }
 </style>

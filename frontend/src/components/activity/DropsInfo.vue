@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { getMultipleLootTables } from "@/utils/axios/api_routes";
 import { useActivityStore } from "@/store/activity";
 import DropItemDisplay from "./DropItemDisplay.vue";
@@ -27,6 +27,60 @@ onMounted(async () => {
 
   resolvedLootTables.value = resolvedTables;
 });
+
+const mapLootTable = (table) => {
+  const { rollAmount, type } = table;
+  return table.tables?.flatMap(({ noDropChance, tableRows }) => {
+    const mappedRows = tableRows.flatMap((row) => {
+      return {
+        ...row,
+        noDropChance,
+      };
+    });
+    const tableWeight = mappedRows.reduce((acc, row) => {
+      return acc + (row.rowWeight || 0);
+    }, 0);
+    return mappedRows.map((row) => {
+      return {
+        ...row,
+        tableWeight,
+        rollAmount,
+        type,
+      };
+    });
+  });
+};
+
+const combinedItems = computed(() => {
+  const allItems = resolvedLootTables.value.flatMap((table) => {
+    return mapLootTable(table)?.flat() || [];
+  });
+
+  const grouped = {};
+  for (const item of allItems) {
+    const key = item.rowItemID;
+    if (!key) continue;
+    if (!grouped[key]) {
+      grouped[key] = [];
+    }
+    grouped[key].push(item);
+  }
+
+  return Object.values(grouped);
+});
+
+const groupedLootTables = computed(() => {
+  const grouped = {};
+  for (const table of resolvedLootTables.value) {
+    const key = `${table.type}-${table.rollAmount}`;
+    if (!grouped[key]) {
+      grouped[key] = table;
+    } else {
+      grouped[key]["tables"].push.apply(grouped[key]["tables"], table.tables);
+    }
+  }
+  return Object.values(grouped);
+});
 </script>
 
 <template>
@@ -39,11 +93,20 @@ onMounted(async () => {
       </label>
     </div>
     <section class="drops-info">
-      <loot-table-display
-        v-for="(table, index) in resolvedLootTables"
-        :key="index"
-        :loot-table="table"
-      />
+      <template v-if="activityStore.showCombined">
+        <drop-item-display
+          v-for="(items, index) in combinedItems"
+          :key="index"
+          :sources="items"
+        />
+      </template>
+      <template v-else>
+        <loot-table-display
+          v-for="(table, index) in groupedLootTables"
+          :key="index"
+          :loot-table="table"
+        />
+      </template>
     </section>
   </details>
 </template>
@@ -55,7 +118,7 @@ onMounted(async () => {
   flex-wrap: wrap;
 
   align-items: flex-start;
-  gap: $lg;
+  gap: $md;
 
   border: 1px solid $boxDarkOutline;
 }
