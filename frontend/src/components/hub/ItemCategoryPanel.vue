@@ -3,7 +3,7 @@ import { computed, ref, watch } from "vue";
 import { useItemsStore } from "@/store/items";
 import ItemEntry from "./ItemEntry.vue";
 import ConsumableEntry from "./ConsumableEntry.vue";
-import { itemQualityNameSort } from "@/utils/quality";
+import { itemQualityNameSort, consumableQualityOptions } from "@/utils/quality";
 
 const props = defineProps({
   group: String,
@@ -34,7 +34,28 @@ const allSelected = computed(() => {
   );
 });
 
-function toggleSelectAll(e) {
+const toggleAllConsumables = (e) => {
+  if (e.target.checked) {
+    const newSet = new Set();
+    items.forEach((item) => {
+      newSet.add(item.id);
+      itemsStore.toggleItem(
+        item.id,
+        true,
+        consumableQualityOptions[0].value,
+        null
+      );
+    });
+    selectedItems.value = newSet;
+  } else {
+    items.forEach((item) => {
+      itemsStore.toggleItem(item.id, false, null, null);
+    });
+    selectedItems.value = new Set();
+  }
+};
+
+const toggleAll = (e) => {
   if (e.target.checked) {
     const newSet = new Set();
     items.forEach((item) => {
@@ -47,6 +68,14 @@ function toggleSelectAll(e) {
       itemsStore.toggleItem(item.id, false, item.quality, item.quality2);
     });
     selectedItems.value = new Set();
+  }
+};
+
+function toggleSelectAll(e) {
+  if (props.group === "Consumables") {
+    toggleAllConsumables(e);
+  } else {
+    toggleAll(e);
   }
 }
 

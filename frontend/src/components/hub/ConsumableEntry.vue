@@ -18,7 +18,7 @@ const normalOwned = ref(false);
 const fineOwned = ref(false);
 const isOpen = ref(false);
 
-onMounted(() => {
+function updateOwnedFromStore() {
   const entry = itemsStore.ownedItems[props.item.id];
   normalOwned.value = !!(
     entry &&
@@ -28,10 +28,19 @@ onMounted(() => {
     entry &&
     (entry.quality === fine || entry.quality2 === fine)
   );
-});
+}
+
+onMounted(updateOwnedFromStore);
+
+watch(
+  () => itemsStore.ownedItems[props.item.id],
+  () => {
+    updateOwnedFromStore();
+  },
+  { deep: true }
+);
 
 watch([normalOwned, fineOwned], () => {
-  // Compose the correct payload for the store
   let owned = normalOwned.value || fineOwned.value;
   let quality = null;
   let quality2 = null;
