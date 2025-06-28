@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, reactive, nextTick } from "vue";
 import { usePlayerStore } from "@/store/player";
+import { useUrlStore } from "@/store/url";
 import { getOrCreateUserUuid } from "@/utils/user";
 import Hub from "./components/hub/Hub.vue";
 import Activity from "./components/activity/Activity.vue";
@@ -8,6 +9,7 @@ import Gear from "./components/gear/Gear.vue";
 import Footer from "./components/footer/Footer.vue";
 
 const playerStore = usePlayerStore();
+const mappingStore = useUrlStore();
 playerStore.setUuid(getOrCreateUserUuid());
 
 const activeTab = ref("Hub");
@@ -32,9 +34,13 @@ function scrollToTab(tabName) {
   });
 }
 
-onMounted(() => {
+onMounted(async () => {
   checkScreenSize();
   window.addEventListener("resize", checkScreenSize);
+
+  await mappingStore.fetchMapping();
+  const urlStore = useUrlStore();
+  urlStore.decodeFromUrlAndApply();
 });
 
 onUnmounted(() => {

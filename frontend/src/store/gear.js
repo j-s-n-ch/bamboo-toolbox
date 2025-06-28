@@ -59,7 +59,7 @@ export const useGearStore = defineStore("gearStore", {
       if (slot === "service") return () => ({ name: "None", id: "-1" });
       return searchItems;
     },
-    async loadItem(itemSlot, id, quality) {
+    async loadItem(itemSlot, id) {
       if (!id) {
         console.error("no id provided");
         return;
@@ -68,6 +68,13 @@ export const useGearStore = defineStore("gearStore", {
       if (previousItem?.id === id) return;
 
       await getItem({ id }).then(({ data }) => {
+        const itemsStore = useItemsStore();
+
+        const owned = id in itemsStore.ownedItems;
+        const quality = owned
+          ? itemsStore.ownedItems[id].quality
+          : item.quality || "common";
+
         if (data) {
           this.setGearSlot(itemSlot, { ...data, quality });
         }

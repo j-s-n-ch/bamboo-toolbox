@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useActivityStore } from "@/store/activity";
+import { useUrlStore } from "@/store/url";
 import {
   getSkills,
   getActivities,
@@ -12,6 +13,7 @@ import ActivityInfo from "./ActivityInfo.vue";
 import DropsInfo from "./DropsInfo.vue";
 
 const activityStore = useActivityStore();
+const urlStore = useUrlStore();
 
 const skills = ref([]);
 const keywords = ref([]);
@@ -77,6 +79,7 @@ const selectActivity = async (activity) => {
     activityStore.loadActivity(activity.id),
     activityStore.loadActivityLocations(activity.id),
   ]);
+  urlStore.encodeAndPushToUrl();
   loadingActivity.value = false;
 };
 </script>

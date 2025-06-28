@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useGearStore } from "@/store/gear";
+import { useUrlStore } from "@/store/url";
 import { useItemsStore } from "@/store/items";
 import GearPreview from "./GearPreview.vue";
 import GearSearch from "./GearSearch.vue";
@@ -39,6 +40,7 @@ const tabs = [
 
 const gearStore = useGearStore();
 const itemsStore = useItemsStore();
+const urlStore = useUrlStore();
 
 const closeDialog = () => {
   emit("update:visible", false);
@@ -56,14 +58,16 @@ const selectTab = (index) => {
 const selectedTab = ref(gearStore.slotFilled(props.slotName) ? 0 : 1);
 
 const handleSelectItem = async (item) => {
-  const owned = item.id in itemsStore.ownedItems;
-  const quality = owned ? itemsStore.ownedItems[item.id].quality : item.quality;
-  await gearStore.loadItem(props.slotName, item.id, quality);
+  await gearStore.loadItem(props.slotName, item.id);
+
+  urlStore.encodeAndPushToUrl();
   closeDialog();
 };
 
 const unequipItem = (slotName) => {
   gearStore.setGearSlot(slotName, null);
+
+  urlStore.encodeAndPushToUrl();
   closeDialog();
 };
 </script>
