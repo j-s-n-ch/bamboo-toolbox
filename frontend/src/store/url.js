@@ -51,18 +51,17 @@ export const useUrlStore = defineStore("url", {
     },
 
     encodeAndPushToUrl() {
-      const { encodeGearLoadout, decodeGearLoadout } = useUrlMap();
+      const { encodeGearLoadout } = useUrlMap();
       const encoded = encodeGearLoadout();
-      const decoded = decodeGearLoadout(encoded);
 
       const url = new URL(window.location.href);
-      url.pathname = "/" + encoded;
+      url.searchParams.set("q", encoded);
       window.history.replaceState({}, "", url);
     },
 
     async decodeFromUrlAndApply() {
-      const path = window.location.pathname;
-      const encoded = path.slice(1);
+      const params = new URLSearchParams(window.location.search);
+      const encoded = params.get("q");
       if (!encoded) return;
 
       const { decodeGearLoadout } = useUrlMap();
