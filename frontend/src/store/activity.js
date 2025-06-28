@@ -1,12 +1,20 @@
 import { defineStore } from "pinia";
-import { getActivity, searchLocations } from "@/utils/axios/api_routes";
+import {
+  getActivity,
+  searchLocations,
+  getActivities,
+  getKeywords,
+} from "@/utils/axios/api_routes";
 
 export const useActivityStore = defineStore("activity", {
   state: () => ({
+    activities: [],
+    keywords: [],
     activity: null,
     location: null,
     locations: null,
     showCombined: true,
+    isLoaded: false,
   }),
   getters: {
     activitySelected: (state) => {
@@ -14,6 +22,20 @@ export const useActivityStore = defineStore("activity", {
     },
   },
   actions: {
+    async fetchActivitiesData() {
+      if (this.isLoaded) return;
+
+      const [{ data: activities }, { data: keywords }] = await Promise.all([
+        getActivities(),
+        getKeywords(),
+      ]);
+
+      this.keywords = keywords;
+      this.activities = activities;
+
+      this.isLoaded = true;
+    },
+
     setActivity(activity) {
       this.activity = { ...activity, value: activity.name };
     },

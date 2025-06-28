@@ -5,15 +5,11 @@ import { useActivityStore } from "@/store/activity";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
 
-const props = defineProps({
-  activity: Object,
-});
-
 const activityStore = useActivityStore();
 const resolvedLootTables = ref([]);
 
 onMounted(async () => {
-  const tables = props.activity?.tables || [];
+  const tables = activityStore.activity?.tables || [];
   const tableIds = tables.flatMap(({ tables }) => tables);
 
   const { data: lootTables } = await getMultipleLootTables(tableIds);

@@ -1,26 +1,42 @@
 import { defineStore } from "pinia";
 import { upsertOwnedItems } from "@/utils/axios/db_routes";
+import { getCategorizedItems } from "@/utils/axios/api_routes";
+import { fetchOwnedItems } from "@/utils/axios/db_routes";
 import debounce from "@/utils/debounce";
 
 export const useItemsStore = defineStore("itemStore", {
   state: () => ({
+    categorizedItems: [],
     itemsByCategory: {},
     ownedItems: {},
     allItems: {},
     changedOwnedItems: {},
+    isLoaded: false,
   }),
   actions: {
-    setItems(category, items) {
-      this.itemsByCategory[category] = items;
-      items.forEach((item) => {
-        this.allItems[item.id] = item;
+    async fetchItems() {
+      if (this.isLoaded) return;
+
+      const [{ data: categorizedItems }, ownedItems] = await Promise.all([
+        getCategorizedItems(),
+        fetchOwnedItems(),
+      ]);
+
+      ownedItems.forEach(
+        ({ itemId, ...data }) => (this.ownedItems[itemId] = data)
+      );
+      this.categorizedItems = categorizedItems;
+
+      categorizedItems.forEach(({ categories }) => {
+        categories.forEach(({ key, items }) => {
+          this.itemsByCategory[key] = items;
+          items.forEach((item) => {
+            this.allItems[item.id] = item;
+          });
+        });
       });
-    },
-    setOwned(itemId, data) {
-      this.ownedItems[itemId] = data;
-    },
-    setOwnedItems(items) {
-      items.forEach(({ itemId, ...data }) => this.setOwned(itemId, data));
+
+      this.isLoaded = true;
     },
     toggleItem(itemId, owned = true, quality = null, quality2 = null) {
       this.ownedItems[itemId] = { owned, quality, quality2 };

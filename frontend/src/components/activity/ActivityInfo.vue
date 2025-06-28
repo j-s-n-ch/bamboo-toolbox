@@ -5,15 +5,12 @@ import InfoBubble from "@/components/common/InfoBubble.vue";
 import LocationBubble from "@/components/common/LocationBubble.vue";
 import SkillBubble from "@/components/common/SkillBubble.vue";
 import KeywordDisplay from "@/components/common/KeywordDisplay.vue";
+import { useActivityStore } from "@/store/activity";
 import { useSkillModifiers } from "@/utils/useSkillModifiers";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
 
-const props = defineProps({
-  activity: Object,
-  keywords: Array,
-  locations: Array,
-});
+const activityStore = useActivityStore();
 
 const {
   maxWorkEfficiency,
@@ -24,11 +21,11 @@ const {
 } = useSkillModifiers();
 
 const borderClass = computed(
-  () => `border-${props.activity?.relatedSkillsList[0]}`
+  () => `border-${activityStore.activity?.relatedSkillsList[0]}`
 );
 
 const getKeyword = (kw) => {
-  const findKw = (kwId) => props.keywords.find(({ id }) => id === kwId);
+  const findKw = (kwId) => activityStore.keywords.find(({ id }) => id === kwId);
 
   if ("keyword" in kw) {
     return findKw(kw["keyword"]);
@@ -56,7 +53,7 @@ const sections = computed(() => {
     levelRequirementsMap,
     requiredKeywords,
     requirements,
-  } = props.activity;
+  } = activityStore.activity;
 
   const isTravel = id === "activity-travelling";
 
@@ -128,7 +125,7 @@ const sections = computed(() => {
     {
       label: "Locations",
       component: LocationBubble,
-      items: !isTravel ? props.locations : [],
+      items: !isTravel ? activityStore.locations : [],
       itemProps: (item) => ({ location: item }),
     },
   ].filter(({ items }) => !isEmpty(items));

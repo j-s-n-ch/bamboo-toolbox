@@ -1,17 +1,18 @@
 <script setup>
 import { ref, onMounted, onUnmounted, reactive, nextTick } from "vue";
+import { useActivityStore } from "@/store/activity";
 import { usePlayerStore } from "@/store/player";
 import { useUrlStore } from "@/store/url";
+import { useItemsStore } from "@/store/items";
 import { getOrCreateUserUuid } from "@/utils/user";
 import Hub from "./components/hub/Hub.vue";
 import Activity from "./components/activity/Activity.vue";
 import Gear from "./components/gear/Gear.vue";
 import Footer from "./components/footer/Footer.vue";
+import LoadingThrobber from "./components/common/LoadingThrobber.vue";
 
-const playerStore = usePlayerStore();
-const mappingStore = useUrlStore();
-playerStore.setUuid(getOrCreateUserUuid());
-
+const urlStore = useUrlStore();
+const isLoaded = ref(false);
 const activeTab = ref("Hub");
 const isMobile = ref(window.innerWidth <= 768);
 
@@ -34,13 +35,29 @@ function scrollToTab(tabName) {
   });
 }
 
+const bootstrap = async () => {
+  const activityStore = useActivityStore();
+  const playerStore = usePlayerStore();
+  const itemsStore = useItemsStore();
+
+  playerStore.setUuid(getOrCreateUserUuid());
+
+  await Promise.all([
+    activityStore.fetchActivitiesData(),
+    playerStore.fetchPlayerData(),
+    urlStore.fetchMapping(),
+    itemsStore.fetchItems(),
+  ]);
+
+  await urlStore.decodeFromUrlAndApply();
+  isLoaded.value = true;
+};
+
 onMounted(async () => {
   checkScreenSize();
   window.addEventListener("resize", checkScreenSize);
 
-  await mappingStore.fetchMapping();
-  const urlStore = useUrlStore();
-  urlStore.decodeFromUrlAndApply();
+  await bootstrap();
 });
 
 onUnmounted(() => {
@@ -49,7 +66,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div :class="isMobile ? 'mobile-layout' : 'desktop-layout'">
+  <loading-throbber v-if="!isLoaded" />
+  <div v-else :class="isMobile ? 'mobile-layout' : 'desktop-layout'">
     <div
       v-for="tabName in Object.keys(tabs)"
       :key="tabName"

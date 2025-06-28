@@ -1,7 +1,6 @@
 <script setup>
-import { ref, onMounted } from "vue";
 import { getSkills } from "@/utils/axios/api_routes";
-import { fetchPlayerStats, upsertPlayerStats } from "@/utils/axios/db_routes";
+import { upsertPlayerStats } from "@/utils/axios/db_routes";
 import { usePlayerStore } from "@/store/player";
 import TabContentWrapper from "@/components/common/TabContentWrapper.vue";
 import SkillLevelDisplay from "./SkillLevelDisplay.vue";
@@ -10,23 +9,6 @@ import ItemSelection from "./ItemSelection.vue";
 import debounce from "@/utils/debounce";
 
 const playerStore = usePlayerStore();
-const skills = ref([]);
-
-onMounted(async () => {
-  const [skillsResponse, playerStatsResponse] = await Promise.all([
-    getSkills(),
-    fetchPlayerStats(),
-  ]);
-
-  skills.value = skillsResponse.data.sort((a, b) => a.name.localeCompare(b.name));
-
-  // Initialize store
-  skillsResponse.data.forEach(({ id }) => {
-    playerStore.setSkillLevel(id, playerStatsResponse[id] ?? 1);
-  });
-
-  playerStore.setAchievementPoints(playerStatsResponse.achievementPoints ?? 0);
-});
 
 const postPlayerStats = () => {
   const payload = {
@@ -43,7 +25,7 @@ const updatePlayerStats = debounce(postPlayerStats, 1000);
   <tab-content-wrapper>
     <div class="skill-bubbles">
       <skill-level-display
-        v-for="skill in skills"
+        v-for="skill in playerStore.skills"
         :key="skill.name"
         :skill="skill"
         @input="updatePlayerStats"

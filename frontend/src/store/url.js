@@ -33,10 +33,12 @@ export const useUrlStore = defineStore("url", {
       consumable: "consumable",
       service: "service",
     },
+    isLoaded: false,
   }),
 
   actions: {
     async fetchMapping() {
+      if (this.isLoaded) return;
       const { data: response } = await getUrlMap();
       this.mapping = response;
 
@@ -47,6 +49,7 @@ export const useUrlStore = defineStore("url", {
         );
       }
       this.reverseMapping = reverse;
+      this.isLoaded = true;
     },
 
     encodeAndPushToUrl() {
@@ -58,7 +61,7 @@ export const useUrlStore = defineStore("url", {
       window.history.replaceState({}, "", url);
     },
 
-    decodeFromUrlAndApply() {
+    async decodeFromUrlAndApply() {
       const params = new URLSearchParams(window.location.search);
       const encoded = params.get("loadout");
       if (!encoded) return;
@@ -70,16 +73,17 @@ export const useUrlStore = defineStore("url", {
       const activityStore = useActivityStore();
       const itemsStore = useItemsStore();
 
-      for (const slot in decodedLoadout) {
-        const id = decodedLoadout[slot];
-        if (!id) continue;
-
+      const promises = [];
+      Object.entries(decodedLoadout).forEach(([slot, id]) => {
+        if (!id) return;
         if (slot === "activity") {
-          activityStore.loadActivity(id);
+          promises.push(activityStore.loadActivity(id));
         } else {
-          gearStore.loadItem(slot, id);
+          promises.push(gearStore.loadItem(slot, id));
         }
-      }
+      });
+
+      await Promise.all(promises);
     },
   },
 });
