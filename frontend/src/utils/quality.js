@@ -52,6 +52,17 @@ export const qualityOptions = [
   },
 ];
 
+export const consumableQualityOptions = [
+  {
+    name: "Common",
+    value: "common",
+  },
+  {
+    name: "Fine",
+    value: "fine",
+  },
+];
+
 const qualityRank = Object.fromEntries(
   qualityOptions.map(({ value }, index) => [value, index])
 );
