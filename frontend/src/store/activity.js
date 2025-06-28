@@ -15,7 +15,7 @@ export const useActivityStore = defineStore("activity", {
   },
   actions: {
     setActivity(activity) {
-      this.activity = activity;
+      this.activity = { ...activity, value: activity.name };
     },
     setLocations(locations) {
       this.locations = locations;

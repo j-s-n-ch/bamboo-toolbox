@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
 import WsLabel from "../WsLabel.vue";
 import LabelWithIcon from "../LabelWithIcon.vue";
 import DropdownCategory from "./DropdownCategory.vue";
@@ -9,6 +9,10 @@ const props = defineProps({
   data: {
     type: Array,
     required: true,
+  },
+  modelValue: {
+    type: [String, Object],
+    default: null,
   },
 });
 
@@ -22,12 +26,12 @@ const handleClickOutside = (event) => {
 
 const dropdownRef = ref("dropdownRef");
 const isOpen = ref(false);
-const selected = ref("");
+const selected = ref(props.modelValue || "");
 const searchTerm = ref("");
 
 onMounted(() => {
   const noneOption = props.data.filter(({ value }) => value === "None");
-  if (noneOption.length) selectItem(noneOption[0]);
+  if (!selected.value && noneOption.length) selectItem(noneOption[0]);
 
   const onEsc = (e) => {
     if (e.key === "Escape" || e.key === "Esc") {
@@ -70,6 +74,13 @@ const filteredData = computed(() => {
     })
     .filter(Boolean);
 });
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    selected.value = val;
+  }
+);
 
 const selectItem = (item) => {
   isOpen.value = false;

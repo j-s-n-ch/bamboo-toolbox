@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useActivityStore } from "@/store/activity";
 import {
   getSkills,
@@ -62,6 +62,15 @@ onMounted(async () => {
   isLoading.value = false;
 });
 
+const selectedActivity = computed({
+  get: () => activityStore.activity,
+  set: (val) => {
+    if (val && val.id !== activityStore.activity?.id) {
+      selectActivity(val);
+    }
+  },
+});
+
 const selectActivity = async (activity) => {
   loadingActivity.value = true;
   await Promise.all([
@@ -77,6 +86,7 @@ const selectActivity = async (activity) => {
     <nested-dropdown
       label="Activity"
       :data="activitiesBySkill"
+      v-model="selectedActivity"
       @select="selectActivity"
     />
     <activity-info
