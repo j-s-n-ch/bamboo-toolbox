@@ -34,6 +34,8 @@ $quality-colors: (
   "legendary-dark": rgb(80, 59, 31),
   "ethereal": rgb(255, 95, 95),
   "ethereal-dark": rgb(77, 32, 32),
+  "fine": rgb(176, 247, 238),
+  "fine-dark": rgb(122, 156, 152),
 );
 
 @each $name, $color in $quality-colors {
