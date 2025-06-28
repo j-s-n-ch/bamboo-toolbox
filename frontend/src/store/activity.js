@@ -6,6 +6,7 @@ export const useActivityStore = defineStore("activity", {
     activity: null,
     location: null,
     locations: null,
+    showCombined: true,
   }),
   getters: {
     activitySelected: (state) => {

@@ -1,12 +1,15 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { getMultipleLootTables } from "@/utils/axios/api_routes";
+import { useActivityStore } from "@/store/activity";
+import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
 
 const props = defineProps({
   activity: Object,
 });
 
+const activityStore = useActivityStore();
 const resolvedLootTables = ref([]);
 
 onMounted(async () => {
@@ -29,6 +32,12 @@ onMounted(async () => {
 <template>
   <details open>
     <summary>Drops</summary>
+    <div style="margin-bottom: 1em">
+      <label>
+        <input type="checkbox" v-model="activityStore.showCombined" />
+        Show combined drops
+      </label>
+    </div>
     <section class="drops-info">
       <loot-table-display
         v-for="(table, index) in resolvedLootTables"
