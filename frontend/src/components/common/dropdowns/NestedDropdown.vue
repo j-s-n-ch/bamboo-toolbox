@@ -85,7 +85,7 @@ watch(
 const selectItem = (item, update = true) => {
   isOpen.value = false;
   selected.value = item;
-  emit("select", item, false);
+  emit("select", item, update);
 };
 </script>
 
