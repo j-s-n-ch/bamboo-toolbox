@@ -64,7 +64,6 @@ function toggleFine(e) {
   fineOwned.value = !fineOwned.value;
 }
 const toggleOpen = () => {
-  console.log(props.item);
   isOpen.value = !isOpen.value;
 };
 </script>
