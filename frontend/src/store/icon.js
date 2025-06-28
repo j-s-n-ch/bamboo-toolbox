@@ -7,7 +7,7 @@ export const useIconStore = defineStore("iconStore", {
   }),
   actions: {
     async loadIcon(path) {
-      if (this.iconCache[path]) return this.iconCache[path];
+      if (path in this.iconCache) return this.iconCache[path];
 
       const response = await getIcon({ iconPath: path });
       const url = URL.createObjectURL(response.data);

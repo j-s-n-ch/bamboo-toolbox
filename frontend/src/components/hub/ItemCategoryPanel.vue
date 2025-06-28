@@ -124,7 +124,7 @@ watch(
       <h3>{{ title }}</h3>
       <button class="toggle">{{ isOpen ? "▲" : "▼" }}</button>
     </div>
-    <div v-show="isOpen && hasLoaded" class="content">
+    <div v-if="isOpen && hasLoaded" class="content">
       <div v-if="group === 'Consumables'">
         <consumable-entry
           v-for="item in items"
