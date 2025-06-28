@@ -73,7 +73,7 @@ export const useGearStore = defineStore("gearStore", {
         const owned = id in itemsStore.ownedItems;
         const quality = owned
           ? itemsStore.ownedItems[id].quality
-          : item.quality || "common";
+          : itemsStore.allItems[id].quality || "common";
 
         if (data) {
           this.setGearSlot(itemSlot, { ...data, quality });
