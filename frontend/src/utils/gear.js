@@ -36,6 +36,7 @@ const usefulAttrs = (item, activity, quality, isRecipe) => {
   const baseAttrs = sumAttrs(
     item.itemAttrs,
     item.itemQualityAttrs || [],
+    item.buffs || [],
     quality
   );
 

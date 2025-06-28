@@ -1,7 +1,9 @@
-import { qualityOptions } from "@/utils/quality";
+import { qualityOptions, consumableQualityOptions } from "@/utils/quality";
 import { toDeepRaw } from "./rawData";
 
-export const sumAttrs = (itemAttrs, qualityAttrs, quality) => {
+export const sumAttrs = (itemAttrs, qualityAttrs, buffs, quality) => {
+  if (quality.includes("consumable")) return sumBuffAttrs(buffs, quality);
+
   const qIndex = Math.min(
     qualityAttrs?.length || 0,
     qualityOptions.findIndex(({ value }) => value === quality)
@@ -47,6 +49,7 @@ export const sumBuffAttrs = (buffs, quality) => {
     return [];
   }
 
+  const [normal, _] = consumableQualityOptions.map(({ value }) => value);
   const mapAttrs = (attribute) => {
     return {
       ...attribute,
@@ -56,5 +59,5 @@ export const sumBuffAttrs = (buffs, quality) => {
 
   const attrs = buffData[0].attributes.map(mapAttrs);
   const fineAttrs = buffData[0].fineAttributes.map(mapAttrs);
-  return quality === "common" ? attrs : fineAttrs;
+  return quality === normal ? attrs : fineAttrs;
 };

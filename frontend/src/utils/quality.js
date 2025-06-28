@@ -55,11 +55,11 @@ export const qualityOptions = [
 export const consumableQualityOptions = [
   {
     name: "Common",
-    value: "common",
+    value: "consumableCommon",
   },
   {
     name: "Fine",
-    value: "fine",
+    value: "consumableFine",
   },
 ];
 

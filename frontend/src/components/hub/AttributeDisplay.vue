@@ -6,20 +6,16 @@ import { sumAttrs, sumBuffAttrs } from "@/utils/qualityAttrs";
 const props = defineProps({
   itemAttrs: Array,
   qualityAttrs: Array,
+  buffs: Array,
   quality: String,
-  isConsumable: {
-    type: Boolean,
-    default: false,
-  },
 });
 
-const attrs = props.isConsumable
-  ? sumBuffAttrs(toDeepRaw(props.itemAttrs), props.quality)
-  : sumAttrs(
-      toDeepRaw(props.itemAttrs),
-      toDeepRaw(props.qualityAttrs),
-      props.quality
-    );
+const attrs = sumAttrs(
+  toDeepRaw(props.itemAttrs),
+  toDeepRaw(props.qualityAttrs),
+  toDeepRaw(props.buffs),
+  props.quality
+);
 
 const getStatText = (stat) => {
   const { value, isPercent, name } = stat;
@@ -56,7 +52,6 @@ const getRequirementText = (base, requirements) => {
     return prev;
   };
 
-  console.log('reqs:', requirements);
   requirements.forEach((r) => {
     text = reqToText(text, r);
   });

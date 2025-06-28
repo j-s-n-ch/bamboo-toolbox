@@ -106,16 +106,8 @@ const toggleOpen = () => {
     </section>
 
     <section v-if="hasAttrs && isOpen">
-      <attribute-display
-        :itemAttrs="item.buffs"
-        :quality="normal"
-        is-consumable
-      />
-      <attribute-display
-        :itemAttrs="item.buffs"
-        :quality="fine"
-        is-consumable
-      />
+      <attribute-display :buffs="item.buffs" :quality="normal" />
+      <attribute-display :buffs="item.buffs" :quality="fine" />
     </section>
   </section>
 </template>

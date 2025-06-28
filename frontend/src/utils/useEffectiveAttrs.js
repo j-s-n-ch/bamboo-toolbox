@@ -27,8 +27,13 @@ export function useEffectiveAttrs() {
         return {
           ...item,
           attrs: toDeepRaw(
-            item.type === "crafted"
-              ? sumAttrs(item.itemAttrs, item.itemQualityAttrs, item.quality)
+            item.type !== "loot"
+              ? sumAttrs(
+                  item.itemAttrs,
+                  item.itemQualityAttrs,
+                  item.buffs,
+                  item.quality
+                )
               : item.itemAttrs
           ),
         };

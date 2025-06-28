@@ -42,6 +42,7 @@ const quality = owned ? itemsStore.ownedItems[item.id].quality : item.quality;
     <attribute-display
       :itemAttrs="item.itemAttrs"
       :qualityAttrs="item.itemQualityAttrs"
+      :buffs="item.buffs"
       :quality="quality"
       :key="`attributes-q1-${quality}`"
     />
