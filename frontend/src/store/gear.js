@@ -5,16 +5,16 @@ import { useItemsStore } from "./items";
 export const useGearStore = defineStore("gearStore", {
   state: () => ({
     gearSlots: {
+      head: null,
       cape: null,
       back: null,
-      neck: null,
-      hands: null,
-      head: null,
       chest: null,
-      legs: null,
-      feet: null,
       primary: null,
       secondary: null,
+      hands: null,
+      legs: null,
+      neck: null,
+      feet: null,
       ring1: null,
       ring2: null,
       tool1: null,
