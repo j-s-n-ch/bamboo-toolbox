@@ -27,7 +27,7 @@ function copyExportCode() {
 </script>
 
 <template>
-  <div class="wrapper">
+  <div class="export-wrapper">
     <button @click="copyExportCode" class="export-button">
       <ws-icon
         icon-path="assets\icons\text\button_icons\deposit.png"
@@ -39,8 +39,8 @@ function copyExportCode() {
   </div>
 </template>
 
-<style lang="scss">
-.wrapper {
+<style lang="scss" scoped>
+.export-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
