@@ -12,6 +12,7 @@ export function useUrlMap() {
     return {
       ...gearStore.gearSlots,
       activity: activityStore.activity,
+      recipe: activityStore.recipe,
     };
   });
 

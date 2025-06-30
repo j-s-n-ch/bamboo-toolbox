@@ -11,6 +11,7 @@ export const useUrlStore = defineStore("url", {
     reverseMapping: {},
     order: {
       activity: "activity",
+      recipe: "recipe",
       cape: "cape",
       back: "back",
       neck: "neck",
@@ -51,7 +52,7 @@ export const useUrlStore = defineStore("url", {
     },
 
     encodeAndPushToUrl() {
-      const { encodeGearLoadout } = useUrlMap();
+      const { encodeGearLoadout, decodeGearLoadout } = useUrlMap();
       const encoded = encodeGearLoadout();
 
       const url = new URL(window.location.href);
@@ -80,7 +81,9 @@ export const useUrlStore = defineStore("url", {
         const quality = gearStore.determineQuality(id, useQ2);
 
         if (slot === "activity") {
-          promises.push(activityStore.loadActivity(id, quality));
+          promises.push(activityStore.loadActivity(id));
+        } else if (slot === "recipe") {
+          promises.push(activityStore.loadRecipe(id));
         } else {
           promises.push(gearStore.loadItem(slot, id, quality));
         }

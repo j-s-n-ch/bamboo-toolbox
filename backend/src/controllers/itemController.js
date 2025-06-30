@@ -2,6 +2,7 @@ import {
   itemService,
   activityService,
   locationService,
+  recipeService,
 } from "../services/index.js";
 import { wrapController } from "./wrapController.js";
 import { categorizeItems } from "../utils/categorizeItems.js";
@@ -81,18 +82,20 @@ export async function getCategorizedItems(req, res) {
 
 export async function getUrlMapping(req, res) {
   try {
-    const [crafted, loot, consumables, activities, locations] =
+    const [crafted, loot, consumables, activities, recipes, locations] =
       await Promise.all([
         fetchCrafted(),
         fetchLoot(),
         fetchConsumables(),
         activityService.list(),
+        recipeService.list(),
         locationService.list(),
       ]);
     const urlMapping = createUrlMapping(
       [...crafted, ...loot],
       consumables,
       activities,
+      recipes,
       locations
     );
 

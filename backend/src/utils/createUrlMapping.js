@@ -1,4 +1,4 @@
-export const createUrlMapping = (items, consumables, activities, locations) => {
+export const createUrlMapping = (items, consumables, activities, recipes, locations) => {
   const groupedItems = {};
   items.forEach((item) => {
     const { gearType, id } = item;
@@ -13,6 +13,7 @@ export const createUrlMapping = (items, consumables, activities, locations) => {
     consumables.map((item) => item.id)
   );
   groupedItems["activity"] = [null].concat(activities.map((item) => item.id));
+  groupedItems["recipe"] = [null].concat(recipes.map((item) => item.id));
   groupedItems["location"] = [null].concat(locations.map((item) => item.id));
   groupedItems["potion"] = [null];
   groupedItems["service"] = [null];
