@@ -1,5 +1,6 @@
 <script setup>
 import WsIcon from "@/components/common/WsIcon.vue";
+import WsLabel from "@/components/common/WsLabel.vue";
 
 const props = defineProps({
   iconPath: String,
@@ -12,6 +13,7 @@ const props = defineProps({
 
 <template>
   <div class="bubble-wrapper">
+    <ws-label v-if="label" :label="label" />
     <div
       :class="['bubble', borderClass]"
       :title="tooltip"
@@ -27,7 +29,8 @@ const props = defineProps({
 .bubble-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  gap: $xxs;
 
   .bubble {
     width: fit-content;
