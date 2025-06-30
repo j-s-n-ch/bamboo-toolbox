@@ -29,6 +29,14 @@ const slotItems = Object.values(itemsStore.allItems).filter(
   ({ gearType, type }) => gearType === props.gearType || type === props.gearType
 );
 
+const otherSlotIds = computed(() => {
+  if (props.gearType !== "tool") return [];
+  return [1, 2, 3, 4, 5, 6]
+    .map((i) => `tool${i}`)
+    .filter((id) => id !== props.slotName)
+    .map((slot) => gearStore.get(slot)?.id || null);
+});
+
 const filteredItems = computed(() => {
   const activity = activityStore.activity;
   const term = searchTerm.value.trim().toLowerCase();
@@ -50,6 +58,8 @@ const filteredItems = computed(() => {
     (term && name.toLowerCase().includes(term)) || !term;
   const filterOwned = (item) =>
     (showOwned && item.id in itemsStore.ownedItems) || !showOwned;
+  const filterEquipped = (item) =>
+    !(otherSlotIds.value.length && otherSlotIds.value.includes(item.id));
 
   return slotItems
     .map((item) => {
@@ -75,7 +85,11 @@ const filteredItems = computed(() => {
     })
     .flat()
     .filter(
-      (item) => filterActivity(item) && filterSearch(item) && filterOwned(item)
+      (item) =>
+        filterActivity(item) &&
+        filterSearch(item) &&
+        filterOwned(item) &&
+        filterEquipped(item)
     )
     .sort((a, b) => itemQualityNameSort(a, b, true));
 });
