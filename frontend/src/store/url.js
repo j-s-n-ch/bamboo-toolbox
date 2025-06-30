@@ -71,13 +71,18 @@ export const useUrlStore = defineStore("url", {
       const activityStore = useActivityStore();
       const itemsStore = useItemsStore();
 
+      const ringId = decodedLoadout["ring1"];
       const promises = [];
       Object.entries(decodedLoadout).forEach(([slot, id]) => {
         if (!id) return;
+
+        const useQ2 = slot === "ring2" && ringId === id;
+        const quality = gearStore.determineQuality(id, useQ2);
+
         if (slot === "activity") {
-          promises.push(activityStore.loadActivity(id));
+          promises.push(activityStore.loadActivity(id, quality));
         } else {
-          promises.push(gearStore.loadItem(slot, id));
+          promises.push(gearStore.loadItem(slot, id, quality));
         }
       });
 
