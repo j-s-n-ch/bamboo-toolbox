@@ -21,11 +21,11 @@ const stats = computed(() => {
   } = useSkillModifiers();
 
   return {
-    maxWorkEfficiency,
-    workEfficiency,
-    stepsPerCompletion,
-    xpRewards,
-    xpPerStep,
+    maxWorkEfficiency: maxWorkEfficiency.value,
+    workEfficiency: workEfficiency.value,
+    stepsPerCompletion: stepsPerCompletion.value,
+    xpRewards: xpRewards.value,
+    xpPerStep: xpPerStep.value,
   };
 });
 
@@ -58,25 +58,42 @@ const sections = computed(() => {
     <div class="info-section">
       <div class="info-row">
         <info-bubble
-          :text="`${stats.stepsPerCompletion.value} / ${
-            recipe.workRequired || 1000
-          }`"
-          :tooltip="`${stats.stepsPerCompletion.value} steps per action`"
+          label="Steps"
+          :text="`${stats.stepsPerCompletion} / ${recipe.workRequired || 1000}`"
+          :tooltip="`${stats.stepsPerCompletion} steps per action`"
           iconPath="assets/icons/text/general_icons/steps.png"
         />
         <info-bubble
-          :text="`${n(stats.workEfficiency.value * 100)} / ${
-            Math.round(stats.maxWorkEfficiency.value * 100) - 100
+          label="Work Efficiency"
+          :text="`${n(stats.workEfficiency * 100)} / ${
+            Math.round(stats.maxWorkEfficiency * 100) - 100
           }%`"
           :tooltip="`${Math.round(
-            stats.workEfficiency.value * 100
+            stats.workEfficiency * 100
           )}% work efficiency`"
           iconPath="assets/icons/text/stats/skilling/work_efficiency.png"
         />
         <skill-bubble
+          label="Level"
           :skill="levelRequirement.skill"
           :text="`${levelRequirement.level}`"
-          :tooltip="`Requires ${levelRequirement.level} ${levelRequirement.skill}`"
+          :tooltip-text="`Requires ${levelRequirement.level} ${levelRequirement.skill}`"
+        />
+        <skill-bubble
+          label="XP"
+          :skill="stats.xpRewards[0].skill"
+          :text="`${stats.xpRewards[0].value}`"
+          :tooltip-text="`Rewards ${n(stats.xpRewards[0].value)} ${
+            stats.xpRewards[0].skillText
+          } XP`"
+        />
+        <skill-bubble
+          label="XP / Step"
+          :skill="stats.xpPerStep[0].skill"
+          :text="`${n(stats.xpPerStep[0].value)}`"
+          :tooltip-text="`Rewards ${n(stats.xpPerStep[0].value)} ${
+            stats.xpRewards[0].skillText
+          } XP per step`"
         />
       </div>
     </div>

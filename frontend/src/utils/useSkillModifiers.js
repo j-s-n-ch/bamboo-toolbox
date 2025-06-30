@@ -85,7 +85,9 @@ export function useSkillModifiers() {
   });
 
   const xpRewards = computed(() => {
-    const { xpRewardsMap } = activity.value || null;
+    const xpRewardsMap = isActivity.value
+      ? activity.value.xpRewardsMap
+      : activity.value.xpRewards;
     if (!xpRewardsMap) return {};
 
     const xpRewardsArr = Object.entries(xpRewardsMap).map(([skill, base]) => {
