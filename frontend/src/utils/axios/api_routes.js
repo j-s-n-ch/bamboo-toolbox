@@ -71,6 +71,18 @@ export function getActivity({ id }) {
   });
 }
 
+export function getRecipes() {
+  return proxy({
+    url: "recipes",
+  });
+}
+
+export function getRecipe({ id }) {
+  return proxy({
+    url: `recipes/id/${id}`,
+  });
+}
+
 export function getStats() {
   return proxy({
     url: "stats",
