@@ -31,7 +31,7 @@ const borderClass =
     :icon-path="iconPath"
     :text="text"
     :tooltip="tooltipText"
-    :class="borderClass"
+    :border-class="borderClass"
   />
 </template>
 

@@ -30,7 +30,7 @@ function handleClick() {
       :icon-path="location.icon"
       :text="location.name"
       :tooltip="location.name"
-      :class="{ 'selected-border': isSelected }"
+      :border-class="isSelected ? 'selected-border' : ''"
       style="cursor: pointer"
     />
   </button>
@@ -44,7 +44,7 @@ function handleClick() {
   border-radius: $sm;
 }
 
-.selected-border {
+::v-deep .selected-border {
   border-color: $chipOutline;
   box-shadow: 0 0 0 1px $chipOutline;
 }
