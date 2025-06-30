@@ -38,7 +38,9 @@ const otherSlotIds = computed(() => {
 });
 
 const filteredItems = computed(() => {
-  const activity = activityStore.activity;
+  const activity =
+    (activityStore.activitySelected && activityStore.activity) ||
+    (activityStore.recipeSelected && activityStore.recipe);
   const term = searchTerm.value.trim().toLowerCase();
   const showOwned = gearStore.showOwned;
   const showUseful = gearStore.showUseful;

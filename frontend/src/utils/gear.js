@@ -5,9 +5,8 @@ import { useRequirements } from "./useRequirements";
 export const showItemForActivity = (itemProxy, activity, quality) => {
   const item = getRawData(itemProxy);
 
-  const skill = activity?.relatedSkillsList.length
-    ? activity.relatedSkillsList[0]
-    : null;
+  const [skill] = activity.relatedSkillsList ??
+    activity.relatedSkills ?? [null];
   const skillReq = checksSkillRequirements(item, skill);
 
   const hasUsefulKeywords = usefulKeywords(item, activity).length > 0;
@@ -41,9 +40,6 @@ const usefulAttrs = (item, activity, quality, isRecipe) => {
   );
 
   const isTravel = activity?.id === "activity-travelling";
-  const skill = activity?.relatedSkillsList.length
-    ? activity.relatedSkillsList[0]
-    : null;
 
   const filterCO = (attr) => {
     return isRecipe || (!isRecipe && attr.statText !== "Crafting outcome");
@@ -57,7 +53,7 @@ const usefulAttrs = (item, activity, quality, isRecipe) => {
 
 const checksSkillRequirements = (item, skill) => {
   const skillReqs = skillsInRequirements(item);
-  const requiredSkills = skillReqs.map(({ skill }) => skill);
+  const requiredSkills = skillReqs.map(({ requirement }) => requirement.skill);
   const usesSkill = requiredSkills.includes(skill);
   return usesSkill;
 };
