@@ -68,6 +68,10 @@ export const useActivityStore = defineStore("activity", {
       if (locations.length) this.setLocation(locations[0]);
     },
     async loadRecipe(id) {
+      if (id === "activity-none") {
+        this.setRecipe(activityNone);
+        return;
+      }
       const { data: recipe } = await getRecipe({ id });
       this.setRecipe(recipe);
     },

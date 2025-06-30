@@ -99,7 +99,7 @@ const selectItem = (item, update = true) => {
             selected?.id !== 'activity-none' ? selected.value : 'Select an item'
           "
           :icon="selected.icon"
-        ></label-with-icon>
+        />
         <span class="chevron" :class="{ isOpen }">▼</span>
       </button>
     </div>
