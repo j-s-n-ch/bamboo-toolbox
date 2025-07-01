@@ -41,11 +41,11 @@ export function getItem({ id }) {
   });
 }
 
-export function searchLocations({ activityList }) {
+export function searchLocations({ activityList, serviceList }) {
   return proxy({
     url: "locations/search",
     options: {
-      params: { activityList, detailed: true },
+      params: { activityList, serviceList, detailed: true },
     },
   });
 }

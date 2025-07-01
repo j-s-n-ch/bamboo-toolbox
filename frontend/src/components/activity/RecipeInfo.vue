@@ -4,6 +4,7 @@ import { storeToRefs } from "pinia";
 import WsLabel from "@/components/common/WsLabel.vue";
 import InfoBubble from "@/components/common/InfoBubble.vue";
 import ServiceBubble from "@/components/common/ServiceBubble.vue";
+import LocationBubble from "@/components/common/LocationBubble.vue";
 import SkillBubble from "@/components/common/SkillBubble.vue";
 import { useActivityStore } from "@/store/activity";
 import { useSkillModifiers } from "@/utils/useSkillModifiers";
@@ -56,6 +57,12 @@ const sections = computed(() => {
       component: ServiceBubble,
       items: activityStore.services,
       itemProps: (item) => ({ service: item }),
+    },
+    {
+      label: "Locations",
+      component: LocationBubble,
+      items: activityStore.locations,
+      itemProps: (item) => ({ location: item }),
     },
   ].filter(({ items }) => !isEmpty(items));
 });

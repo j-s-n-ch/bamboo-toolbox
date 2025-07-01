@@ -19,8 +19,8 @@ const isSelected = computed(() => {
   );
 });
 
-function handleClick() {
-  if (!isSelected.value) activityStore.setService(props.service);
+async function handleClick() {
+  if (!isSelected.value) await activityStore.setService(props.service);
 }
 </script>
 

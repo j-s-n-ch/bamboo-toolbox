@@ -64,8 +64,9 @@ export const useActivityStore = defineStore("activity", {
     setLocation(location) {
       this.location = location;
     },
-    setService(service) {
+    async setService(service) {
       this.service = service;
+      await this.loadServiceLocations(service.id);
     },
     async loadActivity(id) {
       const { data: activity } = await getActivity({ id });
@@ -108,7 +109,15 @@ export const useActivityStore = defineStore("activity", {
       }
 
       this.services = filteredServices.sort(sortServicesByTier);
-      if (filteredServices.length) this.service = filteredServices[0];
+      if (filteredServices.length) {
+        this.service = filteredServices[0];
+        await this.loadServiceLocations(this.service.id);
+      }
+    },
+    async loadServiceLocations(id) {
+      const { data: locations } = await searchLocations({ serviceList: id });
+      this.setLocations(locations);
+      if (locations.length) this.setLocation(locations[0]);
     },
   },
 });
