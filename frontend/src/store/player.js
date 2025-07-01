@@ -1,6 +1,9 @@
 import { defineStore } from "pinia";
 import { getSkills, getFactions } from "@/utils/axios/api_routes";
-import { fetchPlayerStats } from "@/utils/axios/db_routes";
+import {
+  fetchPlayerStats,
+  fetchFactionRepuations,
+} from "@/utils/axios/db_routes";
 
 export const usePlayerStore = defineStore("playerStore", {
   state: () => ({
@@ -15,11 +18,13 @@ export const usePlayerStore = defineStore("playerStore", {
   actions: {
     async fetchPlayerData() {
       if (this.isLoaded) return;
-      const [{ data: skills }, { data: factions }, stats] = await Promise.all([
-        getSkills(),
-        getFactions(),
-        fetchPlayerStats(),
-      ]);
+      const [{ data: skills }, { data: factions }, stats, factionReputations] =
+        await Promise.all([
+          getSkills(),
+          getFactions(),
+          fetchPlayerStats(),
+          fetchFactionRepuations(),
+        ]);
 
       this.skills = skills
         .map(({ id, ...rest }) => {
@@ -33,7 +38,10 @@ export const usePlayerStore = defineStore("playerStore", {
         .filter(({ reputation }) => reputation !== null)
         .sort((a, b) => a.name.localeCompare(b.name));
       factions.forEach(({ reputation }) => {
-        this.setFactionReputation(reputation, 0);
+        this.setFactionReputation(
+          reputation,
+          factionReputations[reputation] ?? 0
+        );
       });
 
       this.setAchievementPoints(stats.achievementPoints ?? 0);

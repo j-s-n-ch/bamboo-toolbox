@@ -1,5 +1,8 @@
 <script setup>
-import { upsertPlayerStats } from "@/utils/axios/db_routes";
+import {
+  upsertPlayerStats,
+  upsertFactionReputations,
+} from "@/utils/axios/db_routes";
 import { usePlayerStore } from "@/store/player";
 import TabContentWrapper from "@/components/common/TabContentWrapper.vue";
 import SkillLevelDisplay from "./SkillLevelDisplay.vue";
@@ -20,6 +23,15 @@ const postPlayerStats = () => {
 };
 
 const updatePlayerStats = debounce(postPlayerStats, 1000);
+
+const postFactionReputation = () => {
+  const payload = {
+    reputations: playerStore.factionReputation,
+  };
+  upsertFactionReputations(payload);
+};
+
+const updateFactionReputation = debounce(postFactionReputation, 1000);
 </script>
 
 <template>
@@ -49,6 +61,7 @@ const updatePlayerStats = debounce(postPlayerStats, 1000);
         :max="999"
         :default-value="0"
         :border-color="argbToRgba(faction.color)"
+        @input="updateFactionReputation"
       />
     </div>
     <item-selection />
