@@ -2,6 +2,29 @@ const { PrismaClient } = require("../generated/prisma");
 
 const prisma = new PrismaClient();
 
+const ALLOWED_STATS = new Set([
+  "achievementPoints",
+  "agility",
+  "carpentry",
+  "cooking",
+  "crafting",
+  "fishing",
+  "foraging",
+  "mining",
+  "smithing",
+  "trinketry",
+  "woodcutting",
+]);
+
+const ALLOWED_REPUTATIONS = new Set([
+  "erdwiseReputation",
+  "tutorialAreaReputation",
+  "halflingRebelsReputation",
+  "trellinReputation",
+  "jarvoniaReputation",
+  "syrenthiaReputation",
+]);
+
 const getUserInfo = async (req, res) => {
   const userUuid = req.headers["x-user-uuid"];
   if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
@@ -28,9 +51,18 @@ const upsertUserInfo = async (req, res) => {
     await prisma.user.create({ data: { userUuid } });
   }
 
+  // Filter only allowed stats
+  const validEntries = Object.entries(req.body).filter(([stat, value]) =>
+    ALLOWED_STATS.has(stat)
+  );
+
+  if (validEntries.length === 0) {
+    return res.status(400).json({ error: "No valid stats provided" });
+  }
+
   try {
     await Promise.all(
-      Object.entries(req.body).map(([stat, value]) =>
+      Object.entries(validEntries).map(([stat, value]) =>
         prisma.playerStat.upsert({
           where: { userUuid_stat: { userUuid, stat } },
           update: {
@@ -142,9 +174,18 @@ const upsertUserFactionReputations = async (req, res) => {
 
   const { reputations } = req.body;
 
+  // Filter only allowed reputations
+  const validEntries = Object.entries(reputations).filter(
+    ([reputation, value]) => ALLOWED_REPUTATIONS.has(reputation)
+  );
+
+  if (validEntries.length === 0) {
+    return res.status(400).json({ error: "No valid stats provided" });
+  }
+
   try {
     await Promise.all(
-      Object.entries(reputations).map(([reputation, value]) =>
+      Object.entries(validEntries).map(([reputation, value]) =>
         prisma.factionReputation.upsert({
           where: { userUuid_reputation: { userUuid, reputation } },
           update: {
