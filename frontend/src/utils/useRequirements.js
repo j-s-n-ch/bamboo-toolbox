@@ -13,6 +13,7 @@ export function useRequirements() {
 
     const data = {
       activity: activity.activity,
+      recipe: activity.recipe,
       location: activity.location,
       achievementPoints: player.achievementPoints,
       gear: gear.filledGearSlots,
@@ -23,7 +24,7 @@ export function useRequirements() {
 
   const checkRequirement = (req, data) => {
     const { type, opposite, requirement } = req;
-    const { activity, location, achievementPoints, gear } = data;
+    const { activity, recipe, location, achievementPoints, gear } = data;
     const equippedKeywordCounts = gear
       ? gear
           .flatMap(({ keywords }) => keywords)
@@ -38,6 +39,7 @@ export function useRequirements() {
       case "mainSkill":
         if (activity)
           value = activity.relatedSkillsList[0] === requirement.skill;
+        if (recipe) value = recipe.relatedSkills[0] === requirement.skill;
         break;
       case "locationHasKeywords":
         if (location)
@@ -73,6 +75,6 @@ export function useRequirements() {
   };
 
   return {
-    checkRequirements
+    checkRequirements,
   };
 }
