@@ -17,7 +17,8 @@ datasource db {
 model User {
   userUuid           String              @id @default(uuid())
   createdAt          DateTime            @default(now())
-  stats              PlayerStats?
+  oldStats           PlayerStats?
+  stats              PlayerStat[]
   items              OwnedItem[]
   factionReputations FactionReputation[]
 }
@@ -37,6 +38,16 @@ model PlayerStats {
   trinketry         Int
   woodcutting       Int
   updatedAt         DateTime @updatedAt
+}
+
+model PlayerStat {
+  userUuid String
+  stat     String
+  value    Int
+
+  user User @relation(fields: [userUuid], references: [userUuid])
+
+  @@id([userUuid, stat])
 }
 
 model OwnedItem {
