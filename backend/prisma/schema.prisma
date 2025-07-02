@@ -20,6 +20,7 @@ model User {
   stats              PlayerStat[]
   items              OwnedItem[]
   factionReputations FactionReputation[]
+  gearSets           GearSet[]
 }
 
 model PlayerStat {
@@ -53,4 +54,68 @@ model FactionReputation {
   user User @relation(fields: [userUuid], references: [userUuid])
 
   @@id([userUuid, reputation])
+}
+
+model GearSet {
+  id         Int      @id @default(autoincrement())
+  userUuid   String
+  name       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isFavorite Boolean  @default(false)
+  sortOrder  Int? // optional manual position
+
+  user  User          @relation(fields: [userUuid], references: [userUuid])
+  tags  GearSetTag[]
+  items GearSetItem[]
+}
+
+enum GearSlotType {
+  head
+  cape
+  back
+  chest
+  primary
+  secondary
+  hands
+  legs
+  neck
+  feet
+  ring
+  tool
+  potion
+  consumable
+  service
+}
+
+model GearSetItem {
+  id Int @id @default(autoincrement())
+
+  gearSet   GearSet @relation(fields: [gearSetId], references: [id])
+  gearSetId Int
+
+  slotType  GearSlotType
+  slotIndex Int // e.g., 0, 1 (for ring1, ring2), or 0–5 for tools
+  itemId    String
+  quality   String
+
+  @@unique([gearSetId, slotType, slotIndex])
+}
+
+model Tag {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  category String? // Optional: like "skill", "mode", etc.
+
+  gearSets GearSetTag[]
+}
+
+model GearSetTag {
+  gearSet   GearSet @relation(fields: [gearSetId], references: [id])
+  gearSetId Int
+
+  tag   Tag @relation(fields: [tagId], references: [id])
+  tagId Int
+
+  @@id([gearSetId, tagId])
 }
