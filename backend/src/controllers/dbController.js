@@ -1,4 +1,4 @@
-const { PrismaClient } = require("../generated/prisma");
+import { PrismaClient } from "../generated/prisma/index.js";
 
 const prisma = new PrismaClient();
 
@@ -25,7 +25,7 @@ const ALLOWED_REPUTATIONS = new Set([
   "syrenthiaReputation",
 ]);
 
-const getUserInfo = async (req, res) => {
+export const getUserInfo = async (req, res) => {
   const userUuid = req.headers["x-user-uuid"];
   if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
 
@@ -40,7 +40,7 @@ const getUserInfo = async (req, res) => {
   res.json(mappedStats || {});
 };
 
-const upsertUserInfo = async (req, res) => {
+export const upsertUserInfo = async (req, res) => {
   const userUuid = req.headers["x-user-uuid"];
   if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
 
@@ -85,7 +85,7 @@ const upsertUserInfo = async (req, res) => {
   }
 };
 
-const getUserOwnedItems = async (req, res) => {
+export const getUserOwnedItems = async (req, res) => {
   const userUuid = req.headers["x-user-uuid"];
   if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
 
@@ -105,7 +105,7 @@ const getUserOwnedItems = async (req, res) => {
   res.json(mappedItems || {});
 };
 
-const upsertUserOwnedItems = async (req, res) => {
+export const upsertUserOwnedItems = async (req, res) => {
   const userUuid = req.headers["x-user-uuid"];
   if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
 
@@ -146,7 +146,7 @@ const upsertUserOwnedItems = async (req, res) => {
   }
 };
 
-const getUserFactionReputations = async (req, res) => {
+export const getUserFactionReputations = async (req, res) => {
   const userUuid = req.headers["x-user-uuid"];
   if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
 
@@ -161,7 +161,7 @@ const getUserFactionReputations = async (req, res) => {
   res.json(mappedItems || {});
 };
 
-const upsertUserFactionReputations = async (req, res) => {
+export const upsertUserFactionReputations = async (req, res) => {
   const userUuid = req.headers["x-user-uuid"];
   if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
 
@@ -206,13 +206,4 @@ const upsertUserFactionReputations = async (req, res) => {
     console.error(e);
     res.sendStatus(500);
   }
-};
-
-module.exports = {
-  getUserInfo,
-  upsertUserInfo,
-  getUserOwnedItems,
-  upsertUserOwnedItems,
-  getUserFactionReputations,
-  upsertUserFactionReputations,
 };

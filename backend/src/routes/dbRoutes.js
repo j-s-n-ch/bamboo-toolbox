@@ -6,7 +6,7 @@ import {
   upsertUserOwnedItems,
   getUserFactionReputations,
   upsertUserFactionReputations,
-} from "../controllers/dbController.cjs";
+} from "../controllers/dbController.js";
 
 const router = Router();
 
