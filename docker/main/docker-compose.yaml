@@ -15,8 +15,6 @@ services:
     depends_on:
       - postgres
     restart: always
-    ports:
-      - "3001:3001"
     environment:
       - NODE_ENV
       - API_SECRET
