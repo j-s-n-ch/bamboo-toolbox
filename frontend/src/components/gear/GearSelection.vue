@@ -65,13 +65,8 @@ const updateVisible = (visibility) => {
       </div>
     </div>
     <div class="row">
-      <gear-slot gearType="potion" @select="handleGearSlotSelect" />
       <gear-slot gearType="consumable" @select="handleGearSlotSelect" />
-      <gear-slot
-        v-if="isRecipe"
-        gearType="service"
-        @select="handleGearSlotSelect"
-      />
+      <gear-slot gearType="potion" @select="handleGearSlotSelect" />
     </div>
     <div v-if="showGearModal">
       <gear-modal
