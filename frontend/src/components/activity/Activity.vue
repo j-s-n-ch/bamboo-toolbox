@@ -109,12 +109,14 @@ const updateRecipeAndUrl = async (recipe, update) => {
       label="Activity"
       :data="activitiesBySkill"
       v-model="selectedActivity"
+      default-text="Select an activity"
       @select="updateActivityAndUrl"
     />
     <nested-dropdown
       label="Recipe"
       :data="recipesBySkill"
       v-model="selectedRecipe"
+      default-text="Select a recipe"
       @select="updateRecipeAndUrl"
     />
     <activity-info v-if="!loadingActivity && activityStore.activitySelected" />

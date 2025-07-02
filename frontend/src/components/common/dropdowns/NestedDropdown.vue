@@ -14,6 +14,10 @@ const props = defineProps({
     type: [String, Object],
     default: null,
   },
+  defaultText: {
+    type: String,
+    default: "Select an item",
+  },
 });
 
 const emit = defineEmits(["select"]);
@@ -96,7 +100,7 @@ const selectItem = (item, update = true) => {
       <button class="dropdown-trigger" @click="toggle">
         <label-with-icon
           :text="
-            selected?.id !== 'activity-none' ? selected.value : 'Select an item'
+            selected?.id !== 'activity-none' ? selected.value : defaultText
           "
           :icon="selected.icon"
         />
