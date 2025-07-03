@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getSkills, getFactions } from "@/utils/axios/api_routes";
+import { getSkills, getFactions, getStats } from "@/utils/axios/api_routes";
 import {
   fetchPlayerStats,
   fetchFactionRepuations,
@@ -11,6 +11,7 @@ export const usePlayerStore = defineStore("playerStore", {
     skillLevels: {},
     factions: [],
     factionReputation: {},
+    stats: [],
     achievementPoints: 0,
     userUuid: null,
     isLoaded: false,
@@ -18,13 +19,19 @@ export const usePlayerStore = defineStore("playerStore", {
   actions: {
     async fetchPlayerData() {
       if (this.isLoaded) return;
-      const [{ data: skills }, { data: factions }, stats, factionReputations] =
-        await Promise.all([
-          getSkills(),
-          getFactions(),
-          fetchPlayerStats(),
-          fetchFactionRepuations(),
-        ]);
+      const [
+        { data: skills },
+        { data: factions },
+        { data: statList },
+        playerStats,
+        factionReputations,
+      ] = await Promise.all([
+        getSkills(),
+        getFactions(),
+        getStats(),
+        fetchPlayerStats(),
+        fetchFactionRepuations(),
+      ]);
 
       this.skills = skills
         .map(({ id, ...rest }) => {
@@ -32,19 +39,22 @@ export const usePlayerStore = defineStore("playerStore", {
         })
         .sort((a, b) => a.name.localeCompare(b.name));
       this.skillLevels = Object.fromEntries(
-        skills.map(({ id }) => [id, stats[id] ?? 1])
+        skills.map(({ id }) => [id, playerStats[id] ?? 1])
       );
+      this.setAchievementPoints(playerStats.achievementPoints ?? 0);
+
       this.factions = factions
         .filter(({ reputation }) => reputation !== null)
         .sort((a, b) => a.name.localeCompare(b.name));
-
       this.factionReputation = Object.fromEntries(
         factions.map(({ reputation }) => [
           reputation,
           factionReputations[reputation] ?? 0,
         ])
       );
-      this.setAchievementPoints(stats.achievementPoints ?? 0);
+
+      const filteredStats = ["skillLevel", "travelingDistance"];
+      this.stats = statList.filter(({ type }) => !filteredStats.includes(type));
       this.isLoaded = true;
     },
     setSkillLevel(id, value) {
