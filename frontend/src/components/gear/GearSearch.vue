@@ -6,6 +6,7 @@ import { useActivityStore } from "@/store/activity";
 import { showItemForActivity } from "@/utils/gear";
 import { itemQualityNameSort } from "@/utils/quality";
 import WsIcon from "@/components/common/WsIcon.vue";
+import SearchItemDisplay from "./SearchItemDisplay.vue";
 
 const props = defineProps({
   gearType: {
@@ -112,20 +113,12 @@ const handleClick = (item) => {
       class="gear-search"
     />
     <div class="items-wrapper">
-      <button
+      <search-item-display
         v-for="item in filteredItems"
-        :key="item"
-        class="item"
+        :key="item.id"
+        :item="item"
         @click="handleClick(item)"
-      >
-        <ws-icon
-          :iconPath="item.icon"
-          :outline-class="`outline-${item.quality}`"
-        />
-        <span :class="`color-${item.quality}`">
-          {{ item.name }}
-        </span>
-      </button>
+      />
     </div>
   </div>
 </template>
@@ -135,6 +128,7 @@ const handleClick = (item) => {
   width: 100%;
   padding: $sm;
   border-bottom: 1px solid $boxPrimaryOutline;
+  box-sizing: border-box;
 
   &:focus {
     outline: 1px solid $chipOutline;
@@ -149,25 +143,5 @@ const handleClick = (item) => {
   flex-direction: column;
   gap: $xxxs;
   background-color: $bgPrimary;
-
-  .item {
-    display: flex;
-    gap: $xxs;
-
-    justify-content: center;
-    align-items: center;
-
-    background-color: $boxDarkBackground;
-    border-radius: $sm;
-    border: 1px solid $bgPrimary;
-
-    padding: $xxxs $xxs;
-    cursor: pointer;
-
-    &:hover,
-    &:focus {
-      background-color: $chipBackground;
-    }
-  }
 }
 </style>
