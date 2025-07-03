@@ -185,6 +185,7 @@ const handleClick = (item) => {
 .items-wrapper {
   flex-grow: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 
   display: flex;
   flex-direction: column;
