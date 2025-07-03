@@ -122,7 +122,7 @@ const unequipItem = (slotName) => {
   left: 50%;
   transform: translateX(-50%);
 
-  height: 60dvh;
+  height: 80dvh;
   width: 100%;
   max-width: 550px;
   padding: 0;
@@ -142,18 +142,6 @@ const unequipItem = (slotName) => {
   flex-direction: column;
   flex-grow: 1;
   overflow-y: auto;
-}
-
-.el-dialog__wrapper {
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-}
-
-.el-dialog__header,
-.el-dialog__footer {
-  display: none;
 }
 
 /* Slide Up Transition for the Bottom Dialog */
