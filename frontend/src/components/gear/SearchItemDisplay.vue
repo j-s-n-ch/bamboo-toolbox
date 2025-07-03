@@ -1,5 +1,9 @@
 <script setup>
+import { ref, computed } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
+import StatRequirementDisplay from "./StatRequirementDisplay.vue";
+import { toDeepRaw } from "@/utils/rawData";
+import { sumAttrs } from "@/utils/qualityAttrs";
 
 const props = defineProps({
   item: {
@@ -7,35 +11,113 @@ const props = defineProps({
     required: true,
   },
 });
+
+const emit = defineEmits(["click"]);
+
+const attrs = sumAttrs(
+  toDeepRaw(props.item.itemAttrs),
+  toDeepRaw(props.item.itemQualityAttrs),
+  toDeepRaw(props.item.buffs),
+  props.item.quality
+).flatMap(({ stats, requirements }) => {
+  return stats.flatMap((stat) => {
+    return { stat, requirements };
+  });
+});
+
+const isOpen = ref(false);
+
+const toggle = () => {
+  isOpen.value = !isOpen.value;
+};
 </script>
 
 <template>
-  <button :key="item" class="item" @click="handleClick(item)">
-    <ws-icon :iconPath="item.icon" :outline-class="`outline-${item.quality}`" />
-    <span :class="`color-${item.quality}`">
-      {{ item.name }}
-    </span>
-  </button>
+  <div class="display-wrapper">
+    <div class="item-wrapper">
+      <button class="item" @click="() => emit('click')">
+        <ws-icon
+          :iconPath="item.icon"
+          :outline-class="`outline-${item.quality}`"
+        />
+        <span :class="`color-${item.quality}`">
+          {{ item.name }}
+        </span>
+      </button>
+      <button class="chevron-button" @click="toggle">
+        <span>{{ isOpen ? "▲" : "▼" }}</span>
+      </button>
+    </div>
+    <div v-if="isOpen" class="stats-display">
+      <stat-requirement-display
+        v-for="({ stat, requirements }, key) in attrs"
+        :key="key"
+        :stat="stat"
+        :requirements="requirements"
+      />
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-.item {
+.display-wrapper {
+  width: 100%;
   display: flex;
-  gap: $xxs;
-
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-
   background-color: $boxDarkBackground;
+
+  border-radius: $sm;
+  border: 1px solid $bgPrimary;
+}
+
+.item-wrapper {
+  width: 100%;
+  display: flex;
+  background-color: inherit;
+
   border-radius: $sm;
   border: 1px solid $bgPrimary;
 
-  padding: $xxxs $xxs;
-  cursor: pointer;
+  .item {
+    display: flex;
+    gap: $xxs;
+    flex-grow: 1;
+    background-color: inherit;
 
-  &:hover,
-  &:focus {
-    background-color: $boxTransparentDarkOutline;
+    justify-content: center;
+    align-items: center;
+
+    padding: $xxxs $xxs;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+      background-color: $boxTransparentDarkOutline;
+    }
   }
+
+  .chevron-button {
+    justify-self: flex-end;
+    display: inline-block;
+    padding: 0 $sm;
+
+    background-color: inherit;
+
+    &:hover,
+    &:focus {
+      background-color: $boxTransparentDarkOutline;
+    }
+  }
+}
+
+.stats-display {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  background-color: $boxDarkBackground;
 }
 </style>
