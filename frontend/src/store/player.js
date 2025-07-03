@@ -12,6 +12,7 @@ export const usePlayerStore = defineStore("playerStore", {
     skillLevels: {},
     factions: [],
     factionReputation: {},
+    factionsMap: {},
     stats: [],
     achievementPoints: 0,
     userUuid: null,
@@ -52,6 +53,12 @@ export const usePlayerStore = defineStore("playerStore", {
         factions.map(({ reputation }) => [
           reputation,
           factionReputations[reputation] ?? 0,
+        ])
+      );
+      this.factionsMap = Object.fromEntries(
+        factions.map(({ id, icon, name, color, reputation }) => [
+          id,
+          { icon, name, color, reputation },
         ])
       );
 
