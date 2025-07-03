@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, reactive, nextTick } from "vue";
 import { useActivityStore } from "@/store/activity";
+import { useDataStore } from "@/store/data";
 import { usePlayerStore } from "@/store/player";
 import { useUrlStore } from "@/store/url";
 import { useItemsStore } from "@/store/items";
@@ -37,8 +38,9 @@ function scrollToTab(tabName) {
 
 const bootstrap = async () => {
   if (isLoaded.value) return;
-  
+
   const activityStore = useActivityStore();
+  const dataStore = useDataStore();
   const playerStore = usePlayerStore();
   const itemsStore = useItemsStore();
 
@@ -46,6 +48,7 @@ const bootstrap = async () => {
 
   await Promise.all([
     activityStore.fetchActivitiesData(),
+    dataStore.fetchGameData(),
     playerStore.fetchPlayerData(),
     urlStore.fetchMapping(),
     itemsStore.fetchItems(),

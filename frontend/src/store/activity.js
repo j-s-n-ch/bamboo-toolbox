@@ -15,7 +15,6 @@ export const useActivityStore = defineStore("activity", {
   state: () => ({
     activities: [],
     activity: null,
-    keywords: [],
     recipes: [],
     recipe: null,
     location: null,
@@ -41,7 +40,6 @@ export const useActivityStore = defineStore("activity", {
         await Promise.all([getActivities(), getRecipes(), getKeywords()]);
 
       this.activities = activities;
-      this.keywords = keywords;
       this.recipes = recipes;
 
       this.isLoaded = true;

@@ -6,11 +6,13 @@ import LocationBubble from "@/components/common/LocationBubble.vue";
 import SkillBubble from "@/components/common/SkillBubble.vue";
 import KeywordDisplay from "@/components/common/KeywordDisplay.vue";
 import { useActivityStore } from "@/store/activity";
+import { useDataStore } from "@/store/data";
 import { useSkillModifiers } from "@/utils/useSkillModifiers";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
 
 const activityStore = useActivityStore();
+const dataStore = useDataStore();
 
 const {
   maxWorkEfficiency,
@@ -25,14 +27,12 @@ const borderClass = computed(
 );
 
 const getKeyword = (kw) => {
-  const findKw = (kwId) => activityStore.keywords.find(({ id }) => id === kwId);
-
   if ("keyword" in kw) {
-    return findKw(kw["keyword"]);
+    return dataStore.getKeywordById(kw["keyword"]);
   } else if ("keywords" in kw) {
     const { quantity, keywords } = kw;
     return keywords.map((kwId) => {
-      return { ...findKw(kwId), quantity };
+      return { ...dataStore.getKeywordById(kwId), quantity };
     });
   }
   return null;
