@@ -1,11 +1,9 @@
 <script setup>
 import { ref } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
-import StatRequirementDisplay from "./StatRequirementDisplay.vue";
+import StatsDisplay from "../common/StatsDisplay.vue";
 import KeywordDisplay from "@/components/common/KeywordDisplay.vue";
 import { useDataStore } from "@/store/data";
-import { toDeepRaw } from "@/utils/rawData";
-import { sumAttrs } from "@/utils/qualityAttrs";
 
 const props = defineProps({
   item: {
@@ -20,17 +18,6 @@ const props = defineProps({
 
 const emit = defineEmits(["click"]);
 const dataStore = useDataStore();
-
-const attrs = sumAttrs(
-  toDeepRaw(props.item.itemAttrs),
-  toDeepRaw(props.item.itemQualityAttrs),
-  toDeepRaw(props.item.buffs),
-  props.item.quality
-).flatMap(({ stats, requirements }) => {
-  return stats.flatMap((stat) => {
-    return { stat, requirements: requirements || [] };
-  });
-});
 
 const isOpen = ref(false);
 
@@ -69,12 +56,7 @@ const keywords = props.hideKeywords
           :keyword="keyword"
         />
       </div>
-      <stat-requirement-display
-        v-for="({ stat, requirements }, key) in attrs"
-        :key="key"
-        :stat="stat"
-        :requirements="requirements"
-      />
+      <stats-display :item="props.item" :quality="props.item.quality" />
     </div>
   </div>
 </template>

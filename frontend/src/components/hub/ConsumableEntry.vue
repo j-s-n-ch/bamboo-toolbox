@@ -3,9 +3,7 @@ import { computed, ref, onMounted, watch } from "vue";
 import { consumableQualityOptions } from "@/utils/quality";
 import { useItemsStore } from "@/store/items";
 import WsIcon from "@/components/common/WsIcon.vue";
-import { toDeepRaw } from "@/utils/rawData";
-import { sumAttrs } from "@/utils/qualityAttrs";
-import StatRequirementDisplay from "@/components/gear/StatRequirementDisplay.vue";
+import StatsDisplay from "../common/StatsDisplay.vue";
 
 const props = defineProps({
   item: Object,
@@ -77,29 +75,6 @@ function toggleFine(e) {
 const toggleOpen = () => {
   isOpen.value = !isOpen.value;
 };
-
-const mapAttrs = (quality) => {
-  const itemCopy = toDeepRaw(props.item);
-  console.log(itemCopy);
-  return sumAttrs(
-    itemCopy.itemAttrs,
-    itemCopy.itemQualityAttrs,
-    itemCopy.buffs,
-    quality
-  ).flatMap(({ stats, requirements }) => {
-    return stats.flatMap((stat) => {
-      return { stat, requirements: requirements || [] };
-    });
-  });
-};
-
-const attrs = computed(() => {
-  return mapAttrs(normal);
-});
-
-const attrs2 = computed(() => {
-  return mapAttrs(fine);
-});
 </script>
 
 <template>
@@ -140,22 +115,13 @@ const attrs2 = computed(() => {
     </section>
 
     <section v-if="hasAttrs && isOpen">
-      <div :class="`border-common`" class="attrs">
-        <stat-requirement-display
-          v-for="({ stat, requirements }, key) in attrs"
-          :key="key"
-          :stat="stat"
-          :requirements="requirements"
-        />
-      </div>
-      <div v-if="fineOwned" :class="`border-fine`" class="attrs">
-        <stat-requirement-display
-          v-for="({ stat, requirements }, key) in attrs2"
-          :key="key"
-          :stat="stat"
-          :requirements="requirements"
-        />
-      </div>
+      <stats-display :item="props.item" :quality="normal" show-quality-border />
+      <stats-display
+        v-if="fineOwned"
+        :item="props.item"
+        :quality="fine"
+        show-quality-border
+      />
     </section>
   </section>
 </template>

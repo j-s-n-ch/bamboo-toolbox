@@ -2,10 +2,8 @@
 import { computed, ref, onMounted, watch } from "vue";
 import { craftingQualityOptions, qualityOptions } from "@/utils/quality";
 import { useItemsStore } from "@/store/items";
-import { toDeepRaw } from "@/utils/rawData";
-import { sumAttrs } from "@/utils/qualityAttrs";
 import WsIcon from "@/components/common/WsIcon.vue";
-import StatRequirementDisplay from "@/components/gear/StatRequirementDisplay.vue";
+import StatsDisplay from "../common/StatsDisplay.vue";
 
 const props = defineProps({
   item: Object,
@@ -26,7 +24,8 @@ onMounted(() => {
   const entry = itemsStore.ownedItems[props.item.id];
   isOwned.value = entry?.owned ?? false;
   quality.value = entry?.quality ?? props.item?.quality ?? defaultQuality;
-  quality2.value = props.qualities < 2 ? null : entry?.quality2 ?? defaultQuality;
+  quality2.value =
+    props.qualities < 2 ? null : entry?.quality2 ?? defaultQuality;
 });
 
 watch(
@@ -75,28 +74,6 @@ const updateQuality = () => {
 const toggleOpen = () => {
   isOpen.value = !isOpen.value;
 };
-
-const mapAttrs = (quality) => {
-  const itemCopy = toDeepRaw(props.item);
-  return sumAttrs(
-    itemCopy.itemAttrs,
-    itemCopy.itemQualityAttrs,
-    itemCopy.buffs,
-    quality
-  ).flatMap(({ stats, requirements }) => {
-    return stats.flatMap((stat) => {
-      return { stat, requirements: requirements || [] };
-    });
-  });
-};
-
-const attrs = computed(() => {
-  return mapAttrs(quality.value);
-});
-
-const attrs2 = computed(() => {
-  return mapAttrs(quality2.value);
-});
 </script>
 
 <template>
@@ -150,22 +127,18 @@ const attrs2 = computed(() => {
     </section>
 
     <section v-if="hasAttrs && isOpen">
-      <div :class="`border-${quality}`" class="attrs">
-        <stat-requirement-display
-          v-for="({ stat, requirements }, key) in attrs"
-          :key="key"
-          :stat="stat"
-          :requirements="requirements"
-        />
-      </div>
-      <div v-if="quality2 && quality !== quality2" :class="`border-${quality2}`" class="attrs">
-        <stat-requirement-display
-          v-for="({ stat, requirements }, key) in attrs2"
-          :key="key"
-          :stat="stat"
-          :requirements="requirements"
-        />
-      </div>
+      <stats-display
+        v-if="isOpen"
+        :item="props.item"
+        :quality="quality"
+        show-quality-border
+      />
+      <stats-display
+        v-if="qualities > 1 && quality2 && quality !== quality2"
+        :item="props.item"
+        :quality="quality2"
+        show-quality-border
+      />
     </section>
   </section>
 </template>
@@ -206,9 +179,5 @@ const attrs2 = computed(() => {
     border: none;
     font: inherit;
   }
-}
-
-.attrs {
-  border-radius: $sm;
 }
 </style>
