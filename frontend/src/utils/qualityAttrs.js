@@ -2,7 +2,8 @@ import { qualityOptions, consumableQualityOptions } from "@/utils/quality";
 import { toDeepRaw } from "./rawData";
 
 export const sumAttrs = (itemAttrs, qualityAttrs, buffs, quality) => {
-  if (quality && quality.includes("consumable")) return sumBuffAttrs(buffs, quality);
+  if (quality && quality.includes("consumable"))
+    return sumBuffAttrs(buffs, quality);
 
   const qIndex = Math.min(
     qualityAttrs?.length || 0,
@@ -18,13 +19,14 @@ export const sumAttrs = (itemAttrs, qualityAttrs, buffs, quality) => {
 
   for (let qi = 0; qi < qIndex; qi++) {
     const { attributes } = toDeepRaw(qualityAttrs[qi]);
-    const statIds = attrs.map(({ stats }) => {
-      return stats[0].stat;
+    const statIds = attrs.map(({ stats, skillText }) => {
+      return `${stats[0].type}-${skillText}`;
     });
 
     attributes.forEach((attr) => {
       const stat = structuredClone(attr.stats)[0];
-      const prev = statIds.findIndex((id) => id === stat.stat);
+      const key = `${stat.type}-${attr.skillText}`;
+      const prev = statIds.findIndex((id) => id === key);
       const exists = prev >= 0;
 
       if (!exists) {
