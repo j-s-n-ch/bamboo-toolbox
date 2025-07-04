@@ -44,10 +44,6 @@ const ownedBgClass = computed(() => {
   return isOwned.value && quality.value ? `bg-${quality.value}-dark` : "";
 });
 
-const hasAttrs = computed(() => {
-  return props.item.itemAttrs.length > 0;
-});
-
 const toggleChecked = (e) => {
   e.stopPropagation();
   const data = {
@@ -121,12 +117,12 @@ const toggleOpen = () => {
         </div>
       </div>
 
-      <button class="toggle" v-if="hasAttrs" @click="toggleOpen">
+      <button class="toggle" @click="toggleOpen">
         {{ isOpen ? "▲" : "▼" }}
       </button>
     </section>
 
-    <section v-if="hasAttrs && isOpen">
+    <section v-if="isOpen">
       <stats-display
         v-if="isOpen"
         :item="props.item"
