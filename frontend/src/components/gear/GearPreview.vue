@@ -5,7 +5,6 @@ import { getWikiUrl } from "@/utils/wiki";
 import { toDeepRaw } from "@/utils/rawData";
 import { sumAttrs } from "@/utils/qualityAttrs";
 import WsIcon from "@/components/common/WsIcon.vue";
-import AttributeDisplay from "@/components/hub/AttributeDisplay.vue";
 import StatRequirementDisplay from "./StatRequirementDisplay.vue";
 
 const props = defineProps({

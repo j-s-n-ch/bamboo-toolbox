@@ -3,7 +3,6 @@ import { computed, ref, onMounted, watch } from "vue";
 import { consumableQualityOptions } from "@/utils/quality";
 import { useItemsStore } from "@/store/items";
 import WsIcon from "@/components/common/WsIcon.vue";
-import AttributeDisplay from "@/components/hub/AttributeDisplay.vue";
 import { toDeepRaw } from "@/utils/rawData";
 import { sumAttrs } from "@/utils/qualityAttrs";
 import StatRequirementDisplay from "@/components/gear/StatRequirementDisplay.vue";
