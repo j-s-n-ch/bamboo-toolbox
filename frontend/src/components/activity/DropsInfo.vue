@@ -1,16 +1,37 @@
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
+import { useGearStore } from "@/store/gear";
+import { sumAttrs } from "@/utils/qualityAttrs";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
 
 const activityStore = useActivityStore();
 const dataStore = useDataStore();
+const gearStore = useGearStore();
 const resolvedLootTables = ref([]);
 
-onMounted(async () => {
-  const tables = activityStore.activity?.tables || [];
+watchEffect(async () => {
+  const gearLootTables = gearStore.filledGearSlots.flatMap((item) =>
+    sumAttrs(
+      item.itemAttrs,
+      item.itemQualityAttrs,
+      item.itemBuffs,
+      item.quality
+    )
+      .flatMap(({ tables }) => tables)
+      .filter(Boolean)
+      .map((table) => ({ ...table, tableSource: item.name }))
+  );
+  const { tables: activityTables, name } = activityStore.activity;
+  const activityLootTables = activityTables.map((table) => {
+    return {
+      ...table,
+      tableSource: `activity-${name}`,
+    };
+  });
+  const tables = [...activityLootTables, ...gearLootTables];
   const tableIds = tables.flatMap(({ tables }) => tables);
   await dataStore.fetchDetailedLootTables(tableIds);
 
@@ -25,9 +46,9 @@ onMounted(async () => {
 });
 
 const mapLootTable = (table) => {
-  const { rollAmount, type } = table;
+  const { rollAmount, type, tableSource } = table;
   return table.tables?.flatMap(({ noDropChance, tableRows }) => {
-    const mappedRows = tableRows.flatMap((row) => {
+    const mappedRows = tableRows.map((row) => {
       return {
         ...row,
         noDropChance,
@@ -42,6 +63,7 @@ const mapLootTable = (table) => {
         tableWeight,
         rollAmount,
         type,
+        tableSource,
       };
     });
   });
@@ -49,11 +71,19 @@ const mapLootTable = (table) => {
 
 const combinedItems = computed(() => {
   const allItems = resolvedLootTables.value.flatMap((table) => {
-    return mapLootTable(table)?.flat() || [];
+    return mapLootTable(table) || [];
+  });
+
+  const seen = new Set();
+  const uniqueItems = allItems.filter((item) => {
+    const key = `${item.rowItemID}::${item.tableSource}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
 
   const grouped = {};
-  for (const item of allItems) {
+  for (const item of uniqueItems) {
     const key = item.rowItemID;
     if (!key) continue;
     if (!grouped[key]) {
@@ -68,7 +98,7 @@ const combinedItems = computed(() => {
 const groupedLootTables = computed(() => {
   const grouped = {};
   for (const table of resolvedLootTables.value) {
-    const key = `${table.type}-${table.rollAmount}`;
+    const key = `${table.type}-${table.rollAmount}-${table.tableSource}`;
     if (!grouped[key]) {
       grouped[key] = table;
     } else {

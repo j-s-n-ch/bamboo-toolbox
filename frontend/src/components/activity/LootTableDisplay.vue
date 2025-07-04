@@ -8,12 +8,14 @@ const props = defineProps({
 });
 
 const lootTableLabels = computed(() => {
-  const { rollAmount, tables, type } = props.lootTable;
+  const { rollAmount, tables, type, tableSource } = props.lootTable;
   const labels = [];
   if (type.includes("chestTable")) {
     labels.push("Chests");
   } else if (type.includes("collectible")) {
     labels.push("Collectibles");
+  } else if (!tableSource.startsWith("activity")) {
+    labels.push(tableSource);
   } else {
     labels.push.apply(
       labels,
