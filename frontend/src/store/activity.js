@@ -14,6 +14,7 @@ import { activityNone } from "@/utils/activityNone";
 export const useActivityStore = defineStore("activity", {
   state: () => ({
     activities: [],
+    activitiesMap: {},
     activity: null,
     recipes: [],
     recipe: null,
@@ -36,10 +37,15 @@ export const useActivityStore = defineStore("activity", {
     async fetchActivitiesData() {
       if (this.isLoaded) return;
 
-      const [{ data: activities }, { data: recipes }, { data: keywords }] =
-        await Promise.all([getActivities(), getRecipes(), getKeywords()]);
+      const [{ data: activities }, { data: recipes }] = await Promise.all([
+        getActivities(),
+        getRecipes(),
+      ]);
 
       this.activities = activities;
+      this.activitiesMap = Object.fromEntries(
+        activities.map(({ id, name, icon }) => [id, { name, icon }])
+      );
       this.recipes = recipes;
 
       this.isLoaded = true;

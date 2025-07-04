@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
+import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
 import { usePlayerStore } from "@/store/player";
 import WsIcon from "@/components/common/WsIcon.vue";
@@ -16,6 +17,7 @@ const props = defineProps({
   },
 });
 
+const activityStore = useActivityStore();
 const dataStore = useDataStore();
 const playerStore = usePlayerStore();
 const isOpen = ref(false);
@@ -32,7 +34,6 @@ const displayValue = computed(() => {
 
 const reqs = props.requirements.map((req) => {
   const { type, opposite, requirement } = req;
-  console.log("type", type);
   if (type === "mainSkill") {
     const skill = playerStore.skillsMap[requirement.skill];
     return {
@@ -79,6 +80,24 @@ const reqs = props.requirements.map((req) => {
       prefix: "have",
       text: `${requirement.value} achievement points`,
       icon: "assets/icons/text/general_icons/achievement_point.png",
+      opposite,
+    };
+  } else if (type === "historyData") {
+    if (requirement.category === "stepsWalkedActivity") {
+      const activity = activityStore.activitiesMap[requirement.data];
+      return {
+        prefix: `have taken ${requirement.value} steps on the`,
+        text: `${activity.name} activity`,
+        icon: activity.icon,
+        opposite,
+      };
+    }
+  } else if (type === "skillLevel") {
+    const skill = playerStore.skillsMap[requirement.skill];
+    return {
+      prefix: `at least ${requirement.level}`,
+      text: skill.name,
+      icon: skill.icon,
       opposite,
     };
   }
