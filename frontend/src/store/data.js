@@ -1,5 +1,10 @@
 import { defineStore } from "pinia";
-import { getKeywords, getStats } from "@/utils/axios/api_routes";
+import {
+  getKeywords,
+  getStats,
+  getLootTables,
+  getMultipleLootTables,
+} from "@/utils/axios/api_routes";
 
 export const useDataStore = defineStore("dataStore", {
   state: () => ({
@@ -9,6 +14,8 @@ export const useDataStore = defineStore("dataStore", {
     stats: [],
     mainStats: [],
     statsMap: {},
+    lootTables: [],
+    detailedLootTablesMap: {},
     selectedStat: "none",
   }),
   getters: {
@@ -20,15 +27,16 @@ export const useDataStore = defineStore("dataStore", {
       if (state.selectedStat === "none") return null;
       return state.statsMap[state.selectedStat] || null;
     },
+    getDetailedLootTable: (state) => (id) =>
+      (id in state.detailedLootTablesMap && state.detailedLootTablesMap[id]) ||
+      null,
   },
   actions: {
     async fetchGameData() {
       if (this.isLoaded) return;
 
-      const [{ data: keywords }, { data: statList }] = await Promise.all([
-        getKeywords(),
-        getStats(),
-      ]);
+      const [{ data: keywords }, { data: statList }, { data: lootTables }] =
+        await Promise.all([getKeywords(), getStats(), getLootTables()]);
 
       this.keywords = keywords;
       this.keywordsMap = Object.fromEntries(
@@ -44,7 +52,24 @@ export const useDataStore = defineStore("dataStore", {
         statList.map(({ type, name, icon }) => [type, { name, icon }])
       );
 
+      this.lootTables = lootTables;
+
       this.isLoaded = true;
+    },
+    async fetchDetailedLootTables(ids) {
+      const uncachedIds = ids.filter(
+        (id) => !(id in this.detailedLootTablesMap)
+      );
+
+      if (uncachedIds.length > 0) {
+        const { data: lootTables } = await getMultipleLootTables(uncachedIds);
+        lootTables.forEach((table) => {
+          this.detailedLootTablesMap[table.id] = table;
+        });
+      }
+
+      // Return loot tables in the same order as input ids
+      return ids.map((id) => this.detailedLootTablesMap[id]);
     },
   },
 });

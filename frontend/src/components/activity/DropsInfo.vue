@@ -1,23 +1,23 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
-import { getMultipleLootTables } from "@/utils/axios/api_routes";
 import { useActivityStore } from "@/store/activity";
+import { useDataStore } from "@/store/data";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
 
 const activityStore = useActivityStore();
+const dataStore = useDataStore();
 const resolvedLootTables = ref([]);
 
 onMounted(async () => {
   const tables = activityStore.activity?.tables || [];
   const tableIds = tables.flatMap(({ tables }) => tables);
+  await dataStore.fetchDetailedLootTables(tableIds);
 
-  const { data: lootTables } = await getMultipleLootTables(tableIds);
-  const lootTablesMap = new Map(lootTables.map((table) => [table.id, table]));
   const resolvedTables = tables.flatMap((table) => {
     return {
       ...table,
-      tables: table.tables.map((id) => lootTablesMap.get(id)),
+      tables: table.tables.map(dataStore.getDetailedLootTable),
     };
   });
 

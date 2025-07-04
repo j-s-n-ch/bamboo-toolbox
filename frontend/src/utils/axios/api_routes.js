@@ -118,6 +118,12 @@ export function getStats() {
   });
 }
 
+export function getLootTables() {
+  return proxy({
+    url: "lootTables",
+  });
+}
+
 export function getMultipleLootTables(ids) {
   return proxy({
     method: "POST",
