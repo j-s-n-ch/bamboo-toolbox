@@ -27,7 +27,7 @@ export const useDataStore = defineStore("dataStore", {
 
       this.keywords = keywords;
       this.keywordsMap = Object.fromEntries(
-        keywords.map(({ id, name, icon }) => [id, { name, icon }])
+        keywords.map(({ id, name, icon }) => [id, { id, name, icon }])
       );
 
       const filteredStats = ["skillLevel", "travelingDistance"];
