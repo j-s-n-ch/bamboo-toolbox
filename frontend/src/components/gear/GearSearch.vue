@@ -6,6 +6,7 @@ import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
 import { showItemForActivity } from "@/utils/gear";
 import { itemQualityNameSort } from "@/utils/quality";
+import { sumAttrs } from "@/utils/qualityAttrs";
 import WsIcon from "@/components/common/WsIcon.vue";
 import SearchItemDisplay from "./SearchItemDisplay.vue";
 
@@ -28,11 +29,6 @@ const activityStore = useActivityStore();
 const dataStore = useDataStore();
 
 const searchTerm = ref("");
-const selectedStat = ref("none");
-const filterStat = computed(() => {
-  if (selectedStat.value === "none") return null;
-  return dataStore.stats.find(({ type }) => type === selectedStat.value);
-});
 
 const slotItems = Object.values(itemsStore.allItems).filter(
   ({ gearType, type }) => gearType === props.gearType || type === props.gearType
@@ -71,6 +67,16 @@ const filteredItems = computed(() => {
     (showOwned && item.id in itemsStore.ownedItems) || !showOwned;
   const filterEquipped = (item) =>
     !(otherSlotIds.value.length && otherSlotIds.value.includes(item.id));
+  const filterStat = (item) => {
+    if (dataStore.selectedStat === "none") return true;
+    const stats = sumAttrs(
+      item.itemAttrs,
+      item.itemQualityAttrs,
+      item.buffs,
+      item.quality
+    ).flatMap(({ stats }) => stats);
+    return stats.some((attr) => attr.type === dataStore.selectedStat);
+  };
 
   return slotItems
     .map((item) => {
@@ -104,7 +110,8 @@ const filteredItems = computed(() => {
         filterActivity(item) &&
         filterSearch(item) &&
         filterOwned(item) &&
-        filterEquipped(item)
+        filterEquipped(item) &&
+        filterStat(item)
     )
     .sort((a, b) => itemQualityNameSort(a, b, true));
 });
@@ -119,13 +126,13 @@ const handleClick = (item) => {
     <div class="stat-filter-select">
       <label for="stat-filter">Filter stat:</label>
       <ws-icon
-        v-if="selectedStat !== 'none'"
-        :icon-path="filterStat.icon"
+        v-if="dataStore.selectedStat !== 'none'"
+        :icon-path="dataStore.filterStat.icon"
         size="sm"
       />
-      <select id="stat-filter" v-model="selectedStat">
+      <select id="stat-filter" v-model="dataStore.selectedStat">
         <option value="none">None</option>
-        <option v-for="stat in dataStore.stats" :key="stat" :value="stat.type">
+        <option v-for="stat in dataStore.mainStats" :key="stat" :value="stat.type">
           {{ stat.name }}
         </option>
       </select>

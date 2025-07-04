@@ -9,12 +9,17 @@ export const useDataStore = defineStore("dataStore", {
     stats: [],
     mainStats: [],
     statsMap: {},
+    selectedStat: "none",
   }),
   getters: {
     getKeywordById: (state) => (id) =>
       (id in state.keywordsMap && state.keywordsMap[id]) || null,
     getStatByType: (state) => (type) =>
       (type in state.statsMap && state.statsMap[type]) || null,
+    filterStat: (state) => {
+      if (state.selectedStat === "none") return null;
+      return state.statsMap[state.selectedStat] || null;
+    },
   },
   actions: {
     async fetchGameData() {
