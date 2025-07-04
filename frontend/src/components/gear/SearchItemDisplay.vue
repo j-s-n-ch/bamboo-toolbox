@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
 import StatRequirementDisplay from "./StatRequirementDisplay.vue";
 import { toDeepRaw } from "@/utils/rawData";

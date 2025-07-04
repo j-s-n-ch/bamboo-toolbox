@@ -1,10 +1,12 @@
 <script setup>
 import { computed } from "vue";
 import { useGearStore } from "@/store/gear";
-import { useItemsStore } from "@/store/items";
-import WsIcon from "@/components/common/WsIcon.vue";
 import { getWikiUrl } from "@/utils/wiki";
+import { toDeepRaw } from "@/utils/rawData";
+import { sumAttrs } from "@/utils/qualityAttrs";
+import WsIcon from "@/components/common/WsIcon.vue";
 import AttributeDisplay from "@/components/hub/AttributeDisplay.vue";
+import StatRequirementDisplay from "./StatRequirementDisplay.vue";
 
 const props = defineProps({
   gearType: {
@@ -20,9 +22,22 @@ const props = defineProps({
 const emit = defineEmits(["unequip"]);
 
 const gearStore = useGearStore();
-const itemsStore = useItemsStore();
 
 const item = computed(() => gearStore.gearSlots[props.slotName]);
+
+const attrs = computed(() => {
+  const itemCopy = toDeepRaw(item.value);
+  return sumAttrs(
+    toDeepRaw(itemCopy.itemAttrs),
+    toDeepRaw(itemCopy.itemQualityAttrs),
+    toDeepRaw(itemCopy.buffs),
+    itemCopy.quality
+  ).flatMap(({ stats, requirements }) => {
+    return stats.flatMap((stat) => {
+      return { stat, requirements };
+    });
+  });
+});
 </script>
 
 <template>
@@ -38,13 +53,14 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
       </div>
       <button class="unequip" @click="emit('unequip')">Unequip</button>
     </div>
-    <attribute-display
-      :itemAttrs="item.itemAttrs"
-      :qualityAttrs="item.itemQualityAttrs"
-      :buffs="item.buffs"
-      :quality="item.quality"
-      :key="`attributes-q1-${item.quality}`"
-    />
+    <div class="stats">
+      <stat-requirement-display
+        v-for="({ stat, requirements }, key) in attrs"
+        :key="key"
+        :stat="stat"
+        :requirements="requirements"
+      />
+    </div>
   </div>
   <div v-else>
     <p>Select an item on the search tab</p>
@@ -96,5 +112,11 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
   .label {
     margin-left: $xxs;
   }
+}
+
+.stats {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>
