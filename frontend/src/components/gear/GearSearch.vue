@@ -69,13 +69,7 @@ const filteredItems = computed(() => {
     !(otherSlotIds.value.length && otherSlotIds.value.includes(item.id));
   const filterStat = (item) => {
     if (dataStore.selectedStat === "none") return true;
-    const stats = sumAttrs(
-      item.itemAttrs,
-      item.itemQualityAttrs,
-      item.buffs,
-      item.quality
-    ).flatMap(({ stats }) => stats);
-    return stats.some((attr) => attr.type === dataStore.selectedStat);
+    return item.stats.some((attr) => attr.type === dataStore.selectedStat);
   };
 
   return slotItems
@@ -89,6 +83,15 @@ const filteredItems = computed(() => {
         {
           ...item,
           quality,
+          stats:
+            dataStore.selectedStat !== "none"
+              ? sumAttrs(
+                  item.itemAttrs,
+                  item.itemQualityAttrs,
+                  item.buffs,
+                  quality
+                ).flatMap(({ stats }) => stats)
+              : [],
         },
       ];
       if (
@@ -99,6 +102,15 @@ const filteredItems = computed(() => {
         out.push({
           ...item,
           quality: quality2,
+          stats:
+            dataStore.selectedStat !== "none"
+              ? sumAttrs(
+                  item.itemAttrs,
+                  item.itemQualityAttrs,
+                  item.buffs,
+                  quality2
+                ).flatMap(({ stats }) => stats)
+              : [],
         });
       }
 
@@ -113,7 +125,23 @@ const filteredItems = computed(() => {
         filterEquipped(item) &&
         filterStat(item)
     )
-    .sort((a, b) => itemQualityNameSort(a, b, true));
+    .sort((a, b) => {
+      if (dataStore.selectedStat === "none")
+        return itemQualityNameSort(a, b, true);
+      const aStat = a.stats.find((s) => s.type === dataStore.selectedStat);
+      const bStat = b.stats.find((s) => s.type === dataStore.selectedStat);
+      if (!aStat && !bStat) return 0;
+      if (!aStat) return 1;
+      if (!bStat) return -1;
+
+      const aValue = aStat.isNegative
+        ? -Math.abs(aStat.value)
+        : Math.abs(aStat.value);
+      const bValue = bStat.isNegative
+        ? -Math.abs(bStat.value)
+        : Math.abs(bStat.value);
+      return bValue - aValue;
+    });
 });
 
 const handleClick = (item) => {
