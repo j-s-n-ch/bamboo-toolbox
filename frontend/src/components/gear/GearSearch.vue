@@ -4,7 +4,6 @@ import { useGearStore } from "@/store/gear";
 import { useItemsStore } from "@/store/items";
 import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
-import { usePlayerStore } from "@/store/player";
 import { showItemForActivity } from "@/utils/gear";
 import { itemQualityNameSort } from "@/utils/quality";
 import WsIcon from "@/components/common/WsIcon.vue";
@@ -26,7 +25,6 @@ const emit = defineEmits(["selectItem"]);
 const gearStore = useGearStore();
 const itemsStore = useItemsStore();
 const activityStore = useActivityStore();
-const playerStore = usePlayerStore();
 const dataStore = useDataStore();
 
 const searchTerm = ref("");
@@ -87,7 +85,11 @@ const filteredItems = computed(() => {
           quality,
         },
       ];
-      if (quality2 && quality2 !== quality) {
+      if (
+        ["ring", "consumable"].includes(props.gearType) &&
+        quality2 &&
+        quality2 !== quality
+      ) {
         out.push({
           ...item,
           quality: quality2,
