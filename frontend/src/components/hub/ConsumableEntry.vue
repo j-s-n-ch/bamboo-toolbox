@@ -16,6 +16,7 @@ const [normal, fine] = consumableQualityOptions.map((q) => q.value);
 const itemsStore = useItemsStore();
 const normalOwned = ref(false);
 const fineOwned = ref(false);
+const hidden = ref(false);
 const isOpen = ref(false);
 
 function updateOwnedFromStore() {
@@ -40,8 +41,9 @@ watch(
   { deep: true }
 );
 
-watch([normalOwned, fineOwned], () => {
+watch([normalOwned, fineOwned, hidden], () => {
   let owned = normalOwned.value || fineOwned.value;
+  let hidden = hidden.value;
   let quality = null;
   let quality2 = null;
   if (owned) {
@@ -72,6 +74,10 @@ function toggleNormal(e) {
 function toggleFine(e) {
   e.stopPropagation();
   fineOwned.value = !fineOwned.value;
+}
+function toggleHidden(e) {
+  e.stopPropagation();
+  hidden.value = !hidden.value;
 }
 const toggleOpen = () => {
   isOpen.value = !isOpen.value;
@@ -116,6 +122,15 @@ const toggleOpen = () => {
     </section>
 
     <section v-if="hasAttrs && isOpen">
+      <label class="toggle">
+        <input
+          @click="toggleHidden"
+          type="checkbox"
+          v-model="isHidden"
+          aria-label="Toggle visibility"
+        />
+        Hide
+      </label>
       <stats-display :item="props.item" :quality="normal" show-quality-border />
       <stats-display
         v-if="fineOwned"
@@ -161,15 +176,15 @@ const toggleOpen = () => {
     gap: $xxs;
     flex-grow: 1;
   }
+}
 
-  .toggle {
-    cursor: pointer;
-    padding: 0 $xs;
-    color: $txPrimary !important;
-    background: none;
-    border: none;
-    font: inherit;
-  }
+.toggle {
+  cursor: pointer;
+  padding: 0 $xs;
+  color: $txPrimary !important;
+  background: none;
+  border: none;
+  font: inherit;
 }
 
 .attrs {

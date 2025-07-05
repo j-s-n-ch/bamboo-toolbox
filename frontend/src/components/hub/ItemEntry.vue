@@ -16,6 +16,7 @@ const emit = defineEmits(["change"]);
 const defaultQuality = qualityOptions[0].value;
 const itemsStore = useItemsStore();
 const isOwned = ref(false);
+const isHidden = ref(false);
 const quality = ref("");
 const quality2 = ref("");
 const isOpen = ref(false);
@@ -23,6 +24,7 @@ const isOpen = ref(false);
 onMounted(() => {
   const entry = itemsStore.ownedItems[props.item.id];
   isOwned.value = entry?.owned ?? false;
+  isHidden.value = entry?.hidden ?? false;
   quality.value = entry?.quality ?? props.item?.quality ?? defaultQuality;
   quality2.value =
     props.qualities < 2 ? null : entry?.quality2 ?? defaultQuality;
@@ -53,7 +55,7 @@ const toggleChecked = (e) => {
   const data = {
     itemId: props.item.id,
     owned: !props.selected,
-    hidden: props.hidden,
+    hidden: isHidden.value,
     quality: quality.value,
     quality2: quality2.value,
   };
@@ -63,10 +65,11 @@ const toggleChecked = (e) => {
 
 const toggleHidden = (e) => {
   e.stopPropagation();
+  isHidden.value = !isHidden.value;
   const data = {
     itemId: props.item.id,
     owned: props.selected,
-    hidden: !props.hidden,
+    hidden: isHidden.value,
     quality: quality.value,
     quality2: quality2.value,
   };
@@ -78,7 +81,7 @@ const updateQuality = () => {
   const data = {
     itemId: props.item.id,
     owned: true,
-    hidden: props.hidden,
+    hidden: isHidden.value,
     quality: quality.value,
     quality2: quality2.value,
   };
@@ -142,6 +145,15 @@ const toggleOpen = () => {
     </section>
 
     <section v-if="hasAttrs && isOpen">
+      <label class="toggle">
+        <input
+          @click="toggleHidden"
+          type="checkbox"
+          v-model="isHidden"
+          aria-label="Toggle visibility"
+        />
+        Hide
+      </label>
       <stats-display
         v-if="isOpen"
         :item="props.item"
@@ -186,14 +198,14 @@ const toggleOpen = () => {
     gap: $xxs;
     flex-grow: 1;
   }
+}
 
-  .toggle {
-    cursor: pointer;
-    padding: 0 $xs;
-    color: $txPrimary !important;
-    background: none;
-    border: none;
-    font: inherit;
-  }
+.toggle {
+  cursor: pointer;
+  padding: 0 $xs;
+  color: $txPrimary !important;
+  background: none;
+  border: none;
+  font: inherit;
 }
 </style>

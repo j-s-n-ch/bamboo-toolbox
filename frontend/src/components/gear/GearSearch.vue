@@ -71,17 +71,19 @@ const filteredItems = computed(() => {
     if (dataStore.selectedStat === "none") return true;
     return item.stats.some((attr) => attr.type === dataStore.selectedStat);
   };
-
+  const filterHidden = (item) => !item.hidden;
   return slotItems
     .map((item) => {
       const { id } = item;
       const owned = id in itemsStore.ownedItems;
+      const hidden = itemsStore.ownedItems[id].hidden ?? false;
       const quality = owned ? itemsStore.ownedItems[id].quality : item.quality;
       const quality2 = owned ? itemsStore.ownedItems[id].quality2 : null;
 
       const out = [
         {
           ...item,
+          hidden,
           quality,
           stats:
             dataStore.selectedStat !== "none"
@@ -101,6 +103,7 @@ const filteredItems = computed(() => {
       ) {
         out.push({
           ...item,
+          hidden,
           quality: quality2,
           stats:
             dataStore.selectedStat !== "none"
@@ -123,7 +126,8 @@ const filteredItems = computed(() => {
         filterSearch(item) &&
         filterOwned(item) &&
         filterEquipped(item) &&
-        filterStat(item)
+        filterStat(item) &&
+        filterHidden(item)
     )
     .sort((a, b) => {
       if (dataStore.selectedStat === "none")
