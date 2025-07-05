@@ -50,48 +50,43 @@ const hasAttrs = computed(() => {
   return props.item.itemAttrs.length > 0 || props.item.keywords.length > 0;
 });
 
-const toggleChecked = (e) => {
-  e.stopPropagation();
-  const data = {
+function emitChange(overrides = {}) {
+  emit("change", {
     itemId: props.item.id,
-    owned: !props.selected,
+    owned: isOwned.value,
     hidden: isHidden.value,
     quality: quality.value,
     quality2: quality2.value,
-  };
+    ...overrides,
+  });
+}
 
-  emit("change", data);
+const toggleChecked = (e) => {
+  e.stopPropagation();
+  isOwned.value = !isOwned.value;
+  emitChange({ owned: isOwned.value });
 };
 
 const toggleHidden = (e) => {
   e.stopPropagation();
   isHidden.value = !isHidden.value;
-  const data = {
-    itemId: props.item.id,
-    owned: props.selected,
-    hidden: isHidden.value,
-    quality: quality.value,
-    quality2: quality2.value,
-  };
-
-  emit("change", data);
+  emitChange({ hidden: isHidden.value });
 };
 
 const updateQuality = () => {
-  const data = {
-    itemId: props.item.id,
-    owned: true,
-    hidden: isHidden.value,
-    quality: quality.value,
-    quality2: quality2.value,
-  };
-
-  emit("change", data);
+  isOwned.value = true;
+  emitChange({ owned: isOwned.value });
 };
 
 const toggleOpen = () => {
   isOpen.value = !isOpen.value;
 };
+
+const qualityInputs = computed(() => {
+  const arr = [{ model: quality, label: "q1" }];
+  if (props.qualities === 2) arr.push({ model: quality2, label: "q2" });
+  return arr;
+});
 </script>
 
 <template>
@@ -104,37 +99,23 @@ const toggleOpen = () => {
         <div class="rows">
           <span :class="`color-${quality}`">{{ item.name }}</span>
           <div v-if="qualities > 0" class="group">
-            <select
-              v-model="quality"
-              class="quality-input"
-              @click.stop
-              @change="updateQuality"
-            >
-              <option
-                v-for="q in craftingQualityOptions"
-                :key="'q1-' + q.value"
-                :value="q.value"
-                :class="`color-${q.value}`"
+            <template v-for="qInput in qualityInputs" :key="qInput.label">
+              <select
+                v-model="qInput.model.value"
+                class="quality-input"
+                @click.stop
+                @change="updateQuality"
               >
-                {{ q.name }}
-              </option>
-            </select>
-            <select
-              v-if="qualities === 2"
-              v-model="quality2"
-              class="quality-input"
-              @click.stop
-              @change="updateQuality"
-            >
-              <option
-                v-for="q in craftingQualityOptions"
-                :key="'q2-' + q.value"
-                :value="q.value"
-                :class="`color-${q.value}`"
-              >
-                {{ q.name }}
-              </option>
-            </select>
+                <option
+                  v-for="q in craftingQualityOptions"
+                  :key="qInput.label + '-' + q.value"
+                  :value="q.value"
+                  :class="`color-${q.value}`"
+                >
+                  {{ q.name }}
+                </option>
+              </select>
+            </template>
           </div>
         </div>
       </div>
