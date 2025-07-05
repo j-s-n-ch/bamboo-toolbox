@@ -93,14 +93,17 @@ export const getUserOwnedItems = async (req, res) => {
     where: { userUuid, owned: true },
   });
 
-  const mappedItems = items.map(({ itemId, owned, quality, quality2 }) => {
-    return {
-      itemId,
-      owned,
-      quality,
-      quality2,
-    };
-  });
+  const mappedItems = items.map(
+    ({ itemId, owned, hidden, quality, quality2 }) => {
+      return {
+        itemId,
+        owned,
+        hidden,
+        quality,
+        quality2,
+      };
+    }
+  );
 
   res.json(mappedItems || {});
 };
@@ -125,6 +128,7 @@ export const upsertUserOwnedItems = async (req, res) => {
           where: { userUuid_itemId: { userUuid, itemId: item.itemId } },
           update: {
             owned: item.owned,
+            hidden: item.hidden,
             quality: item.quality,
             quality2: item.quality2,
           },
@@ -132,6 +136,7 @@ export const upsertUserOwnedItems = async (req, res) => {
             userUuid,
             itemId: item.itemId,
             owned: item.owned,
+            hidden: item.hidden,
             quality: item.quality,
             quality2: item.quality2,
           },
