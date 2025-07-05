@@ -1,60 +1,56 @@
 import * as dbService from "../services/dbService.js";
 
-export const getUserInfo = async (req, res) => {
+// Helper to extract userUuid and handle missing header
+function getUserUuid(req, res) {
   const userUuid = req.headers["x-user-uuid"];
-  if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
-  const stats = await dbService.getUserStats(userUuid);
-  res.json(stats || {});
-};
-
-export const upsertUserInfo = async (req, res) => {
-  const userUuid = req.headers["x-user-uuid"];
-  if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
-  try {
-    await dbService.upsertUserStats(userUuid, req.body);
-    res.sendStatus(200);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
+  if (!userUuid) {
+    res.status(400).json({ error: "Missing userUuid" });
+    return null;
   }
-};
+  return userUuid;
+}
 
-export const getUserOwnedItems = async (req, res) => {
-  const userUuid = req.headers["x-user-uuid"];
-  if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
-  const items = await dbService.getUserOwnedItems(userUuid);
-  res.json(items || {});
-};
+// Generic GET handler
+function makeGetHandler(serviceFn) {
+  return async (req, res) => {
+    const userUuid = getUserUuid(req, res);
+    if (!userUuid) return;
+    try {
+      const result = await serviceFn(userUuid);
+      res.json(result || {});
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  };
+}
 
-export const upsertUserOwnedItems = async (req, res) => {
-  const userUuid = req.headers["x-user-uuid"];
-  if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
+// Generic UPSERT handler
+function makeUpsertHandler(serviceFn, getPayload = (req) => req.body) {
+  return async (req, res) => {
+    const userUuid = getUserUuid(req, res);
+    if (!userUuid) return;
+    try {
+      await serviceFn(userUuid, getPayload(req));
+      res.sendStatus(200);
+    } catch (e) {
+      res.status(400).json({ error: e.message });
+    }
+  };
+}
 
-  try {
-    await dbService.upsertUserOwnedItems(userUuid, req.body.items);
-    res.sendStatus(200);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-};
+export const getUserInfo = makeGetHandler(dbService.getUserStats);
+export const upsertUserInfo = makeUpsertHandler(dbService.upsertUserStats);
 
-export const getUserFactionReputations = async (req, res) => {
-  const userUuid = req.headers["x-user-uuid"];
-  if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
-  const reputations = await dbService.getUserFactionReputations(userUuid);
-  res.json(reputations || {});
-};
+export const getUserOwnedItems = makeGetHandler(dbService.getUserOwnedItems);
+export const upsertUserOwnedItems = makeUpsertHandler(
+  dbService.upsertUserOwnedItems,
+  (req) => req.body.items
+);
 
-export const upsertUserFactionReputations = async (req, res) => {
-  const userUuid = req.headers["x-user-uuid"];
-  if (!userUuid) return res.status(400).json({ error: "Missing userUuid" });
-
-  try {
-    await dbService.upsertUserFactionReputations(
-      userUuid,
-      req.body.reputations
-    );
-    res.sendStatus(200);
-  } catch (e) {
-    res.sendStatus(500);
-  }
-};
+export const getUserFactionReputations = makeGetHandler(
+  dbService.getUserFactionReputations
+);
+export const upsertUserFactionReputations = makeUpsertHandler(
+  dbService.upsertUserFactionReputations,
+  (req) => req.body.reputations
+);
