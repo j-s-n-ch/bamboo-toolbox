@@ -85,7 +85,9 @@ const dropCounts = computed(() => {
 const canDropFine = computed(() => {
   return (
     !props.sources[0].type.includes("chestTable") &&
-    !(item.value.rowItemID in itemsStore.allItems)
+    !(item.value.rowItemID in itemsStore.allItems) &&
+    item.value.rowItemID !==
+      "item-adventurer's_guild_token-dad84ad7-050a-4ec2-9bc7-7f2dae5c4a08"
   );
 });
 
@@ -105,13 +107,21 @@ const stepsPerFine = computed(() => {
     <ws-icon :icon-path="item.icon" size="md" />
     <span>{{ n(totalDropChance, 3) }}%</span>
     <span>{{ dropCounts }}</span>
-    <div class="steps-line">
-      <ws-icon iconPath="assets/icons/text/general_icons/steps.png" size="xs" />
-      <span>{{ n(stepsPerItem, 1) }}</span>
-    </div>
-    <div v-if="canDropFine" class="steps-line border-fine">
-      <ws-icon iconPath="assets/icons/text/general_icons/steps.png" size="xs" />
-      <span>{{ n(stepsPerFine, 1) }}</span>
+    <div class="step-counts">
+      <div class="steps-line border-common">
+        <ws-icon
+          iconPath="assets/icons/text/general_icons/steps.png"
+          size="xs"
+        />
+        <span>{{ n(stepsPerItem, 1) }}</span>
+      </div>
+      <div v-if="canDropFine" class="steps-line border-fine">
+        <ws-icon
+          iconPath="assets/icons/text/general_icons/steps.png"
+          size="xs"
+        />
+        <span>{{ n(stepsPerFine, 1) }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -123,7 +133,7 @@ const stepsPerFine = computed(() => {
   align-items: center;
   justify-content: center;
 
-  padding: $xs;
+  padding-top: $xxs;
   gap: $xxxxs;
 
   background-color: $boxDarkBackground;
@@ -133,10 +143,17 @@ const stepsPerFine = computed(() => {
   font-size: 0.75rem;
 }
 
-.steps-line {
+.step-counts {
   display: flex;
-  align-items: center;
-  border-radius: $sm;
-  padding: $xxxxs;
+  flex-direction: column;
+
+  .steps-line {
+    display: flex;
+    align-items: center;
+    border-radius: $sm;
+    padding: $xxxxs;
+    width: 100%;
+    box-sizing: border-box;
+  }
 }
 </style>

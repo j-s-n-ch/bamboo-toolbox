@@ -82,7 +82,7 @@ const tableItems = computed(() => {
   flex-direction: column;
   align-items: flex-start;
 
-  padding: $sm;
+  padding-top: $sm;
   gap: $sm;
   border: 1px solid $chipOutline;
   border-radius: $sm;
