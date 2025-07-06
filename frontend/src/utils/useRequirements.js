@@ -82,6 +82,9 @@ export function useRequirements() {
           value = factionReputation[gameDataId] >= rep;
         }
         break;
+      case "skillLevel":
+        value = player.skillLevels[requirement.skill] >= requirement.level;
+        break;
       default:
         console.error("unhandled requirement", type, requirement);
     }
