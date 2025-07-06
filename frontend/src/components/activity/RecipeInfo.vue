@@ -175,6 +175,10 @@ const craftingOdds = computed(() => {
     <summary>Recipe Info</summary>
     <section :class="['recipe-info', borderClass]">
       <div class="info-section">
+        <label>
+          <input type="checkbox" v-model="useFineMaterials" />
+          Fine Materials
+        </label>
         <div class="info-row">
           <info-bubble
             label="Steps"
@@ -241,10 +245,6 @@ const craftingOdds = computed(() => {
       </div>
       <div v-if="resultHasCO" class="info-section">
         <ws-label label="Crafting Odds" class="info-row" />
-        <label>
-          <input type="checkbox" v-model="useFineMaterials" />
-          Fine Materials
-        </label>
         <table class="crafting-odds-table">
           <thead>
             <tr>
