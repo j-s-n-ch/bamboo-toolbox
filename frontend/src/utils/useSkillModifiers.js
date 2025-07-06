@@ -46,6 +46,10 @@ export function useSkillModifiers() {
     return getStat("doubleRewards", "percent");
   });
 
+  const noMaterialsConsumed = computed(() => {
+    return getStat("noMaterialsConsumed", "percent");
+  });
+
   const findCollectibles = computed(() => {
     return 1 + getStat("findCollectibles", "percent");
   });
@@ -66,6 +70,10 @@ export function useSkillModifiers() {
     return 1 + getStat("chestFind", "percent");
   });
 
+  const craftingOutcome = computed(() => {
+    return getStat("craftingOutcome", "flat");
+  });
+
   const stepsPerCompletion = computed(() => {
     const { workRequired } = activity.value || 0;
     if (!workRequired) return 0;
@@ -82,6 +90,10 @@ export function useSkillModifiers() {
 
   const stepsPerRewardRoll = computed(() => {
     return stepsPerAction.value / (1 + doubleRewards.value);
+  });
+
+  const craftsPerMaterial = computed(() => {
+    return (1 + doubleRewards.value) / (1 - noMaterialsConsumed.value);
   });
 
   const xpRewards = computed(() => {
@@ -133,8 +145,10 @@ export function useSkillModifiers() {
     findBirdNests,
     fineMaterialFind,
     chestFind,
+    craftingOutcome,
     stepsPerCompletion,
     stepsPerRewardRoll,
+    craftsPerMaterial,
     xpRewards,
     xpPerStep,
   };

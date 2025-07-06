@@ -2,7 +2,7 @@ import { getRawData } from "./rawData";
 import { sumAttrs } from "./qualityAttrs";
 import { useRequirements } from "./useRequirements";
 
-export const showItemForActivity = (itemProxy, activity, quality) => {
+export const showItemForActivity = (itemProxy, activity, quality, isRecipe) => {
   const item = getRawData(itemProxy);
 
   const [skill] = activity.relatedSkillsList ??
@@ -10,7 +10,7 @@ export const showItemForActivity = (itemProxy, activity, quality) => {
   const skillReq = checksSkillRequirements(item, skill);
 
   const hasUsefulKeywords = usefulKeywords(item, activity).length > 0;
-  const hasUsefulAttrs = usefulAttrs(item, activity, quality, false).length > 0;
+  const hasUsefulAttrs = usefulAttrs(item, activity, quality, isRecipe).length > 0;
   const hasTables = itemTables(item).length > 0;
 
   return (
@@ -42,8 +42,6 @@ const usefulAttrs = (item, activity, quality, isRecipe) => {
     item.buffs || [],
     quality
   );
-
-  const isTravel = activity?.id === "activity-travelling";
 
   const filterCO = (attr) => {
     return isRecipe || (!isRecipe && attr.statText !== "Crafting outcome");

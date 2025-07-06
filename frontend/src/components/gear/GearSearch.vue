@@ -58,7 +58,12 @@ const filteredItems = computed(() => {
     return (
       showUseful &&
       activity &&
-      showItemForActivity(item, activity, item.quality)
+      showItemForActivity(
+        item,
+        activity,
+        item.quality,
+        activityStore.recipeSelected
+      )
     );
   };
   const filterSearch = ({ name }) =>

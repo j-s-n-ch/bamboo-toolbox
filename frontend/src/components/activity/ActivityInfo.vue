@@ -133,19 +133,27 @@ const sections = computed(() => {
 </script>
 
 <template>
-  <section :class="['activity-info', borderClass]">
-    <div v-for="section in sections" class="info-section" :key="section.label">
-      <ws-label :label="section.label" />
-      <div class="info-row">
-        <component
-          v-for="(item, idx) in section.items"
-          :is="section.component"
-          v-bind="section.itemProps(item)"
-          :key="idx"
-        />
+  <details open>
+    <summary>Activity Info</summary>
+
+    <section :class="['activity-info', borderClass]">
+      <div
+        v-for="section in sections"
+        class="info-section"
+        :key="section.label"
+      >
+        <ws-label :label="section.label" />
+        <div class="info-row">
+          <component
+            v-for="(item, idx) in section.items"
+            :is="section.component"
+            v-bind="section.itemProps(item)"
+            :key="idx"
+          />
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </details>
 </template>
 
 <style lang="scss" scoped>
