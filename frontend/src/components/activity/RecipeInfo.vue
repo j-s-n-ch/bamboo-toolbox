@@ -29,14 +29,22 @@ const stats = computed(() => {
     xpPerStep,
   } = useSkillModifiers();
 
+  const xpRewardsMultiplier = useFineMaterials.value ? 1.5 : 1;
+
   return {
     maxWorkEfficiency: maxWorkEfficiency.value,
     workEfficiency: workEfficiency.value,
     craftingOutcome: craftingOutcome.value,
     stepsPerCompletion: stepsPerCompletion.value,
     craftsPerMaterial: craftsPerMaterial.value,
-    xpRewards: xpRewards.value,
-    xpPerStep: xpPerStep.value,
+    xpRewards: xpRewards.value.map((reward) => ({
+      ...reward,
+      value: reward.value * xpRewardsMultiplier,
+    })),
+    xpPerStep: xpPerStep.value.map((reward) => ({
+      ...reward,
+      value: reward.value * xpRewardsMultiplier,
+    })),
   };
 });
 
