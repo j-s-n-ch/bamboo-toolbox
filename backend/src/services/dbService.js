@@ -57,7 +57,7 @@ export async function upsertUserStats(userUuid, statsObj) {
 
 export async function getUserOwnedItems(userUuid) {
   const items = await prisma.ownedItem.findMany({
-    where: { userUuid, owned: true },
+    where: { userUuid, OR: [{ owned: true }, { hidden: true }] },
   });
   return items.map(({ itemId, owned, hidden, quality, quality2 }) => ({
     itemId,
