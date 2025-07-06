@@ -12,4 +12,10 @@ Object.entries(directives).forEach(([name, directive]) => {
   app.directive(name, directive);
 });
 
+app.config.errorHandler = (err, vm, info) => {
+  console.error("Vue error:", err);
+  console.error("Component:", vm);
+  console.error("Info:", info);
+};
+
 app.mount("#app");
