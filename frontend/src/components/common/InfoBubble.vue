@@ -47,6 +47,11 @@ const props = defineProps({
     &.border-green {
       border: 1px solid $txPositive;
     }
+
+    &.selected-border {
+      border-color: $chipOutline;
+      box-shadow: 0 0 0 1px $chipOutline;
+    }
   }
 }
 
