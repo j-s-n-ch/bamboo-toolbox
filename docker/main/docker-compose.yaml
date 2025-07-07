@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: ghcr.io/schamppu/walkscape-gear-frontend:dev
+    image: ghcr.io/schamppu/walkscape-gear-frontend:main
     container_name: walkscape-gear-frontend-${NAME_SUFFIX}
     restart: always
     networks:
@@ -10,7 +10,7 @@ services:
       - "4002:80"
 
   backend:
-    image: ghcr.io/schamppu/walkscape-gear-backend:dev
+    image: ghcr.io/schamppu/walkscape-gear-backend:main
     container_name: walkscape-gear-backend-${NAME_SUFFIX}
     depends_on:
       - postgres
