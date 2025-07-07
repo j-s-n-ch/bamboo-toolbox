@@ -3,7 +3,7 @@ set -e
 
 # Wait for PostgreSQL
 until nc -z walkscape-gear-postgres-dev 5432; do
-  echo "Waiting for PostgreSQL at walkscape-gear-postgres-dev:5432..."
+  echo "Waiting for PostgreSQL at walkscape-gear-postgres-prod:5432..."
   sleep 1
 done
 
