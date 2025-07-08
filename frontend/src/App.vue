@@ -12,9 +12,12 @@ import Gear from "./components/gear/Gear.vue";
 import Footer from "./components/footer/Footer.vue";
 import About from "./components/about/About.vue";
 import LoadingThrobber from "./components/common/LoadingThrobber.vue";
+import WsIcon from "./components/common/WsIcon.vue";
+import SettingsModal from "./components/common/SettingsModal.vue";
 
 const urlStore = useUrlStore();
 const isLoaded = ref(false);
+const showSettings = ref(false);
 const activeTab = ref("Hub");
 const isMobile = ref(window.innerWidth <= 768);
 
@@ -67,6 +70,19 @@ const bootstrap = async () => {
   isLoaded.value = true;
 };
 
+function handleUuidUpdate(newUuid) {
+  localStorage.setItem("userUuid", newUuid);
+
+  const playerStore = usePlayerStore();
+  const itemsStore = useItemsStore();
+
+  playerStore.isLoaded = false;
+  itemsStore.isLoaded = false;
+  isLoaded.value = false;
+
+  bootstrap();
+}
+
 onMounted(async () => {
   checkScreenSize();
   window.addEventListener("resize", checkScreenSize);
@@ -88,6 +104,12 @@ onUnmounted(() => {
       :class="{ active: activeTab === 'About' }"
       >About</a
     >
+    <button v-if="isLoaded" class="button" @click="showSettings = true">
+      <ws-icon
+        icon-path="assets\icons\text\general_icons\settings.png"
+        size="sm"
+      />
+    </button>
   </header>
   <loading-throbber v-if="!isLoaded" class="throbber" />
   <div v-else :class="isMobile ? 'mobile-layout' : 'desktop-layout'">
@@ -116,6 +138,7 @@ onUnmounted(() => {
       @selectTab="scrollToTab"
     />
   </div>
+  <SettingsModal v-model="showSettings" @update-uuid="handleUuidUpdate" />
 </template>
 
 <style lang="scss">
@@ -163,6 +186,7 @@ onUnmounted(() => {
 
 .main-header {
   width: 100%;
+  box-sizing: border-box;
   z-index: 2000;
   background: $bgPrimary;
   color: $txPrimary;
@@ -173,7 +197,7 @@ onUnmounted(() => {
 
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
 
   padding: $xxxxs $md;
   border-bottom: 1px solid $boxPrimaryOutline;
@@ -192,6 +216,20 @@ onUnmounted(() => {
       opacity: 1;
       text-decoration: underline;
     }
+  }
+}
+
+.button {
+  display: flex;
+  align-content: center;
+  border: 1px solid $boxPrimaryOutline;
+
+  padding: $xxxxs;
+  border-radius: $sm;
+
+  &:hover,
+  &:focus {
+    background-color: $boxDarkBackground;
   }
 }
 </style>
