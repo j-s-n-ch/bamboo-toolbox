@@ -15,14 +15,21 @@ export function useEffectiveAttrs() {
   const gear = useGearStore();
   const items = useItemsStore();
 
+  const collectibleIds = computed(() => {
+    return Object.entries(items.itemsByCategory)
+      .filter(([category, _]) => {
+        return category.endsWith("collectibles");
+      })
+      .flatMap(([_, items]) => items);
+  });
+
   const allEquippedItems = computed(() => {
     const owned = items.ownedItems;
     const gearSet = gear.filledGearSlots;
 
-    const ownedCollectibles =
-      "collectibles" in items.itemsByCategory
-        ? items.itemsByCategory["collectibles"].filter(({ id }) => id in owned)
-        : [];
+    const ownedCollectibles = collectibleIds.value.filter(
+      ({ id }) => id in owned
+    );
 
     return [...ownedCollectibles, ...gearSet]
       .map((item) => {
@@ -54,6 +61,7 @@ export function useEffectiveAttrs() {
   });
 
   const allAttrs = computed(() => {
+    console.log("allEquippedItems", allEquippedItems.value);
     const mappedAttrs = allEquippedItems.value.flatMap((item) => {
       return item.attrs.map((attr) => {
         return { ...attr, item };

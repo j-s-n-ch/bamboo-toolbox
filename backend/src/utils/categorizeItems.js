@@ -178,7 +178,7 @@ const resolveCraftedCategories = (crafted) => {
   ].map(({ suffix, keyword, qualities }) => {
     return {
       title: `Crafted ${capitalize(suffix)}`,
-      key: `crafted_${suffix}`,
+      key: `crafted_${keyword}`,
       qualities: qualities || 1,
       items: crafted.filter(({ keywords }) => keywords.includes(keyword)),
     };
