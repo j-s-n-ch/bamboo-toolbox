@@ -106,7 +106,7 @@ onUnmounted(() => {
     >
     <button v-if="isLoaded" class="button" @click="showSettings = true">
       <ws-icon
-        icon-path="assets\icons\text\general_icons\settings.png"
+        icon-path="assets/icons/text/general_icons/settings.png"
         size="sm"
       />
     </button>
