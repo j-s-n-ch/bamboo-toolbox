@@ -76,7 +76,7 @@ const emit = defineEmits(["back"]);
     <details>
       <summary>Credits & Thanks</summary>
       <section class="about-content">
-        <p>Developed and maintained by Fala</p>
+        <p>Developed and maintained by fala</p>
         <p>
           Special thanks to Arky for creating the original Walkscape Activity
           Sheet, which inspired this project.
