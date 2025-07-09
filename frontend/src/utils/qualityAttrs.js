@@ -35,7 +35,7 @@ export const sumAttrs = (itemAttrs, qualityAttrs, buffs, quality) => {
       }
 
       const oldStat = attrs[prev].stats[0];
-      oldStat.value = Math.round(100 * oldStat.value + 100 * stat.value) / 100;
+      oldStat.value = Math.round(10000 * oldStat.value + 10000 * stat.value) / 10000;
       oldStat.isNegative = oldStat.isNegative && oldStat.value < 0;
     });
   }
