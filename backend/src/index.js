@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import helmet from "helmet";
 
 import { registerRoutes } from "./routes/index.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -9,6 +10,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 const app = express();
 const PORT = process.env.BACKEND_PORT || 3001;
 
+app.use(helmet());
 app.use(
   cors({
     origin: ["http://localhost:5173", "https://gear.dev.walkscape.app/"],
