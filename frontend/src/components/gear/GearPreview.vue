@@ -16,7 +16,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["unequip"]);
+defineEmits(["unequip"]);
 
 const gearStore = useGearStore();
 

@@ -13,7 +13,7 @@ const props = defineProps({
   isOpen: Boolean,
 });
 
-const emit = defineEmits(["toggle"]);
+defineEmits(["toggle"]);
 const hasLoaded = ref(false);
 
 const itemsStore = useItemsStore();
