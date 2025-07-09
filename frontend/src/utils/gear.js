@@ -28,7 +28,8 @@ export const showItemForActivity = (
 
 const usefulKeywords = (item, activity, service) => {
   if (!activity) return false;
-  const { requiredKeywords: kw, requirements } = activity;
+  const kw = activity?.requiredKeywords || [];
+  const requirements = activity?.requirements || [];
   const serviceRequirements = service?.requirements || [];
 
   const kws = kw?.map(({ keyword }) => keyword) ?? [];

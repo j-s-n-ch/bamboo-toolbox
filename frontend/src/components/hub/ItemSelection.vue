@@ -15,11 +15,14 @@ function toggleCategory(category) {
 const categoryOwnedCount = computed(() => {
   return Object.fromEntries(
     itemsStore.categorizedItems.map(({ title, categories }) => {
-      const allItems = categories.flatMap((cat) => cat.items);
-      const ownedCount = allItems.filter(
-        ({ id }) => id in itemsStore.ownedItems
+      const allIds = categories.flatMap((cat) =>
+        cat.items.map((item) => item.id)
+      );
+      const uniqueIds = Array.from(new Set(allIds));
+      const ownedCount = uniqueIds.filter(
+        (id) => id in itemsStore.ownedItems && itemsStore.ownedItems[id].owned
       ).length;
-      return [title, `${ownedCount} / ${allItems.length}`];
+      return [title, `${ownedCount} / ${uniqueIds.length}`];
     })
   );
 });
