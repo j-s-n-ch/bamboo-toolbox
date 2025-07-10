@@ -5,7 +5,7 @@ import { useItemsStore } from "@/store/items";
 import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
 import { useRequirements } from "@/utils/useRequirements";
-import { showItemForActivity } from "@/utils/gear";
+import { useShowItemForActivity } from "@/utils/useShowItemForActivity";
 import { itemQualityNameSort } from "@/utils/quality";
 import { sumAttrs } from "@/utils/qualityAttrs";
 import WsIcon from "@/components/common/WsIcon.vue";
@@ -29,6 +29,7 @@ const itemsStore = useItemsStore();
 const activityStore = useActivityStore();
 const dataStore = useDataStore();
 const { checkRequirements } = useRequirements();
+const { showItemForActivity } = useShowItemForActivity();
 
 const searchTerm = ref("");
 
@@ -48,7 +49,6 @@ const filteredItems = computed(() => {
   const activity =
     (activityStore.activitySelected && activityStore.activity) ||
     (activityStore.recipeSelected && activityStore.recipe);
-  const service = activityStore.recipeSelected && activityStore.service;
   const term = searchTerm.value.trim().toLowerCase();
   const showOwned = gearStore.showOwned;
   const showUseful = gearStore.showUseful;
@@ -61,13 +61,7 @@ const filteredItems = computed(() => {
     return (
       showUseful &&
       activity &&
-      showItemForActivity(
-        item,
-        activity,
-        service,
-        item.quality,
-        activityStore.recipeSelected
-      )
+      showItemForActivity(item)
     );
   };
   const filterSearch = ({ name }) =>
