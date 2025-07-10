@@ -1,10 +1,12 @@
 import { useActivityStore } from "@/store/activity";
+import { useItemsStore } from "@/store/items";
 import { useRequirements } from "@/utils/useRequirements";
 import { getRawData } from "@/utils/rawData";
 import { sumAttrs } from "@/utils/qualityAttrs";
 
 export function useShowItemForActivity() {
   const activityStore = useActivityStore();
+  const itemStore = useItemsStore();
   const { checkRequirements } = useRequirements();
 
   const usefulKeywords = (item, activity, service) => {
@@ -34,28 +36,38 @@ export function useShowItemForActivity() {
     );
 
     const filterActivityOnlyAttrs = (attr) => {
+      if (!isRecipe) return true;
       const activityOnlyAttrs = [
         "Fine material finding",
         "Find gems",
         "Find bird nests",
         "Find collectibles",
       ];
-      return (
-        !isRecipe || (isRecipe && activityOnlyAttrs.includes(attr.statText))
-      );
+      return !activityOnlyAttrs.includes(attr.statText);
     };
 
     const filterRecipeOnlyAttrs = (attr) => {
-      const recipeOnlyAttrs = ["Crafting outcome", "No materials consumed"];
-      return (
-        isRecipe || (!isRecipe && !recipeOnlyAttrs.includes(attr.statText))
-      );
+      if (isRecipe) return true;
+      const recipeOnlyAttrs = ["No materials consumed"];
+      return !recipeOnlyAttrs.includes(attr.statText);
+    };
+
+    const filterCO = (item, attr) => {
+      const statIsCO = attr.statText === "Crafting outcome";
+      if (!statIsCO) return true;
+      if (!isRecipe) return false;
+
+      const benefitsCO =
+        item.id in itemStore.allItems &&
+        itemStore.allItems[item.id].type === "crafted";
+      return statIsCO && benefitsCO;
     };
 
     const usefulAttr = baseAttrs.filter(
       (attr) =>
         filterActivityOnlyAttrs(attr) &&
         filterRecipeOnlyAttrs(attr) &&
+        filterCO(item, attr) &&
         checkRequirements(attr.requirements) &&
         attr.stats.some((stat) => !stat.isNegative)
     );
@@ -64,22 +76,6 @@ export function useShowItemForActivity() {
 
   const itemTables = (item) => {
     return item.tables || [];
-  };
-
-  const checksSkillRequirements = (item, skill) => {
-    const skillReqs = skillsInRequirements(item);
-    const requiredSkills = skillReqs.map(
-      ({ requirement }) => requirement.skill
-    );
-    const usesSkill = requiredSkills.includes(skill);
-    return usesSkill;
-  };
-
-  const skillsInRequirements = (item) => {
-    const { requirements } = item;
-    if (!requirements) return [];
-
-    return requirements.filter((req) => req.type === "skillLevel");
   };
 
   const showItemForActivity = (
@@ -109,19 +105,20 @@ export function useShowItemForActivity() {
 
     const [skill] = currentActivity.relatedSkillsList ??
       currentActivity.relatedSkills ?? [null];
-    const skillReq = checksSkillRequirements(item, skill);
+    if (!skill) return true;
 
     const hasUsefulKeywords =
       usefulKeywords(item, currentActivity, currentService).length > 0;
-    const hasUsefulAttrs =
-      usefulAttrs(item, currentActivity, currentQuality, currentIsRecipe)
-        .length > 0;
+    const usefulAttributes = usefulAttrs(
+      item,
+      currentActivity,
+      currentQuality,
+      currentIsRecipe
+    );
+    const hasUsefulAttrs = usefulAttributes.length > 0;
     const hasTables = itemTables(item).length > 0;
 
-    return (
-      !skill ||
-      (skill && (skillReq || hasUsefulKeywords || hasUsefulAttrs || hasTables))
-    );
+    return hasUsefulKeywords || hasUsefulAttrs || hasTables;
   };
 
   return {
@@ -129,7 +126,5 @@ export function useShowItemForActivity() {
     usefulKeywords,
     usefulAttrs,
     itemTables,
-    checksSkillRequirements,
-    skillsInRequirements,
   };
 }
