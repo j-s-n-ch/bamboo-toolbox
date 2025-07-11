@@ -65,9 +65,21 @@ const stepsPerItem = computed(() => {
 
     return stepsPerRewardRoll.value / sourceDropChance(source) / avgAmount;
   });
+
   return (
     1 / stepsPerSource.map((steps) => 1 / steps).reduce((a, b) => a + b, 0)
   );
+});
+
+const itemsPerStep = computed(() => {
+  const itemsPerSource = props.sources.map((source) => {
+    const { rowMinimumAmount, rowMaximumAmount } = source;
+    const avgAmount = (rowMaximumAmount + rowMinimumAmount) / 2;
+
+    return (sourceDropChance(source) * avgAmount) / stepsPerRewardRoll.value;
+  });
+
+  return 1000 * itemsPerSource.reduce((total, rate) => total + rate, 0);
 });
 
 const dropCounts = computed(() => {
@@ -77,7 +89,7 @@ const dropCounts = computed(() => {
       if (rowMinimumAmount === rowMaximumAmount) {
         return `${rowMinimumAmount}`;
       }
-      return `${rowMinimumAmount} - ${rowMaximumAmount}`;
+      return `${rowMinimumAmount}-${rowMaximumAmount}`;
     })
     .join(", ");
 });
@@ -91,6 +103,8 @@ const canDropFine = computed(() => {
       "item-adventurer's_guild_token-dad84ad7-050a-4ec2-9bc7-7f2dae5c4a08"
   );
 });
+
+const showItemsPerStep = computed(() => item.value.isMoney);
 
 const stepsPerFine = computed(() => {
   if (!canDropFine.value) return 0;
@@ -109,7 +123,16 @@ const stepsPerFine = computed(() => {
     <span>{{ n(totalDropChance, 3) }}%</span>
     <span>{{ dropCounts }}</span>
     <div class="step-counts">
-      <div class="steps-line border-common">
+      <div v-if="showItemsPerStep" class="steps-line">
+        <span>{{ n(itemsPerStep, 0) }}</span>
+        /
+        <span>1k</span>
+        <ws-icon
+          iconPath="assets/icons/text/general_icons/steps.png"
+          size="xs"
+        />
+      </div>
+      <div v-else class="steps-line border-common">
         <ws-icon
           iconPath="assets/icons/text/general_icons/steps.png"
           size="xs"
