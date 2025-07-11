@@ -2,6 +2,7 @@
 import { ref, watch } from "vue";
 import { usePlayerStore } from "@/store/player";
 import WsLabel from "./WsLabel.vue";
+import WsButton from "./WsButton.vue";
 
 const props = defineProps({
   modelValue: Boolean,
@@ -56,8 +57,8 @@ function saveUuid() {
         <button class="close-btn" @click="close">✕</button>
       </div>
       <div class="modal-body">
-        <div>
-          <ws-label label="User Uuid" />
+        <div class="uuid-settings">
+          <ws-label label="Optimizer User ID" />
           <input
             v-model="uuidInput"
             type="text"
@@ -66,8 +67,11 @@ function saveUuid() {
             autocomplete="off"
             maxlength="36"
           />
-          <p>To sync data between devices, change this value to match</p>
-          <button class="save-btn" @click="saveUuid">Save</button>
+          <p class="text">
+            This ID is only used by this tool. Change it to match between
+            devices, to sync your optimizer data.
+          </p>
+          <ws-button @click="saveUuid" text="Save" />
           <div v-if="error" class="error-msg">{{ error }}</div>
         </div>
       </div>
@@ -92,6 +96,9 @@ function saveUuid() {
   border-radius: $sm;
   min-width: 300px;
   min-height: 200px;
+
+  width: 80%;
+  max-width: 500px;
   position: relative;
 }
 .close-btn {
@@ -102,6 +109,12 @@ function saveUuid() {
   border: none;
   font-size: $xlg;
   cursor: pointer;
+}
+
+.uuid-settings {
+  display: flex;
+  flex-direction: column;
+  gap: $xxs;
 }
 
 .uuid-input {
