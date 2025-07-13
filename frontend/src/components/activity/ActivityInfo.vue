@@ -57,7 +57,7 @@ const sections = computed(() => {
     requirements,
   } = activityStore.activity;
 
-  const isTravel = id === "activity-travelling";
+  const isTravel = id === "travelling";
 
   return [
     {

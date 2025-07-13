@@ -81,7 +81,7 @@ export const useActivityStore = defineStore("activity", {
       if (locations.length) this.setLocation(locations[0]);
     },
     async loadRecipe(id) {
-      if (id === "activity-none") {
+      if (id === "none") {
         this.setRecipe(activityNone);
         return;
       }
