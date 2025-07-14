@@ -12,7 +12,7 @@ import ItemSelection from "./ItemSelection.vue";
 import ImportButton from "./ImportButton.vue";
 import debounce from "@/utils/debounce";
 import { argbToRgba } from "@/utils/argbToRgba";
-import { XP_TABLE, levelFromXp } from "@/utils/skillXp";
+import { levelFromXp } from "@/utils/skillXp";
 
 const playerStore = usePlayerStore();
 
@@ -38,15 +38,86 @@ const updateFactionReputation = debounce(postFactionReputation, 1000);
 const handleCharacterImport = (data) => {
   if (!data) return;
 
-  const parsed_data = JSON.parse(data);
+  try {
+    const parsedData = JSON.parse(data);
+    let updatedSkills = false;
+    let updatedAchievementPoints = false;
 
-  const { skills } = parsed_data;
-  if (skills) {
-    for (const [skill, xp] of Object.entries(skills)) {
-      const level = levelFromXp(xp);
-      console.log(skill, level);
-      // playerStore.setSkillLevel(skill, level);
+    // Process skills safely
+    if (parsedData.skills && typeof parsedData.skills === "object") {
+      // Start with current skill levels as base
+      const updatedSkillLevels = { ...playerStore.skillLevels };
+
+      // Only update skills that exist in player store
+      for (const [skillId, xp] of Object.entries(parsedData.skills)) {
+        // Validate: skill must exist in our store and xp must be a valid number
+        if (
+          skillId in updatedSkillLevels &&
+          typeof xp === "number" &&
+          xp >= 0
+        ) {
+          const level = levelFromXp(xp);
+          updatedSkillLevels[skillId] = level;
+        } else {
+          console.warn(`Skipped invalid skill data: ${skillId} = ${xp}`);
+        }
+      }
+
+      // Batch update all skill levels at once
+      playerStore.setSkillLevels(updatedSkillLevels);
+      updatedSkills = true;
     }
+
+    if (
+      parsedData.achievement_points &&
+      typeof parsedData.achievement_points === "number"
+    ) {
+      playerStore.setAchievementPoints(parsedData.achievement_points);
+      updatedAchievementPoints = true;
+    } else {
+      console.warn("Invalid or missing achievement points data.");
+    }
+
+    if (updatedSkills || updatedAchievementPoints) {
+      postPlayerStats();
+    }
+
+    let updatedReputation = false;
+
+    // Process faction reputations safely
+    if (parsedData.reputation && typeof parsedData.reputation === "object") {
+      const updatedReputations = { ...playerStore.factionReputation };
+
+      // Only update reputations that exist in the player store
+      for (const [faction, reputation] of Object.entries(
+        parsedData.reputation
+      )) {
+        if (
+          faction in playerStore.factionsMap &&
+          typeof reputation === "number" &&
+          reputation >= 0
+        ) {
+          const factionReputation = playerStore.factionsMap[faction].reputation;
+          updatedReputations[factionReputation] = Math.floor(reputation);
+          updatedReputation = true;
+        } else {
+          console.warn(
+            `Skipped invalid faction data: ${faction} = ${reputation}`
+          );
+        }
+      }
+
+      playerStore.setFactionReputations(updatedReputations);
+    }
+
+    if (updatedReputation) {
+      postFactionReputation();
+    }
+
+    // TODO: process items
+  } catch (error) {
+    console.error("Failed to parse character import data:", error);
+    // TODO: Show user-friendly error message
   }
 };
 </script>
