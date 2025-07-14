@@ -2,6 +2,34 @@ import { PrismaClient } from "../src/generated/prisma/index.js";
 import { itemService } from "../src/services/index.js";
 const prisma = new PrismaClient();
 
+// Helper function to add delay between requests
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Process items in batches with delay
+async function processInBatches(items, batchSize, delayMs, processFn) {
+  const results = [];
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    console.log(
+      `Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(
+        items.length / batchSize
+      )}`
+    );
+
+    const batchResults = await Promise.all(batch.map(processFn));
+    results.push(...batchResults);
+
+    // Add delay between batches (except for the last batch)
+    if (i + batchSize < items.length) {
+      console.log(`Waiting ${delayMs}ms before next batch...`);
+      await delay(delayMs);
+    }
+  }
+  return results;
+}
+
 async function migrate() {
   console.log("Starting ID migration...");
 
@@ -11,27 +39,76 @@ async function migrate() {
 
   // Create a map of old ID to new ID
   const idMap = new Map();
-  const uniqueOldIds = [...new Set(ownedItems.map((item) => item.itemId))];
-  console.log(`Found ${uniqueOldIds.length} unique old item IDs`);
+  const allItemIds = ownedItems.map((item) => item.itemId);
 
-  // Fetch new IDs for each old ID
-  for (const oldId of uniqueOldIds) {
-    try {
-      const item = await itemService.getById(oldId);
-      const newId = item.id;
-      idMap.set(oldId, newId);
-      // console.log(`Mapped ${oldId} -> ${newId}`);
-    } catch (error) {
-      console.error(`Failed to fetch item for old ID: ${oldId}`, error.message);
-      // You might want to handle this case - skip or use default value
+  // Filter out invalid IDs
+  const validOldIds = allItemIds.filter((id) => {
+    // Skip if not a string or if it's the literal text "[object Object]"
+    if (typeof id !== "string" || id === "[object Object]") {
+      console.warn(`Skipping invalid ID: ${id} (type: ${typeof id})`);
+      return false;
+    }
+    return true;
+  });
+
+  const uniqueOldIds = [...new Set(validOldIds)];
+  console.log(`Found ${uniqueOldIds.length} unique valid old item IDs`);
+  console.log(
+    `Filtered out ${allItemIds.length - validOldIds.length} invalid IDs`
+  );
+
+  // Fetch new IDs in batches with retry logic
+  const fetchItem = async (oldId) => {
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const item = await itemService.getById(oldId);
+        const newId = item.id;
+        return { oldId, newId, success: true };
+      } catch (error) {
+        if (attempt === maxRetries) {
+          console.error(
+            `Failed to fetch item for old ID: ${oldId} after ${maxRetries} attempts`
+          );
+          return { oldId, newId: null, success: false, error: error.message };
+        }
+        console.warn(`Attempt ${attempt} failed for ${oldId}, retrying...`);
+        await delay(1000); // Wait 1 second before retry
+      }
+    }
+  };
+  // Process in batches of 10 with 2 second delay between batches
+  const results = await processInBatches(uniqueOldIds, 10, 1000, fetchItem);
+
+  // Build the ID map from successful results
+  let successCount = 0;
+  let failCount = 0;
+  let alreadyMigratedCount = 0;
+
+  for (const result of results) {
+    if (result.success) {
+      if (result.oldId === result.newId) {
+        // ID hasn't changed, mark as already migrated
+        alreadyMigratedCount++;
+        console.log(`ID ${result.oldId} already migrated (no change needed)`);
+      } else {
+        idMap.set(result.oldId, result.newId);
+        successCount++;
+      }
+    } else {
+      failCount++;
     }
   }
 
-  console.log(`Successfully mapped ${idMap.size} IDs`);
+  console.log(`Successfully mapped ${successCount} IDs`);
+  console.log(`Already migrated (no change): ${alreadyMigratedCount} IDs`);
+  console.log(`Failed to map ${failCount} IDs`);
 
-  const owned_items = await prisma.ownedItem.findMany();
   // Update database with new IDs
   let updatedCount = 0;
+  let skippedCount = 0;
+  let noChangeCount = 0;
+
   for (const ownedItem of ownedItems) {
     const newId = idMap.get(ownedItem.itemId);
     if (newId) {
@@ -58,9 +135,9 @@ async function migrate() {
         });
 
         updatedCount++;
-        console.log(
-          `Updated ${ownedItem.userUuid}:${ownedItem.itemId} -> ${newId}`
-        );
+        if (updatedCount % 50 === 0) {
+          console.log(`Updated ${updatedCount} records so far...`);
+        }
       } catch (error) {
         console.error(
           `Failed to update record for ${ownedItem.userUuid}:${ownedItem.itemId}`,
@@ -68,11 +145,25 @@ async function migrate() {
         );
       }
     } else {
-      console.warn(`No new ID found for old ID: ${ownedItem.itemId}`);
+      // Check if this item was already migrated (old ID = new ID)
+      const wasAlreadyMigrated =
+        uniqueOldIds.includes(ownedItem.itemId) &&
+        results.find(
+          (r) => r.oldId === ownedItem.itemId && r.oldId === r.newId
+        );
+
+      if (wasAlreadyMigrated) {
+        noChangeCount++;
+      } else {
+        skippedCount++;
+      }
     }
   }
 
-  console.log(`Migration complete! Updated ${updatedCount} records.`);
+  console.log(`Migration complete!`);
+  console.log(`Updated: ${updatedCount} records`);
+  console.log(`No change needed: ${noChangeCount} records`);
+  console.log(`Skipped (failed to fetch): ${skippedCount} records`);
   await prisma.$disconnect();
 }
 
