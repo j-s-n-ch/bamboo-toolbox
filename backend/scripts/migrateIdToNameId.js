@@ -7,24 +7,75 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Process items in batches with delay and individual retry logic
+// Process items in batches with delay and selective retry logic
 async function processInBatches(items, batchSize, delayMs, processFn) {
   const results = [];
   for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
+    let batch = items.slice(i, i + batchSize);
     console.log(
       `Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(
         items.length / batchSize
       )}`
     );
 
-    // Process each item in the batch individually
-    const batchResults = [];
-    for (const item of batch) {
-      const result = await processFn(item);
-      batchResults.push(result);
+    let batchResults = [];
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    while (batch.length > 0 && retryCount < maxRetries) {
+      // Process current batch in parallel
+      const currentResults = await Promise.allSettled(batch.map(processFn));
+
+      // Separate successful and failed items
+      const successful = [];
+      const toRetry = [];
+
+      currentResults.forEach((result, index) => {
+        if (result.status === "fulfilled" && result.value.success) {
+          successful.push(result.value);
+        } else {
+          // Add failed item back to retry list
+          toRetry.push(batch[index]);
+          console.warn(
+            `Item ${batch[index]} failed, will retry. Error: ${
+              result.reason?.message || "Unknown error"
+            }`
+          );
+        }
+      });
+
+      batchResults.push(...successful);
+      batch = toRetry; // Only retry the failed items
+      retryCount++;
+
+      // Add delay before retry if there are items to retry
+      if (batch.length > 0 && retryCount < maxRetries) {
+        console.log(
+          `Retrying ${batch.length} failed items (attempt ${
+            retryCount + 1
+          }/${maxRetries})...`
+        );
+        await delay(1000);
+      }
     }
-    
+
+    // Log final failures
+    if (batch.length > 0) {
+      console.error(
+        `${batch.length} items failed after ${maxRetries} retries:`,
+        batch
+      );
+      // Add failed items as failed results
+      batch.forEach((failedItem) => {
+        batchResults.push({
+          oldId: failedItem,
+          newId: null,
+          success: false,
+          error: "Max retries exceeded",
+        });
+      });
+    }
+
     results.push(...batchResults);
 
     // Add delay between batches (except for the last batch)
