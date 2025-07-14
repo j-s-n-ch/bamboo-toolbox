@@ -69,9 +69,10 @@ export function useShowItemForActivity() {
     const unfilteredRequirementTypes = ["distinctKeywordItemsEquipped"];
 
     const usefulAttr = baseAttrs.filter((attr) => {
-      const usedRequirements = attr.requirements.filter(
-        (req) => !unfilteredRequirementTypes.includes(req.type)
-      );
+      const usedRequirements =
+        attr?.requirements?.filter(
+          (req) => !unfilteredRequirementTypes.includes(req.type)
+        ) || [];
 
       return (
         filterActivityOnlyAttrs(attr) &&
