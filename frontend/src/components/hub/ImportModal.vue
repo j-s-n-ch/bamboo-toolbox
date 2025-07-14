@@ -23,7 +23,7 @@ async function tryAutoPaste() {
     }
   } catch {
     // Clipboard access denied or not supported, silently continue
-    console.log("Clipboard access not available");
+    console.warn("Clipboard access not available");
   }
 }
 
