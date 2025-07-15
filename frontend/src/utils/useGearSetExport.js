@@ -47,5 +47,62 @@ export function useGearSetExport() {
     return base64;
   };
 
-  return { exportCode };
+  const importCode = (code) => {
+    try {
+      // Validate input
+      if (!code || typeof code !== 'string') {
+        throw new Error('Invalid input: code must be a non-empty string');
+      }
+
+      // Helper function to convert base64 to Uint8Array
+      function base64ToUint8(base64) {
+        const binary = atob(base64);
+        const uint8 = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          uint8[i] = binary.charCodeAt(i);
+        }
+        return uint8;
+      }
+
+      // Decode base64 to compressed data
+      const compressed = base64ToUint8(code.trim());
+      
+      // Decompress with gzip
+      const decompressed = pako.ungzip(compressed, { to: 'string' });
+      
+      // Parse the JSON
+      const data = JSON.parse(decompressed);
+      
+      // Validate the expected structure
+      if (!data || typeof data !== 'object' || !Array.isArray(data.items)) {
+        throw new Error('Invalid gear set format: expected object with items array');
+      }
+      
+      return {
+        success: true,
+        data: data,
+        error: null
+      };
+    } catch (error) {
+      let errorMessage = 'Failed to import gear set';
+      
+      if (error.message.includes('Invalid character')) {
+        errorMessage += ': Invalid base64 format';
+      } else if (error.message.includes('incorrect header check')) {
+        errorMessage += ': Invalid compression format';
+      } else if (error.message.includes('Unexpected token')) {
+        errorMessage += ': Invalid JSON format';
+      } else {
+        errorMessage += `: ${error.message}`;
+      }
+      
+      return {
+        success: false,
+        data: null,
+        error: errorMessage
+      };
+    }
+  };
+
+  return { exportCode, importCode };
 }
