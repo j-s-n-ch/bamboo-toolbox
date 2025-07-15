@@ -1,43 +1,28 @@
 <script setup>
-import { ref } from "vue";
 import GearSetExport from "./GearSetExport.vue";
 import GearUnequipButton from "./GearUnequipButton.vue";
+import { useNotificationStore } from "@/store/notifications";
 
-const notification = ref("");
+const notificationStore = useNotificationStore();
 
 function showNotification(text) {
-  notification.value = text;
-  setTimeout(() => {
-    notification.value = "";
-  }, 5000);
+  notificationStore.success(text);
 }
 </script>
 
 <template>
-  <div class="buttons-section">
-    <div class="buttons-wrapper">
-      <gear-unequip-button @notification="showNotification" />
-      <gear-set-export @notification="showNotification" />
-    </div>
-    <p v-if="notification">{{ notification }}</p>
+  <div class="buttons-wrapper">
+    <gear-unequip-button @notification="showNotification" />
+    <gear-set-export @notification="showNotification" />
   </div>
 </template>
 
 <style lang="scss" scoped>
-.buttons-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $sm;
-
+.buttons-wrapper {
   width: 100%;
 
-  .buttons-wrapper {
-    width: 100%;
-
-    display: flex;
-    justify-content: space-around;
-    gap: $sm;
-  }
+  display: flex;
+  justify-content: space-around;
+  gap: $sm;
 }
 </style>
