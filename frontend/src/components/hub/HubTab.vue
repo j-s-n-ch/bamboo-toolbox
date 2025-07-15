@@ -5,6 +5,7 @@ import {
 } from "@/utils/axios/db_routes";
 import { usePlayerStore } from "@/store/player";
 import { useItemsStore } from "@/store/items";
+import { useNotificationStore } from "@/store/notifications";
 import TabContentWrapper from "@/components/common/TabContentWrapper.vue";
 import SkillLevelDisplay from "./SkillLevelDisplay.vue";
 import IconInputBubble from "@/components/common/IconInputBubble.vue";
@@ -17,6 +18,7 @@ import { processCharacterImport } from "@/utils/characterImport";
 
 const playerStore = usePlayerStore();
 const itemsStore = useItemsStore();
+const notificationStore = useNotificationStore();
 
 const postPlayerStats = () => {
   const payload = {
@@ -43,6 +45,8 @@ const handleCharacterImport = (data) => {
 
     let updatedSkills = false;
     let updatedAchievementPoints = false;
+    let updatedItems = false;
+    let updatedReputation = false;
 
     // Update skills if processed
     if (result.skills) {
@@ -64,15 +68,33 @@ const handleCharacterImport = (data) => {
     if (result.reputation) {
       playerStore.setFactionReputations(result.reputation);
       postFactionReputation();
+      updatedReputation = true;
     }
 
     // Update items if processed
     if (result.items) {
       itemsStore.batchUpdateOwnedItems(result.items);
+      updatedItems = true;
     }
-  } catch (error) {
-    console.error("Failed to process character import data:", error);
-    // TODO: Show user-friendly error message
+
+    // Show success notification
+    const updatedSections = [];
+    if (updatedSkills) updatedSections.push("skills");
+    if (updatedAchievementPoints) updatedSections.push("achievement points");
+    if (updatedReputation) updatedSections.push("faction reputation");
+    if (updatedItems) updatedSections.push("items");
+
+    if (updatedSections.length > 0) {
+      notificationStore.success(
+        `Successfully imported: ${updatedSections.join(", ")}`
+      );
+    } else {
+      notificationStore.error("No valid data found to import");
+    }
+  } catch {
+    notificationStore.error(
+      "Failed to import character data. Please check the file format."
+    );
   }
 };
 </script>
