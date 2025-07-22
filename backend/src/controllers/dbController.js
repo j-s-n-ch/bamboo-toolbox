@@ -61,7 +61,7 @@ export const upsertUserFactionReputations = makeUpsertHandler(
 
 export const getGearSetTags = async (req, res) => {
   try {
-    const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
+    const tags = await dbService.getGearSetTags();
     res.json(tags);
   } catch (error) {
     console.error("Error fetching tags:", error);
@@ -70,4 +70,4 @@ export const getGearSetTags = async (req, res) => {
 };
 
 export const getGearSets = makeGetHandler(dbService.getGearSets);
-export const upsertGearSets = makeUpsertHandler(dbService.upsertGearSets);
+export const upsertGearSet = makeUpsertHandler(dbService.upsertGearSet);

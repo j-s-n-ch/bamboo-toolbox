@@ -119,6 +119,10 @@ export async function upsertUserFactionReputations(userUuid, reputationsObj) {
   );
 }
 
+export async function getGearSetTags() {
+  return await prisma.tag.findMany({ orderBy: { name: "asc" } });
+}
+
 export async function getGearSets(userUuid) {
   const gearSets = await prisma.gearSet.findMany({
     include: {
@@ -136,7 +140,7 @@ export async function getGearSets(userUuid) {
   }));
 }
 
-export async function upsertGearSets(userUuid, payload) {
+export async function upsertGearSet(userUuid, payload) {
   const { id, name, tags, items } = payload;
 
   // Validate tags
