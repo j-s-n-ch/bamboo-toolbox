@@ -30,8 +30,12 @@ function makeUpsertHandler(serviceFn, getPayload = (req) => req.body) {
     const userUuid = getUserUuid(req, res);
     if (!userUuid) return;
     try {
-      await serviceFn(userUuid, getPayload(req));
-      res.sendStatus(200);
+      const result = await serviceFn(userUuid, getPayload(req));
+      if (result) {
+        res.json(result);
+      } else {
+        res.sendStatus(204);
+      }
     } catch (e) {
       res.status(400).json({ error: e.message });
     }
@@ -54,3 +58,16 @@ export const upsertUserFactionReputations = makeUpsertHandler(
   dbService.upsertUserFactionReputations,
   (req) => req.body.reputations
 );
+
+export const getGearSetTags = async (req, res) => {
+  try {
+    const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } });
+    res.json(tags);
+  } catch (error) {
+    console.error("Error fetching tags:", error);
+    res.status(500).json({ error: "Failed to load tags" });
+  }
+};
+
+export const getGearSets = makeGetHandler(dbService.getGearSets);
+export const upsertGearSets = makeUpsertHandler(dbService.upsertGearSets);

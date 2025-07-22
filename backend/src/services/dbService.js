@@ -1,4 +1,5 @@
 import { PrismaClient } from "../generated/prisma/index.js";
+import { validTags } from "../../prisma/tag-data.js";
 
 const prisma = new PrismaClient();
 
@@ -116,4 +117,74 @@ export async function upsertUserFactionReputations(userUuid, reputationsObj) {
       })
     )
   );
+}
+
+export async function getGearSets(userUuid) {
+  const gearSets = await prisma.gearSet.findMany({
+    include: {
+      items: true,
+      tags: { include: { tag: true } },
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
+
+  return gearSets.map((set) => ({
+    ...set,
+    tags: set.tags.map((t) => t.tag.name),
+  }));
+}
+
+export async function upsertGearSets(userUuid, payload) {
+  const { id, name, tags, items } = payload;
+
+  
+  // Validate tags
+  const invalidTags = tags.filter((t) => !validTags.includes(t));
+  if (invalidTags.length > 0) {
+    return res
+      .status(400)
+      .json({ error: `Invalid tag(s): ${invalidTags.join(", ")}` });
+  }
+
+  try {
+    const now = new Date();
+
+    // Upsert the gear set
+    const gearSet = id
+      ? await prisma.gearSet.update({
+          where: { id },
+          data: { name, updatedAt: now },
+        })
+      : await prisma.gearSet.create({
+          data: { name },
+        });
+
+    // Sync tags
+    const tagRecords = await prisma.tag.findMany({
+      where: { name: { in: tags } },
+    });
+
+    await prisma.gearSetTag.deleteMany({ where: { gearSetId: gearSet.id } });
+    await prisma.gearSetTag.createMany({
+      data: tagRecords.map((tag) => ({
+        gearSetId: gearSet.id,
+        tagId: tag.id,
+      })),
+    });
+
+    // Sync items
+    await prisma.gearSetItem.deleteMany({ where: { gearSetId: gearSet.id } });
+    await prisma.gearSetItem.createMany({
+      data: items.map((item) => ({
+        gearSetId: gearSet.id,
+        slotType: item.slotType,
+        slotIndex: item.slotIndex,
+        itemId: item.itemId,
+        quality: item.quality,
+      })),
+    });
+
+    return { message: "Gear set saved", gearSetId: gearSet.id };
 }
