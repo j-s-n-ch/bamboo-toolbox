@@ -8,6 +8,7 @@ const gearSetStore = useGearSetStore();
 const gearStore = useGearStore();
 const isOpen = ref(false);
 const inputRef = ref(null);
+const confirmDeleteId = ref(null); // Track which set is in delete confirmation state
 
 // Use the store's current set instead of local state
 const selectedSet = computed(() =>
@@ -60,6 +61,28 @@ function selectNewSet() {
 
 function handleClickOutside() {
   isOpen.value = false;
+  // Reset delete confirmation when clicking outside
+  confirmDeleteId.value = null;
+}
+
+async function handleDeleteClick(setId) {
+  if (confirmDeleteId.value === setId) {
+    // Second click - actually delete
+    try {
+      await gearSetStore.deleteGearSet(setId);
+      confirmDeleteId.value = null;
+    } catch (error) {
+      console.error("Failed to delete gear set:", error);
+      // The error notification is handled in the store
+    }
+  } else {
+    // First click - show confirmation
+    confirmDeleteId.value = setId;
+  }
+}
+
+function isConfirmingDelete(setId) {
+  return confirmDeleteId.value === setId;
 }
 </script>
 
@@ -77,26 +100,35 @@ function handleClickOutside() {
     </div>
 
     <div v-if="isOpen" class="dropdown-list">
-      <div class="dropdown-item new-set-item" @click="selectNewSet">
+      <button class="dropdown-item new-set-item" @click="selectNewSet">
         <span class="new-set-text">+ New Gear Set</span>
-      </div>
+      </button>
 
-      <div
+      <button
         v-for="set in gearSetStore.gearSets"
         :key="set.id"
         class="dropdown-item"
         :class="{ selected: set.id === gearSetStore.currentSet.id }"
         @click="selectSet(set.id)"
       >
-        <span class="set-name">{{ set.name }}</span>
-        <span v-if="set.tags && set.tags.length" class="set-tags">
-          {{ set.tags.join(", ") }}
-        </span>
+        <div class="set-info">
+          <span class="set-name">{{ set.name }}</span>
+          <span v-if="set.tags && set.tags.length" class="set-tags">
+            {{ set.tags.join(", ") }}
+          </span>
+        </div>
         <ws-button
+          v-if="!isConfirmingDelete(set.id)"
           icon-path="assets/icons/text/button_icons/delete.png"
-          @click="gearSetStore.deleteGearSet(set.id)"
+          @click.stop="handleDeleteClick(set.id)"
         />
-      </div>
+        <ws-button
+          v-else
+          text="Delete?"
+          class="delete-confirm-button"
+          @click.stop="handleDeleteClick(set.id)"
+        />
+      </button>
     </div>
   </div>
 </template>
@@ -174,13 +206,16 @@ function handleClickOutside() {
 }
 
 .dropdown-item {
+  width: 100%;
+  background-color: $boxDarkBackground;
+
   padding: $sm;
   cursor: pointer;
   border-bottom: 1px solid $boxDarkOutline;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: $xxs;
+  gap: $sm;
 
   &:last-child {
     border-bottom: none;
@@ -194,6 +229,14 @@ function handleClickOutside() {
   &.selected {
     background-color: $chipBackground;
   }
+}
+
+.set-info {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 .new-set-item {
@@ -213,5 +256,14 @@ function handleClickOutside() {
 .set-tags {
   color: $txDarker;
   font-size: $sm;
+}
+
+.delete-confirm-button {
+  background-color: $txNegative !important;
+  color: white !important;
+
+  &:hover {
+    background-color: $txNegativeDark !important;
+  }
 }
 </style>

@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useNotificationStore } from "@/store/notifications";
 import {
   getGearSetTags,
   getGearSets,
@@ -192,10 +193,25 @@ export const useGearSetStore = defineStore("gearSetStore", {
         throw new Error("ID is required to delete a gear set.");
       }
 
-      await deleteGearSet(id);
-      this.gearSets = this.gearSets.filter((set) => set.id !== id);
-      if (this.currentSet.id === id) {
-        this.createNewSet();
+      try {
+        const gearSetToDelete = this.gearSets.find(set => set.id === id);
+        const gearSetName = gearSetToDelete?.name || "Gear Set";
+        
+        await deleteGearSet(id);
+        this.gearSets = this.gearSets.filter((set) => set.id !== id);
+        
+        if (this.currentSet.id === id) {
+          this.createNewSet();
+        }
+
+        // Show success notification
+        const notificationStore = useNotificationStore();
+        notificationStore.success(`"${gearSetName}" deleted successfully`);
+      } catch (error) {
+        // Show error notification
+        const notificationStore = useNotificationStore();
+        notificationStore.error("Failed to delete gear set");
+        throw error;
       }
     },
   },
