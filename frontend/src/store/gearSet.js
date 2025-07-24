@@ -91,6 +91,9 @@ export const useGearSetStore = defineStore("gearSetStore", {
         isDirty: false,
         isNew: false,
       };
+
+      const notificationStore = useNotificationStore();
+      notificationStore.success(`"${existingSet.name}" loaded successfully`);
     },
 
     // Update current set name
@@ -113,12 +116,6 @@ export const useGearSetStore = defineStore("gearSetStore", {
       this.currentSet.isDirty = true;
     },
 
-    // Populate current set items from gear store
-    captureCurrentGear() {
-      // This will be called from components when they want to capture current gear
-      // We'll pass the gear items as a parameter to avoid circular dependencies
-    },
-
     // Save current set to backend and update local store
     async saveCurrentSet(gearItems = null) {
       // If gear items are provided, update them first
@@ -127,11 +124,15 @@ export const useGearSetStore = defineStore("gearSetStore", {
       }
 
       if (!this.canSave) {
-        throw new Error("Cannot save: set name is required");
+        const notificationStore = useNotificationStore();
+        notificationStore.error("Cannot save: set name is required");
+        return;
       }
 
       if (!this.currentSet.items || this.currentSet.items.length === 0) {
-        throw new Error("Cannot save: no gear items to save");
+        const notificationStore = useNotificationStore();
+        notificationStore.error("Cannot save: no gear items to save");
+        return;
       }
 
       const payload = {
@@ -159,6 +160,9 @@ export const useGearSetStore = defineStore("gearSetStore", {
         this.gearSets.push(newSet);
         this.currentSet.id = newId;
         this.currentSet.isNew = false;
+
+        const notificationStore = useNotificationStore();
+        notificationStore.success(`"${newSet.name}" created successfully`);
       } else {
         // Update existing set in the list
         const index = this.gearSets.findIndex(
@@ -167,6 +171,11 @@ export const useGearSetStore = defineStore("gearSetStore", {
         if (index !== -1) {
           this.gearSets[index] = { ...payload };
         }
+
+        const notificationStore = useNotificationStore();
+        notificationStore.success(
+          `"${this.currentSet.name}" updated successfully`
+        );
       }
 
       this.currentSet.isDirty = false;

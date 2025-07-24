@@ -36,17 +36,12 @@ const getSetItems = () => {
 
 async function handleSaveGearSet() {
   try {
-    // Capture current gear configuration
     const currentGearItems = getSetItems();
 
     // Save to backend (passing gear items directly)
     await gearSetStore.saveCurrentSet(currentGearItems);
-
-    // Could show success notification here
-    console.log("Gear set saved successfully!");
   } catch (error) {
     console.error("Failed to save gear set:", error);
-    // Could show error notification here
   }
 }
 </script>
