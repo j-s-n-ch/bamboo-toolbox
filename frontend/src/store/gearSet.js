@@ -74,6 +74,20 @@ export const useGearSetStore = defineStore("gearSetStore", {
         isDirty: false,
         isNew: true,
       };
+
+      // Clear gear set parameter from URL when creating new set
+      this._updateUrlWithGearSet(null);
+    },
+
+    // Helper method to update URL (avoiding circular import issues)
+    async _updateUrlWithGearSet(gearSetId) {
+      try {
+        const { useUrlStore } = await import("./url");
+        const urlStore = useUrlStore();
+        urlStore.updateUrlWithGearSet(gearSetId);
+      } catch (error) {
+        console.warn("Could not update URL:", error);
+      }
     },
 
     // Load an existing set for editing
@@ -81,7 +95,7 @@ export const useGearSetStore = defineStore("gearSetStore", {
       const existingSet = this.gearSets.find((set) => set.id === setId);
       if (!existingSet) {
         this.createNewSet();
-        return;
+        return false;
       }
 
       // If the existing set doesn't have items (from the lightweight getGearSets call),
@@ -97,8 +111,8 @@ export const useGearSetStore = defineStore("gearSetStore", {
         } catch (error) {
           console.error(error);
           const notificationStore = useNotificationStore();
-          notificationStore.success(
-            `error loading gear set: ${existingSet.name}`
+          notificationStore.error(
+            `Error loading gear set: ${existingSet.name}`
           );
           fullGearSet = existingSet;
         }
@@ -115,6 +129,53 @@ export const useGearSetStore = defineStore("gearSetStore", {
 
       const notificationStore = useNotificationStore();
       notificationStore.success(`"${fullGearSet.name}" loaded successfully`);
+    },
+
+    async selectAndEquipSet(setId) {
+      const { useGearStore } = await import("./gear");
+      const gearStore = useGearStore();
+
+      try {
+        await this.loadSet(setId);
+
+        const gearSet = Object.fromEntries(
+          this.getCurrentSet.items.map(
+            ({ itemId, quality, slotIndex, slotType }) => {
+              const slotName = ["ring", "tool"].includes(slotType)
+                ? `${slotType}${slotIndex + 1}`
+                : slotType;
+              return [
+                slotName,
+                {
+                  id: itemId,
+                  quality: quality || null,
+                },
+              ];
+            }
+          )
+        );
+
+        Object.keys(gearStore.gearSlots).forEach((key) => {
+          if (
+            !(
+              ["service", "consumable", "potion"].includes(key) ||
+              key in gearSet
+            )
+          ) {
+            gearSet[key] = null; // Ensure all slots are set, even if empty
+          }
+        });
+
+        await gearStore.equipMultiple(gearSet);
+
+        // Update URL with gear set parameter
+        await this._updateUrlWithGearSet(setId);
+
+        return true;
+      } catch (error) {
+        console.error("Failed to select and equip gear set:", error);
+        return false;
+      }
     },
 
     // Update current set name
@@ -184,6 +245,9 @@ export const useGearSetStore = defineStore("gearSetStore", {
 
         const notificationStore = useNotificationStore();
         notificationStore.success(`"${newSet.name}" created successfully`);
+
+        // Update URL with new gear set parameter
+        await this._updateUrlWithGearSet(newId);
       } else {
         // Update existing set in the list
         const index = this.gearSets.findIndex(
@@ -197,6 +261,9 @@ export const useGearSetStore = defineStore("gearSetStore", {
         notificationStore.success(
           `"${this.currentSet.name}" updated successfully`
         );
+
+        // Update URL with updated gear set parameter
+        await this._updateUrlWithGearSet(this.currentSet.id);
       }
 
       this.currentSet.isDirty = false;

@@ -1,11 +1,9 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useGearSetStore } from "@/store/gearSet";
-import { useGearStore } from "@/store/gear";
 import WsButton from "@/components/common/WsButton.vue";
 
 const gearSetStore = useGearSetStore();
-const gearStore = useGearStore();
 const isOpen = ref(false);
 const inputRef = ref(null);
 const confirmDeleteId = ref(null); // Track which set is in delete confirmation state
@@ -28,37 +26,13 @@ function toggleDropdown() {
 
 async function selectSet(setId) {
   try {
-    await gearSetStore.loadSet(setId);
-
-    const gearSet = Object.fromEntries(
-      gearSetStore.getCurrentSet.items.map(
-        ({ itemId, quality, slotIndex, slotType }) => {
-          const slotName = ["ring", "tool"].includes(slotType)
-            ? `${slotType}${slotIndex + 1}`
-            : slotType;
-          return [
-            slotName,
-            {
-              id: itemId,
-              quality: quality || null,
-            },
-          ];
-        }
-      )
-    );
-
-    Object.keys(gearStore.gearSlots).forEach((key) => {
-      if (
-        !(["service", "consumable", "potion"].includes(key) || key in gearSet)
-      ) {
-        gearSet[key] = null; // Ensure all slots are set, even if empty
-      }
-    });
-
-    gearStore.equipMultiple(gearSet);
-    isOpen.value = false;
+    const success = await gearSetStore.selectAndEquipSet(setId);
+    if (success) {
+      isOpen.value = false;
+    }
+    // If failed, keep dropdown open so user can try again or select different set
   } catch (error) {
-    console.error("Failed to load gear set:", error);
+    console.error("Failed to select gear set:", error);
     // Keep dropdown open so user can try again or select different set
   }
 }

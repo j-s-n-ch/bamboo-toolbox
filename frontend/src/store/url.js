@@ -59,11 +59,46 @@ export const useUrlStore = defineStore("url", {
       window.history.replaceState({}, "", url);
     },
 
+    updateUrlWithGearSet(gearSetId) {
+      const url = new URL(window.location.href);
+      if (gearSetId) {
+        url.searchParams.set("gs", gearSetId);
+      } else {
+        url.searchParams.delete("gs");
+      }
+      window.history.replaceState({}, "", url);
+    },
+
     async decodeFromUrlAndApply() {
       const params = new URLSearchParams(window.location.search);
-      const encoded = params.get("q");
-      if (!encoded) return;
+      const encodedGear = params.get("q");
+      const gearSetId = params.get("gs");
 
+      // Prioritize 'q' parameter over 'gs' parameter
+      if (encodedGear) {
+        // If we have encoded gear data, use that and ignore gear set
+        await this._applyEncodedGearLoadout(encodedGear);
+      } else if (gearSetId) {
+        // Only gear set ID is present, try to load that gear set
+        await this._applyGearSetFromUrl(gearSetId);
+      }
+
+      console.log(gearSetId);
+      if (gearSetId) {
+        const { useGearSetStore } = await import("./gearSet");
+        const gearSetStore = useGearSetStore();
+        console.log(gearSetStore.gearSets);
+        const exists = gearSetStore.loadSet(gearSetId);
+
+        if (!exists) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("gs");
+          window.history.replaceState({}, "", url);
+        }
+      }
+    },
+
+    async _applyEncodedGearLoadout(encoded) {
       const { decodeGearLoadout } = useUrlMap();
       const decodedLoadout = decodeGearLoadout(encoded);
 
@@ -105,6 +140,30 @@ export const useUrlStore = defineStore("url", {
       }
 
       await Promise.all(promises);
+    },
+
+    async _applyGearSetFromUrl(gearSetId) {
+      const { useGearSetStore } = await import("./gearSet");
+      const gearSetStore = useGearSetStore();
+
+      // Ensure gear sets are loaded
+      await gearSetStore.fetchGearSets();
+
+      // Check if the gear set exists
+      const gearSetExists = gearSetStore.gearSets.some(
+        (set) => set.id === gearSetId
+      );
+
+      if (gearSetExists) {
+        // Load and equip the gear set
+        await gearSetStore.selectAndEquipSet(gearSetId);
+      } else {
+        // Gear set doesn't exist (maybe shared URL), remove from URL
+        console.warn(`Gear set ${gearSetId} not found, removing from URL`);
+        const url = new URL(window.location.href);
+        url.searchParams.delete("gs");
+        window.history.replaceState({}, "", url);
+      }
     },
   },
 });
