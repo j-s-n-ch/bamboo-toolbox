@@ -3,6 +3,7 @@ import {
   getGearSetTags,
   getGearSets,
   upsertGearSet,
+  deleteGearSet,
 } from "@/utils/axios/db_routes";
 
 export const useGearSetStore = defineStore("gearSetStore", {
@@ -184,6 +185,18 @@ export const useGearSetStore = defineStore("gearSetStore", {
         items,
       };
       await upsertGearSet(payload);
+    },
+
+    async deleteGearSet(id) {
+      if (!id) {
+        throw new Error("ID is required to delete a gear set.");
+      }
+
+      await deleteGearSet(id);
+      this.gearSets = this.gearSets.filter((set) => set.id !== id);
+      if (this.currentSet.id === id) {
+        this.createNewSet();
+      }
     },
   },
 });
