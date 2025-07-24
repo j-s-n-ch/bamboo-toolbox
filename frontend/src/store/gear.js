@@ -29,6 +29,8 @@ export const useGearStore = defineStore("gearStore", {
     },
     showOwned: true,
     showUseful: true,
+    // Cache for fetched items to avoid refetching
+    itemCache: new Map(),
   }),
   getters: {
     hasGearEquipped: (state) => {
@@ -86,12 +88,65 @@ export const useGearStore = defineStore("gearStore", {
       return quality;
     },
 
+    _getCacheKey(id, quality) {
+      return `${id}_${quality || "default"}`;
+    },
+
+    _getFromCache(id, quality) {
+      const cacheKey = this._getCacheKey(id, quality);
+      return this.itemCache.get(cacheKey);
+    },
+
+    _setInCache(id, quality, itemData) {
+      const cacheKey = this._getCacheKey(id, quality);
+      this.itemCache.set(cacheKey, itemData);
+    },
+
     async _fetchAndSetItem(itemSlot, id, quality) {
-      await getItem({ id }).then(({ data }) => {
-        if (data) {
-          this.setGearSlot(itemSlot, { ...data, quality });
+      // Check cache first
+      const cachedItem = this._getFromCache(id, quality);
+      if (cachedItem) {
+        this.setGearSlot(itemSlot, cachedItem);
+        return cachedItem;
+      }
+
+      // Fetch from API
+      const { data } = await getItem({ id });
+      if (data) {
+        const itemData = { ...data, quality };
+        this._setInCache(id, quality, itemData);
+        this.setGearSlot(itemSlot, itemData);
+        return itemData;
+      }
+      return null;
+    },
+
+    // Batch fetch items (ready for future bulk endpoint)
+    async _fetchMultipleItems(itemRequests) {
+      // For now, we'll use Promise.all with individual calls
+      // TODO: Replace with bulk endpoint when available
+      const fetchPromises = itemRequests.map(async ({ id, quality }) => {
+        // Check cache first
+        const cachedItem = this._getFromCache(id, quality);
+        if (cachedItem) {
+          return { id, quality, data: cachedItem };
         }
+
+        // Fetch from API
+        try {
+          const { data } = await getItem({ id });
+          if (data) {
+            const itemData = { ...data, quality };
+            this._setInCache(id, quality, itemData);
+            return { id, quality, data: itemData };
+          }
+        } catch (error) {
+          console.error(`Failed to fetch item ${id}:`, error);
+        }
+        return { id, quality, data: null };
       });
+
+      return Promise.all(fetchPromises);
     },
 
     async loadItem(itemSlot, id, itemQuality = null) {
@@ -119,19 +174,106 @@ export const useGearStore = defineStore("gearStore", {
     },
 
     async equipMultiple(gearSetData, useQuality = false) {
-      const promises = [];
+      const itemsStore = useItemsStore();
+
+      // Step 1: Determine what needs to be fetched vs what can be set directly
+      const itemsToFetch = [];
+      const finalGearSlots = {};
 
       for (const [slot, item] of Object.entries(gearSetData)) {
-        if (item && item.id) {
-          promises.push(
-            this.loadItem(slot, item.id, useQuality ? item.quality : null)
-          );
+        if (!item || !item.id) {
+          // Empty slot
+          finalGearSlots[slot] = null;
+          continue;
+        }
+
+        // Skip if item doesn't exist in allItems
+        if (!(item.id in itemsStore.allItems)) {
+          finalGearSlots[slot] = null;
+          continue;
+        }
+
+        const quality = useQuality ? item.quality : null;
+        const resolvedQuality = quality || this.determineQuality(item.id);
+
+        // Check if this item is already equipped with the same quality
+        const currentItem = this.gearSlots[slot];
+        if (
+          currentItem?.id === item.id &&
+          currentItem.quality === resolvedQuality
+        ) {
+          // Keep the current item (no change needed)
+          finalGearSlots[slot] = currentItem;
+          continue;
+        }
+
+        // Check if we have this item in cache
+        const cachedItem = this._getFromCache(item.id, resolvedQuality);
+        if (cachedItem) {
+          finalGearSlots[slot] = cachedItem;
         } else {
-          this.setGearSlot(slot, null);
+          // Need to fetch this item
+          itemsToFetch.push({
+            slot,
+            id: item.id,
+            quality: resolvedQuality,
+          });
         }
       }
 
-      await Promise.all(promises);
+      // Step 2: Batch fetch all items that need to be fetched
+      if (itemsToFetch.length > 0) {
+        const uniqueRequests = itemsToFetch.filter(
+          (item, index, self) =>
+            index ===
+            self.findIndex(
+              (i) => i.id === item.id && i.quality === item.quality
+            )
+        );
+
+        const fetchedItems = await this._fetchMultipleItems(uniqueRequests);
+        const fetchedItemsMap = new Map();
+
+        fetchedItems.forEach(({ id, quality, data }) => {
+          if (data) {
+            fetchedItemsMap.set(this._getCacheKey(id, quality), data);
+          }
+        });
+
+        // Assign fetched items to their slots
+        itemsToFetch.forEach(({ slot, id, quality }) => {
+          const cacheKey = this._getCacheKey(id, quality);
+          finalGearSlots[slot] = fetchedItemsMap.get(cacheKey) || null;
+        });
+      }
+
+      // Step 3: Apply all changes at once to minimize reactive updates
+      // Make sure we handle all slots, not just the ones in gearSetData
+      const completeGearSlots = { ...this.gearSlots };
+      Object.assign(completeGearSlots, finalGearSlots);
+      this.gearSlots = completeGearSlots;
+    },
+
+    // Method to clear the item cache if needed
+    clearItemCache() {
+      this.itemCache.clear();
+    },
+
+    // Method to remove specific items from cache
+    removeFromCache(id, quality = null) {
+      if (quality) {
+        const cacheKey = this._getCacheKey(id, quality);
+        this.itemCache.delete(cacheKey);
+      } else {
+        // Remove all qualities of this item
+        const keysToDelete = [];
+        for (const key of this.itemCache.keys()) {
+          if (key.startsWith(`${id}_`)) {
+            keysToDelete.push(key);
+          }
+        }
+        keysToDelete.forEach((key) => this.itemCache.delete(key));
+      }
     },
   },
 });
