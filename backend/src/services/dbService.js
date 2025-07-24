@@ -125,6 +125,7 @@ export async function getGearSetTags() {
 
 export async function getGearSets(userUuid) {
   const gearSets = await prisma.gearSet.findMany({
+    where: { userUuid },
     include: {
       items: true,
       tags: { include: { tag: true } },
@@ -146,18 +147,17 @@ export async function upsertGearSet(userUuid, payload) {
   // Validate tags
   const invalidTags = tags.filter((t) => !validTags.includes(t));
   if (invalidTags.length > 0) {
-    return res
-      .status(400)
-      .json({ error: `Invalid tag(s): ${invalidTags.join(", ")}` });
+    throw new Error(`Invalid tag(s): ${invalidTags.join(", ")}`);
   }
 
   try {
+    await ensureUser(userUuid);
     const now = new Date();
 
     // Upsert the gear set
     const gearSet = id
       ? await prisma.gearSet.update({
-          where: { id },
+          where: { id, userUuid },
           data: { name, updatedAt: now },
         })
       : await prisma.gearSet.create({
@@ -192,6 +192,6 @@ export async function upsertGearSet(userUuid, payload) {
     return { message: "Gear set saved", gearSetId: gearSet.id };
   } catch (error) {
     console.error("Error upserting gear set:", error);
-    res.status(500).json({ error: "Failed to save gear set" });
+    throw new Error("Failed to save gear set");
   }
 }
