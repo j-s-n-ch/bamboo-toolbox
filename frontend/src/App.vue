@@ -5,6 +5,7 @@ import { useDataStore } from "@/store/data";
 import { usePlayerStore } from "@/store/player";
 import { useUrlStore } from "@/store/url";
 import { useItemsStore } from "@/store/items";
+import { useGearSetStore } from "@/store/gearSet";
 import { getOrCreateUserUuid } from "@/utils/user";
 import Hub from "./components/hub/HubTab.vue";
 import Activity from "./components/activity/ActivityTab.vue";
@@ -54,6 +55,7 @@ const bootstrap = async () => {
 
   const activityStore = useActivityStore();
   const dataStore = useDataStore();
+  const gearSetStore = useGearSetStore();
   const playerStore = usePlayerStore();
   const itemsStore = useItemsStore();
 
@@ -65,6 +67,7 @@ const bootstrap = async () => {
     playerStore.fetchPlayerData(),
     urlStore.fetchMapping(),
     itemsStore.fetchItems(),
+    gearSetStore.fetchGearSets(),
   ]);
 
   await urlStore.decodeFromUrlAndApply();
@@ -111,7 +114,7 @@ onUnmounted(() => {
         target="_blank"
         rel="noopener noreferrer"
       >
-        BMaC
+        Support
       </a>
     </div>
     <ws-button

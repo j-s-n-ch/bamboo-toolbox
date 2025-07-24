@@ -30,8 +30,12 @@ function makeUpsertHandler(serviceFn, getPayload = (req) => req.body) {
     const userUuid = getUserUuid(req, res);
     if (!userUuid) return;
     try {
-      await serviceFn(userUuid, getPayload(req));
-      res.sendStatus(200);
+      const result = await serviceFn(userUuid, getPayload(req));
+      if (result) {
+        res.json(result);
+      } else {
+        res.sendStatus(204);
+      }
     } catch (e) {
       res.status(400).json({ error: e.message });
     }
@@ -54,3 +58,68 @@ export const upsertUserFactionReputations = makeUpsertHandler(
   dbService.upsertUserFactionReputations,
   (req) => req.body.reputations
 );
+
+export const getGearSetTags = async (req, res) => {
+  try {
+    const tags = await dbService.getGearSetTags();
+    res.json(tags);
+  } catch (error) {
+    console.error("Error fetching tags:", error);
+    res.status(500).json({ error: "Failed to load tags" });
+  }
+};
+
+export const getGearSets = async (req, res) => {
+  const userUuid = getUserUuid(req, res);
+  if (!userUuid) return;
+  
+  // Check if includeItems query parameter is present
+  const includeItems = req.query.includeItems === 'true';
+  
+  try {
+    const result = await dbService.getGearSets(userUuid, includeItems);
+    res.json(result || []);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
+
+export const getGearSet = async (req, res) => {
+  const userUuid = getUserUuid(req, res);
+  if (!userUuid) return;
+  
+  const gearSetId = parseInt(req.params.id);
+  if (!gearSetId || isNaN(gearSetId)) {
+    return res.status(400).json({ error: "Invalid gear set ID" });
+  }
+
+  try {
+    const result = await dbService.getGearSet(userUuid, gearSetId);
+    res.json(result);
+  } catch (e) {
+    if (e.message === "Gear set not found") {
+      res.status(404).json({ error: e.message });
+    } else {
+      res.status(500).json({ error: e.message });
+    }
+  }
+};
+export const upsertGearSet = makeUpsertHandler(dbService.upsertGearSet);
+
+export const deleteGearSet = async (req, res) => {
+  const userUuid = getUserUuid(req, res);
+  if (!userUuid) return;
+
+  const gearSetId = parseInt(req.params.id);
+  if (!gearSetId || isNaN(gearSetId)) {
+    return res.status(400).json({ error: "Invalid gear set ID" });
+  }
+
+  try {
+    const result = await dbService.deleteGearSet(userUuid, gearSetId);
+    res.json(result);
+  } catch (error) {
+    console.error("Error in deleteGearSet controller:", error);
+    res.status(400).json({ error: error.message });
+  }
+};

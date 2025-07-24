@@ -33,3 +33,28 @@ export const upsertFactionReputations = async (payload) => {
   );
   return data;
 };
+
+export const getGearSetTags = async () => {
+  const { data } = await axios.get(`${getHost()}/db/gear_set_tags`);
+  return data;
+};
+
+export const getGearSets = async () => {
+  const { data } = await axios.get(`${getHost()}/db/gear_sets`);
+  return data;
+};
+
+export const getGearSet = async (id) => {
+  const { data } = await axios.get(`${getHost()}/db/gear_sets/${id}`);
+  return data;
+};
+
+export const upsertGearSet = async (payload) => {
+  const { data } = await axios.post(`${getHost()}/db/gear_sets`, payload);
+  return data;
+};
+
+export const deleteGearSet = async (id) => {
+  const { data } = await axios.delete(`${getHost()}/db/gear_sets/${id}`);
+  return data;
+};

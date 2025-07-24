@@ -53,11 +53,15 @@ defineEmits(["back"]);
         <h3>Known issues</h3>
         <ul>
           <li>Roll special table-stat instead of the actual loot table name</li>
-          <li>Money drops not visible</li>
+          <li>Travelling activity is borken</li>
+          <li>Some items incorrectly show fine materials</li>
         </ul>
         <h3>Planned features</h3>
         <ul>
-          <li>Ability to save/load gear sets</li>
+          <li>
+            Add quality of life to gear sets: searching, sorting, tags and
+            filtering with tags
+          </li>
           <li>Calculated gold/tokens per step values for Drops section</li>
           <li>Gear set optimizer</li>
           <li>Comparing gear sets</li>

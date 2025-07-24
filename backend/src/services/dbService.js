@@ -1,4 +1,5 @@
 import { PrismaClient } from "../generated/prisma/index.js";
+import { validTags } from "../../prisma/tag-data.js";
 
 const prisma = new PrismaClient();
 
@@ -116,4 +117,130 @@ export async function upsertUserFactionReputations(userUuid, reputationsObj) {
       })
     )
   );
+}
+
+export async function getGearSetTags() {
+  return await prisma.tag.findMany({ orderBy: { name: "asc" } });
+}
+
+export async function getGearSets(userUuid, includeItems = false) {
+  const gearSets = await prisma.gearSet.findMany({
+    where: { userUuid },
+    include: {
+      items: includeItems,
+      tags: { include: { tag: true } },
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
+
+  return gearSets.map((set) => ({
+    ...set,
+    tags: set.tags.map((t) => t.tag.name),
+  }));
+}
+
+export async function getGearSet(userUuid, gearSetId) {
+  const gearSet = await prisma.gearSet.findFirst({
+    where: { 
+      id: gearSetId,
+      userUuid 
+    },
+    include: {
+      items: true,
+      tags: { include: { tag: true } },
+    },
+  });
+
+  if (!gearSet) {
+    throw new Error("Gear set not found");
+  }
+
+  return {
+    ...gearSet,
+    tags: gearSet.tags.map((t) => t.tag.name),
+  };
+}
+
+export async function upsertGearSet(userUuid, payload) {
+  const { id, name, tags, items } = payload;
+
+  // Validate tags
+  const invalidTags = tags.filter((t) => !validTags.includes(t));
+  if (invalidTags.length > 0) {
+    throw new Error(`Invalid tag(s): ${invalidTags.join(", ")}`);
+  }
+
+  try {
+    await ensureUser(userUuid);
+    const now = new Date();
+
+    // Upsert the gear set
+    const gearSet = id
+      ? await prisma.gearSet.update({
+          where: { id, userUuid },
+          data: { name, updatedAt: now },
+        })
+      : await prisma.gearSet.create({
+          data: { name, userUuid },
+        });
+
+    // Sync tags
+    const tagRecords = await prisma.tag.findMany({
+      where: { name: { in: tags } },
+    });
+
+    await prisma.gearSetTag.deleteMany({ where: { gearSetId: gearSet.id } });
+    await prisma.gearSetTag.createMany({
+      data: tagRecords.map((tag) => ({
+        gearSetId: gearSet.id,
+        tagId: tag.id,
+      })),
+    });
+
+    // Sync items
+    await prisma.gearSetItem.deleteMany({ where: { gearSetId: gearSet.id } });
+    await prisma.gearSetItem.createMany({
+      data: items.map((item) => ({
+        gearSetId: gearSet.id,
+        slotType: item.slotType,
+        slotIndex: item.slotIndex,
+        itemId: item.itemId,
+        quality: item.quality,
+      })),
+    });
+
+    return { message: "Gear set saved", gearSetId: gearSet.id };
+  } catch (error) {
+    console.error("Error upserting gear set:", error);
+    throw new Error("Failed to save gear set");
+  }
+}
+
+export async function deleteGearSet(userUuid, gearSetId) {
+  try {
+    // First, verify the gear set exists and belongs to the user
+    const gearSet = await prisma.gearSet.findUnique({
+      where: { id: gearSetId },
+    });
+
+    if (!gearSet) {
+      throw new Error("Gear set not found");
+    }
+
+    if (gearSet.userUuid !== userUuid) {
+      throw new Error("You can only delete your own gear sets");
+    }
+
+    // Delete all associated data (Prisma will handle the order due to foreign key constraints)
+    await prisma.gearSetTag.deleteMany({ where: { gearSetId } });
+    await prisma.gearSetItem.deleteMany({ where: { gearSetId } });
+    await prisma.gearSet.delete({ where: { id: gearSetId } });
+
+    return { message: "Gear set deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting gear set:", error);
+    throw new Error(error.message || "Failed to delete gear set");
+  }
 }

@@ -6,6 +6,11 @@ import {
   upsertUserOwnedItems,
   getUserFactionReputations,
   upsertUserFactionReputations,
+  getGearSetTags,
+  getGearSets,
+  getGearSet,
+  upsertGearSet,
+  deleteGearSet,
 } from "../controllers/dbController.js";
 
 const router = Router();
@@ -16,5 +21,10 @@ router.get("/owned_items", getUserOwnedItems);
 router.post("/owned_items", upsertUserOwnedItems);
 router.get("/faction_reputations", getUserFactionReputations);
 router.post("/faction_reputations", upsertUserFactionReputations);
+router.get("/gear_set_tags", getGearSetTags);
+router.get("/gear_sets", getGearSets);
+router.get("/gear_sets/:id", getGearSet);
+router.post("/gear_sets", upsertGearSet);
+router.delete("/gear_sets/:id", deleteGearSet);
 
 export { router as dbRoutes };

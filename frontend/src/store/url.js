@@ -59,36 +59,115 @@ export const useUrlStore = defineStore("url", {
       window.history.replaceState({}, "", url);
     },
 
+    updateUrlWithGearSet(gearSetId) {
+      const url = new URL(window.location.href);
+      if (gearSetId) {
+        url.searchParams.set("gs", gearSetId);
+      } else {
+        url.searchParams.delete("gs");
+      }
+      window.history.replaceState({}, "", url);
+    },
+
     async decodeFromUrlAndApply() {
       const params = new URLSearchParams(window.location.search);
-      const encoded = params.get("q");
-      if (!encoded) return;
+      const encodedGear = params.get("q");
+      const gearSetIdParam = params.get("gs");
 
+      // Parse gear set ID to number with validation
+      const gearSetId = gearSetIdParam ? parseInt(gearSetIdParam, 10) : null;
+      const isValidGearSetId = gearSetId && !isNaN(gearSetId) && gearSetId > 0;
+
+      // Prioritize 'q' parameter over 'gs' parameter
+      if (encodedGear) {
+        // If we have encoded gear data, use that and ignore gear set
+        await this._applyEncodedGearLoadout(encodedGear);
+      } else if (isValidGearSetId) {
+        // Only gear set ID is present and valid, try to load that gear set
+        await this._applyGearSetFromUrl(gearSetId);
+      } else if (gearSetIdParam) {
+        // Invalid gear set ID format, remove it from URL
+        console.warn(
+          `Invalid gear set ID format: ${gearSetIdParam}, removing from URL`
+        );
+        const url = new URL(window.location.href);
+        url.searchParams.delete("gs");
+        window.history.replaceState({}, "", url);
+      }
+
+      if (isValidGearSetId) {
+        const { useGearSetStore } = await import("./gearSet");
+        const gearSetStore = useGearSetStore();
+        gearSetStore.loadSet(gearSetId);
+      }
+    },
+
+    async _applyEncodedGearLoadout(encoded) {
       const { decodeGearLoadout } = useUrlMap();
       const decodedLoadout = decodeGearLoadout(encoded);
 
       const gearStore = useGearStore();
       const activityStore = useActivityStore();
 
+      // Separate gear items from activity/recipe data
+      const gearData = {};
+      const activityPromises = [];
       const ringId = decodedLoadout["ring1"];
-      const promises = [];
+
       Object.entries(decodedLoadout).forEach(([slot, id]) => {
         if (!id) return;
 
-        const useQ2 = slot === "ring2" && ringId === id;
-        const quality = gearStore.determineQuality(id, useQ2);
-
         if (slot === "activity") {
-          promises.push(activityStore.loadActivity(id));
-          promises.push(activityStore.loadActivityLocations(id));
+          activityPromises.push(activityStore.loadActivity(id));
+          activityPromises.push(activityStore.loadActivityLocations(id));
         } else if (slot === "recipe") {
-          promises.push(activityStore.loadRecipe(id));
+          activityPromises.push(activityStore.loadRecipe(id));
         } else {
-          promises.push(gearStore.loadItem(slot, id, quality));
+          // This is a gear slot
+          const useQ2 = slot === "ring2" && ringId === id;
+          const quality = gearStore.determineQuality(id, useQ2);
+          gearData[slot] = { id, quality };
         }
       });
 
+      // Handle gear and activity data in parallel
+      const promises = [];
+
+      // Use the optimized equipMultiple for all gear items at once
+      if (Object.keys(gearData).length > 0) {
+        promises.push(gearStore.equipMultiple(gearData, true));
+      }
+
+      // Handle activity store calls
+      if (activityPromises.length > 0) {
+        promises.push(Promise.all(activityPromises));
+      }
+
       await Promise.all(promises);
+    },
+
+    async _applyGearSetFromUrl(gearSetId) {
+      const { useGearSetStore } = await import("./gearSet");
+      const gearSetStore = useGearSetStore();
+
+      // Ensure gear sets are loaded
+      await gearSetStore.fetchGearSets();
+
+      // Check if the gear set exists (gearSetId is already a number)
+      const gearSetExists = gearSetStore.gearSets.some(
+        (set) => set.id === gearSetId
+      );
+
+      if (gearSetExists) {
+        // Load and equip the gear set
+        await gearSetStore.selectAndEquipSet(gearSetId);
+      } else {
+        // Gear set doesn't exist (maybe shared URL), remove from URL
+        console.warn(`Gear set ${gearSetId} not found, removing from URL`);
+        const url = new URL(window.location.href);
+        url.searchParams.delete("gs");
+        window.history.replaceState({}, "", url);
+      }
     },
   },
 });

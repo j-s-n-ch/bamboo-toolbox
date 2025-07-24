@@ -14,7 +14,7 @@ defineEmits(["click"]);
 </script>
 
 <template>
-  <button @click="$emit('click')" class="button">
+  <button @click="$emit('click', $event)" class="button">
     <ws-icon v-if="iconPath" :icon-path="iconPath" :size="iconSize" />
     {{ text }}
   </button>
