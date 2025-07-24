@@ -67,7 +67,7 @@ function removeTag(tagName) {
         class="tag"
         @click="removeTag(tag)"
       >
-        {{ tag.name }}
+        {{ tag }}
       </span>
       <button class="tag" @click="togglePopup" type="button">+</button>
     </div>
@@ -87,12 +87,12 @@ function removeTag(tagName) {
             v-for="tag in gearSetStore.gearSetTags"
             :key="tag"
             class="tag"
-            :class="{ selected: isTagSelected(tag) }"
-            @click="toggleTag(tag)"
+            :class="{ selected: isTagSelected(tag.name) }"
+            @click="toggleTag(tag.name)"
             type="button"
           >
             {{ tag.name }}
-            <span v-if="isTagSelected(tag)" class="checkmark">✓</span>
+            <span v-if="isTagSelected(tag.name)" class="checkmark">✓</span>
           </button>
         </div>
       </div>
@@ -107,8 +107,10 @@ function removeTag(tagName) {
 
 .tag-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: $sm;
+  padding: 0 $xs;
+  gap: $xxxs $xs;
   margin-bottom: $xs;
 }
 
@@ -116,26 +118,6 @@ function removeTag(tagName) {
   color: $txPrimary;
   font-size: $sm;
   font-weight: 500;
-}
-
-.add-tag-button {
-  width: $lg;
-  height: $lg;
-  border: 1px solid $boxDarkOutline;
-  background-color: $boxDarkBackground;
-  color: $txPrimary;
-  border-radius: $xs;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: $sm;
-  font-weight: bold;
-
-  &:hover {
-    background-color: $boxTransparentDarkBackground;
-    border-color: $txPrimary;
-  }
 }
 
 .selected-tags {
@@ -147,7 +129,7 @@ function removeTag(tagName) {
 .tag {
   cursor: pointer;
   text-transform: capitalize;
-  
+
   display: inline-flex;
   align-items: center;
   gap: $xxs;
@@ -155,7 +137,6 @@ function removeTag(tagName) {
   color: $txPrimary;
   padding: $xxs $xs;
   border-radius: $xs;
-  font-size: $xs;
   border: 1px solid $boxDarkOutline;
 
   &:hover,
