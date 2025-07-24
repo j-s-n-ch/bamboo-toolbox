@@ -48,3 +48,8 @@ export const upsertGearSet = async (payload) => {
   const { data } = await axios.post(`${getHost()}/db/gear_sets`, payload);
   return data;
 };
+
+export const deleteGearSet = async (id) => {
+  const { data } = await axios.delete(`${getHost()}/db/gear_sets/${id}`);
+  return data;
+};
