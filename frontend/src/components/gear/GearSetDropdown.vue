@@ -2,7 +2,7 @@
 import { ref, computed } from "vue";
 import { useGearSetStore } from "@/store/gearSet";
 import { useGearStore } from "@/store/gear";
-import { useItemsStore } from "@/store/items";
+import WsButton from "@/components/common/WsButton.vue";
 
 const gearSetStore = useGearSetStore();
 const gearStore = useGearStore();
@@ -92,6 +92,10 @@ function handleClickOutside() {
         <span v-if="set.tags && set.tags.length" class="set-tags">
           {{ set.tags.join(", ") }}
         </span>
+        <ws-button
+          icon-path="assets/icons/text/button_icons/delete.png"
+          @click="gearSetStore.deleteGearSet(set.id)"
+        />
       </div>
     </div>
   </div>
@@ -174,7 +178,8 @@ function handleClickOutside() {
   cursor: pointer;
   border-bottom: 1px solid $boxDarkOutline;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   gap: $xxs;
 
   &:last-child {
