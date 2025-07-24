@@ -46,6 +46,14 @@ function selectSet(setId) {
     )
   );
 
+  Object.keys(gearStore.gearSlots).forEach((key) => {
+    if (
+      !(["service", "consumable", "potion"].includes(key) || key in gearSet)
+    ) {
+      gearSet[key] = null; // Ensure all slots are set, even if empty
+    }
+  });
+
   gearStore.equipMultiple(gearSet);
   isOpen.value = false;
 }
