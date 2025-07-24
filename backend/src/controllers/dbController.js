@@ -71,3 +71,21 @@ export const getGearSetTags = async (req, res) => {
 
 export const getGearSets = makeGetHandler(dbService.getGearSets);
 export const upsertGearSet = makeUpsertHandler(dbService.upsertGearSet);
+
+export const deleteGearSet = async (req, res) => {
+  const userUuid = getUserUuid(req, res);
+  if (!userUuid) return;
+
+  const gearSetId = parseInt(req.params.id);
+  if (!gearSetId || isNaN(gearSetId)) {
+    return res.status(400).json({ error: "Invalid gear set ID" });
+  }
+
+  try {
+    const result = await dbService.deleteGearSet(userUuid, gearSetId);
+    res.json(result);
+  } catch (error) {
+    console.error("Error in deleteGearSet controller:", error);
+    res.status(400).json({ error: error.message });
+  }
+};

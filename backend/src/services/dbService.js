@@ -195,3 +195,30 @@ export async function upsertGearSet(userUuid, payload) {
     throw new Error("Failed to save gear set");
   }
 }
+
+export async function deleteGearSet(userUuid, gearSetId) {
+  try {
+    // First, verify the gear set exists and belongs to the user
+    const gearSet = await prisma.gearSet.findUnique({
+      where: { id: gearSetId },
+    });
+
+    if (!gearSet) {
+      throw new Error("Gear set not found");
+    }
+
+    if (gearSet.userUuid !== userUuid) {
+      throw new Error("You can only delete your own gear sets");
+    }
+
+    // Delete all associated data (Prisma will handle the order due to foreign key constraints)
+    await prisma.gearSetTag.deleteMany({ where: { gearSetId } });
+    await prisma.gearSetItem.deleteMany({ where: { gearSetId } });
+    await prisma.gearSet.delete({ where: { id: gearSetId } });
+
+    return { message: "Gear set deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting gear set:", error);
+    throw new Error(error.message || "Failed to delete gear set");
+  }
+}
