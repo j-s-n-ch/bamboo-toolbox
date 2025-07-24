@@ -235,7 +235,7 @@ function isConfirmingDelete(setId) {
   border: 1px solid $boxDarkOutline;
   border-top: none;
   border-radius: 0 0 $sm $sm;
-  max-height: 200px;
+  max-height: 500px;
   overflow-y: auto;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
