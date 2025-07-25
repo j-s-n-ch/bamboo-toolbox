@@ -27,6 +27,16 @@ export const attributeTags = [
   { id: "work_efficiency", name: "Work Efficiency" },
 ];
 
+export const factionTags = [
+  { id: "tutorial_area", name: "Tutorial Area" },
+  { id: "jarvonia", name: "Jarvonia" },
+  { id: "erdwise", name: "Erdwise" },
+  { id: "trellin", name: "Trellin" },
+  { id: "gdte", name: "GDTE" },
+  { id: "halfling_rebels", name: "Halfling Rebels" },
+  { id: "syrenthia", name: "Syrenthia" },
+];
+
 export const otherTags = [
   {
     id: "bonus_ag_token",
@@ -43,9 +53,19 @@ export const otherTags = [
     name: "Travel",
     icon: "assets/icons/text/stats/skilling/traveling_distance.png",
   },
+  {
+    id: "underwater",
+    name: "Underwater",
+    icon: "assets/icons/keywords/itemset_diving_gear_expert.png",
+  },
 ];
 
-export const allTags = [...skillTags, ...attributeTags, ...otherTags];
+export const allTags = [
+  ...skillTags,
+  ...attributeTags,
+  ...factionTags,
+  ...otherTags,
+];
 
 // For backward compatibility - list of valid tag IDs
 export const validTags = allTags.map((tag) => tag.id);
