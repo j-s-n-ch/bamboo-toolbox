@@ -5,7 +5,12 @@ import {
   factionService,
   itemService,
 } from "../src/services/index.js";
-import { skillTags, attributeTags, otherTags } from "./tag-data.js";
+import {
+  skillTags,
+  attributeTags,
+  factionTags,
+  otherTags,
+} from "./tag-data.js";
 
 const prisma = new PrismaClient();
 
@@ -27,6 +32,15 @@ async function seedSkillTags() {
       where: { id },
       update: { name, category: "attribute", icon },
       create: { id, name, category: "attribute", icon },
+    });
+  });
+
+  factionTags.forEach(async ({ name, id }) => {
+    const icon = `assets/icons/text/coatofarms/${id}.png`;
+    await prisma.tag.upsert({
+      where: { id },
+      update: { name, category: "faction", icon },
+      create: { id, name, category: "faction", icon },
     });
   });
 
