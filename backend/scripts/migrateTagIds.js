@@ -77,7 +77,7 @@ async function migrate() {
   console.log("Migration complete!");
   console.log(`Migrated ${migratedCount} GearSetTag relationships`);
   console.log(`Skipped ${skippedCount} GearSetTag relationships`);
-  console.log(`Deleted ${existingTags.length} old tags with integer IDs`);
+  console.log(`Deleted ${oldTags.length} old tags with integer IDs`);
 
   await prisma.$disconnect();
 }
