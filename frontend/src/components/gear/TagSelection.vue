@@ -47,11 +47,11 @@ function closePopup() {
 
 function toggleTag(tagId) {
   const currentTags = [...selectedTags.value];
-  const existingTagIndex = currentTags.findIndex(tag => tag.id === tagId);
-  
+  const existingTagIndex = currentTags.findIndex((tag) => tag.id === tagId);
+
   if (existingTagIndex === -1) {
     // Add tag - find the full tag object
-    const fullTag = gearSetStore.gearSetTags.find(t => t.id === tagId);
+    const fullTag = gearSetStore.gearSetTags.find((t) => t.id === tagId);
     if (fullTag) {
       currentTags.push(fullTag);
     }
@@ -64,12 +64,12 @@ function toggleTag(tagId) {
 }
 
 function isTagSelected(tagId) {
-  return selectedTags.value.some(tag => tag.id === tagId);
+  return selectedTags.value.some((tag) => tag.id === tagId);
 }
 
 function removeTag(tagToRemove) {
   const tagId = tagToRemove.id;
-  const currentTags = selectedTags.value.filter(tag => tag.id !== tagId);
+  const currentTags = selectedTags.value.filter((tag) => tag.id !== tagId);
   selectedTags.value = currentTags;
 }
 </script>
@@ -81,7 +81,7 @@ function removeTag(tagToRemove) {
       <span
         v-for="tag in selectedTags"
         :key="tag.id"
-        class="tag"
+        :class="['tag', `border-${tag.id}`]"
         @click="removeTag(tag)"
       >
         <ws-icon v-if="tag.icon" :icon-path="tag.icon" size="sm" />
@@ -111,8 +111,11 @@ function removeTag(tagToRemove) {
               <button
                 v-for="tag in tags"
                 :key="tag.id"
-                class="tag"
-                :class="{ selected: isTagSelected(tag.id) }"
+                :class="[
+                  'tag',
+                  `border-${tag.id}`,
+                  { selected: isTagSelected(tag.id) },
+                ]"
                 @click="toggleTag(tag.id)"
                 type="button"
               >
