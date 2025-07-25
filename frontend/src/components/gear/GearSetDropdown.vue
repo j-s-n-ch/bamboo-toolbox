@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useGearSetStore } from "@/store/gearSet";
+import WsIcon from "@/components/common/WsIcon.vue";
 import WsButton from "@/components/common/WsButton.vue";
 import TagSelection from "./TagSelection.vue";
 
@@ -38,7 +39,8 @@ const filteredGearSets = computed(() => {
     sets = sets.filter((set) => {
       const nameMatch = set.name.toLowerCase().includes(search);
       const tagsMatch =
-        set.tags && set.tags.some((tag) => tag.name.toLowerCase().includes(search));
+        set.tags &&
+        set.tags.some((tag) => tag.name.toLowerCase().includes(search));
       return nameMatch || tagsMatch;
     });
   }
@@ -48,7 +50,7 @@ const filteredGearSets = computed(() => {
     sets = sets.filter((set) => {
       if (!set.tags || set.tags.length === 0) return false;
       return internalFilterTags.value.every((filterTag) =>
-        set.tags.some(setTag => setTag.id === filterTag.id)
+        set.tags.some((setTag) => setTag.id === filterTag.id)
       );
     });
   }
@@ -191,9 +193,14 @@ function isConfirmingDelete(setId) {
       >
         <div class="set-info">
           <span class="set-name">{{ set.name }}</span>
-          <span v-if="set.tags && set.tags.length" class="set-tags">
-            {{ set.tags.map(tag => tag.name).join(", ") }}
-          </span>
+          <div v-if="set.tags && set.tags.length" class="tag-icons">
+            <ws-icon
+              v-for="tag in set.tags"
+              :key="tag.id"
+              :icon-path="tag.icon"
+              size="xs"
+            />
+          </div>
         </div>
         <ws-button
           v-if="!isConfirmingDelete(set.id)"
@@ -420,6 +427,12 @@ function isConfirmingDelete(setId) {
   flex-direction: column;
   flex: 1;
   min-width: 0;
+
+  .tag-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $xxxxs;
+  }
 }
 
 .new-set-item {
