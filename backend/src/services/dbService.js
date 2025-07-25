@@ -120,7 +120,7 @@ export async function upsertUserFactionReputations(userUuid, reputationsObj) {
 }
 
 export async function getGearSetTags() {
-  return await prisma.tag.findMany({ orderBy: { name: "asc" } });
+  return await prisma.tag.findMany({ orderBy: { id: "asc" } }); // Changed from name to id
 }
 
 export async function getGearSets(userUuid, includeItems = false) {
@@ -137,15 +137,15 @@ export async function getGearSets(userUuid, includeItems = false) {
 
   return gearSets.map((set) => ({
     ...set,
-    tags: set.tags.map((t) => t.tag.name),
+    tags: set.tags.map((t) => t.tag.id), // Return tag IDs instead of names
   }));
 }
 
 export async function getGearSet(userUuid, gearSetId) {
   const gearSet = await prisma.gearSet.findFirst({
-    where: { 
+    where: {
       id: gearSetId,
-      userUuid 
+      userUuid,
     },
     include: {
       items: true,
@@ -159,7 +159,7 @@ export async function getGearSet(userUuid, gearSetId) {
 
   return {
     ...gearSet,
-    tags: gearSet.tags.map((t) => t.tag.name),
+    tags: gearSet.tags.map((t) => t.tag.id), // Return tag IDs instead of names
   };
 }
 
@@ -188,14 +188,14 @@ export async function upsertGearSet(userUuid, payload) {
 
     // Sync tags
     const tagRecords = await prisma.tag.findMany({
-      where: { name: { in: tags } },
+      where: { id: { in: tags } }, // Changed from name to id
     });
 
     await prisma.gearSetTag.deleteMany({ where: { gearSetId: gearSet.id } });
     await prisma.gearSetTag.createMany({
       data: tagRecords.map((tag) => ({
         gearSetId: gearSet.id,
-        tagId: tag.id,
+        tagId: tag.id, // Now using string ID instead of numeric id
       })),
     });
 
