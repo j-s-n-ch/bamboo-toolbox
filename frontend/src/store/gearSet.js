@@ -54,7 +54,16 @@ export const useGearSetStore = defineStore("gearSetStore", {
       ]);
 
       this.gearSetTags = gearSetTags;
-      this.gearSets = gearSets;
+
+      const mappedGearSets = gearSets.map((gearSet) => {
+        return {
+          ...gearSet,
+          tags: gearSet.tags.map((tagId) =>
+            this.gearSetTags.find(({ id }) => tagId === id)
+          ),
+        };
+      });
+      this.gearSets = mappedGearSets;
 
       this.isLoaded = true;
     },
@@ -121,7 +130,11 @@ export const useGearSetStore = defineStore("gearSetStore", {
       this.currentSet = {
         id: fullGearSet.id,
         name: fullGearSet.name,
-        tags: [...(fullGearSet.tags || [])],
+        tags: [
+          ...(fullGearSet.tags.map((tagId) =>
+            this.gearSetTags.find(({ id }) => tagId === id)
+          ) || []),
+        ],
         items: [...(fullGearSet.items || [])],
         isDirty: false,
         isNew: false,
@@ -224,7 +237,7 @@ export const useGearSetStore = defineStore("gearSetStore", {
       const payload = {
         id: this.currentSet.id,
         name: this.currentSet.name,
-        tags: this.currentSet.tags,
+        tags: this.currentSet.tags.map((tag) => tag.id),
         items: this.currentSet.items,
       };
 
@@ -243,7 +256,7 @@ export const useGearSetStore = defineStore("gearSetStore", {
           }
 
           // Add new set to the list
-          const newSet = { ...payload, id: newId };
+          const newSet = { ...payload, id: newId, tags: this.currentSet.tags };
           this.gearSets.push(newSet);
           this.currentSet.id = newId;
           this.currentSet.isNew = false;
@@ -259,7 +272,7 @@ export const useGearSetStore = defineStore("gearSetStore", {
             (set) => set.id === this.currentSet.id
           );
           if (index !== -1) {
-            this.gearSets[index] = { ...payload };
+            this.gearSets[index] = { ...payload, tags: this.currentSet.tags };
           }
 
           const notificationStore = useNotificationStore();

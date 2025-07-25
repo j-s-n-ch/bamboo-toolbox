@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useGearSetStore } from "@/store/gearSet";
+import WsIcon from "@/components/common/WsIcon.vue";
 
 const props = defineProps({
   modelValue: {
@@ -21,7 +22,7 @@ const isPopupOpen = ref(false);
 // Group tags by category
 const groupedTags = computed(() => {
   const groups = {};
-  gearSetStore.gearSetTags.forEach(tag => {
+  gearSetStore.gearSetTags.forEach((tag) => {
     if (!groups[tag.category]) {
       groups[tag.category] = [];
     }
@@ -44,27 +45,31 @@ function closePopup() {
   isPopupOpen.value = false;
 }
 
-function toggleTag(tagName) {
+function toggleTag(tagId) {
   const currentTags = [...selectedTags.value];
-  const tagIndex = currentTags.indexOf(tagName);
-
-  if (tagIndex === -1) {
-    // Add tag
-    currentTags.push(tagName);
+  const existingTagIndex = currentTags.findIndex(tag => tag.id === tagId);
+  
+  if (existingTagIndex === -1) {
+    // Add tag - find the full tag object
+    const fullTag = gearSetStore.gearSetTags.find(t => t.id === tagId);
+    if (fullTag) {
+      currentTags.push(fullTag);
+    }
   } else {
     // Remove tag
-    currentTags.splice(tagIndex, 1);
+    currentTags.splice(existingTagIndex, 1);
   }
 
   selectedTags.value = currentTags;
 }
 
-function isTagSelected(tagName) {
-  return selectedTags.value.includes(tagName);
+function isTagSelected(tagId) {
+  return selectedTags.value.some(tag => tag.id === tagId);
 }
 
-function removeTag(tagName) {
-  const currentTags = selectedTags.value.filter((tag) => tag !== tagName);
+function removeTag(tagToRemove) {
+  const tagId = tagToRemove.id;
+  const currentTags = selectedTags.value.filter(tag => tag.id !== tagId);
   selectedTags.value = currentTags;
 }
 </script>
@@ -75,11 +80,12 @@ function removeTag(tagName) {
       <span class="tag-label">{{ label }}</span>
       <span
         v-for="tag in selectedTags"
-        :key="tag"
+        :key="tag.id"
         class="tag"
         @click="removeTag(tag)"
       >
-        {{ tag }}
+        <ws-icon v-if="tag.icon" :icon-path="tag.icon" size="sm" />
+        {{ tag.name }}
       </span>
       <button class="tag" @click="togglePopup" type="button">+</button>
     </div>
@@ -106,12 +112,13 @@ function removeTag(tagName) {
                 v-for="tag in tags"
                 :key="tag.id"
                 class="tag"
-                :class="{ selected: isTagSelected(tag.name) }"
-                @click="toggleTag(tag.name)"
+                :class="{ selected: isTagSelected(tag.id) }"
+                @click="toggleTag(tag.id)"
                 type="button"
               >
+                <ws-icon :icon-path="tag.icon" size="sm" />
                 {{ tag.name }}
-                <span v-if="isTagSelected(tag.name)" class="checkmark">✓</span>
+                <span v-if="isTagSelected(tag.id)" class="checkmark">✓</span>
               </button>
             </div>
           </div>
@@ -161,7 +168,6 @@ function removeTag(tagName) {
 
   // Special styling for tags in the category popup
   .category-tags & {
-    justify-content: space-between;
     padding: $xxs;
     background-color: $boxTransparentDarkBackground;
     font-size: $sm;
@@ -184,10 +190,6 @@ function removeTag(tagName) {
   display: flex;
   flex-wrap: wrap;
   gap: $md;
-}
-
-.tag-category {
-  flex: 0;
 }
 
 .category-label {

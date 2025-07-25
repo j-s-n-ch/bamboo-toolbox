@@ -38,7 +38,7 @@ const filteredGearSets = computed(() => {
     sets = sets.filter((set) => {
       const nameMatch = set.name.toLowerCase().includes(search);
       const tagsMatch =
-        set.tags && set.tags.some((tag) => tag.toLowerCase().includes(search));
+        set.tags && set.tags.some((tag) => tag.name.toLowerCase().includes(search));
       return nameMatch || tagsMatch;
     });
   }
@@ -48,7 +48,7 @@ const filteredGearSets = computed(() => {
     sets = sets.filter((set) => {
       if (!set.tags || set.tags.length === 0) return false;
       return internalFilterTags.value.every((filterTag) =>
-        set.tags.includes(filterTag)
+        set.tags.some(setTag => setTag.id === filterTag.id)
       );
     });
   }
@@ -192,7 +192,7 @@ function isConfirmingDelete(setId) {
         <div class="set-info">
           <span class="set-name">{{ set.name }}</span>
           <span v-if="set.tags && set.tags.length" class="set-tags">
-            {{ set.tags.join(", ") }}
+            {{ set.tags.map(tag => tag.name).join(", ") }}
           </span>
         </div>
         <ws-button
