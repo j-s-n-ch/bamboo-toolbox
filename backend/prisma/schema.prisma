@@ -103,9 +103,10 @@ model GearSetItem {
 }
 
 model Tag {
-  id       Int     @id @default(autoincrement())
+  id       String  @id // Changed from Int @id @default(autoincrement())
   name     String  @unique
   category String? // Optional: like "skill", "mode", etc.
+  icon     String?
 
   gearSets GearSetTag[]
 }
@@ -114,8 +115,8 @@ model GearSetTag {
   gearSet   GearSet @relation(fields: [gearSetId], references: [id])
   gearSetId Int
 
-  tag   Tag @relation(fields: [tagId], references: [id])
-  tagId Int
+  tag   Tag    @relation(fields: [tagId], references: [id])
+  tagId String // Changed from Int
 
   @@id([gearSetId, tagId])
 }
