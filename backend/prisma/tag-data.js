@@ -12,15 +12,15 @@ export const skillTags = [
 ];
 
 export const attributeTags = [
-  { id: "bonus_experience", name: "Bonus Experience" },
-  { id: "chest_find", name: "Chest Finding" },
+  { id: "bonus_experience", name: "Experience" },
+  { id: "chest_find", name: "Chest Find" },
   { id: "crafting_quality", name: "Crafting Outcome" },
   { id: "double_action", name: "Double Action" },
   { id: "double_result", name: "Double Rewards" },
-  { id: "find_bird_nests", name: "Find Bird Nests" },
-  { id: "find_collectibles", name: "Find Collectibles" },
-  { id: "find_gems", name: "Find Gems" },
-  { id: "fine_material_find", name: "Fine Material Finding" },
+  { id: "find_bird_nests", name: "Bird Nests" },
+  { id: "find_collectibles", name: "Collectibles" },
+  { id: "find_gems", name: "Gems" },
+  { id: "fine_material_find", name: "Fine Materials" },
   { id: "inventory_space", name: "Inventory Space" },
   { id: "nomaterialsconsumed", name: "No Materials Consumed" },
   { id: "steps_required", name: "Steps Required" },
