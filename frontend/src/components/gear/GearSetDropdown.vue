@@ -227,6 +227,7 @@ function isConfirmingDelete(setId) {
 .gear-set-dropdown {
   position: relative;
   width: 100%;
+  min-width: 0;
 }
 
 .dropdown-header {
@@ -236,6 +237,8 @@ function isConfirmingDelete(setId) {
   border: 1px solid $boxDarkOutline;
   border-radius: $sm;
   cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
 
   &:hover {
     background-color: $boxTransparentDarkBackground;
@@ -248,6 +251,7 @@ function isConfirmingDelete(setId) {
 
 .dropdown-input {
   flex: 1;
+  min-width: 0;
   background: transparent;
   border: none;
   outline: none;
@@ -255,6 +259,9 @@ function isConfirmingDelete(setId) {
   color: $txPrimary;
   font-size: $base;
   cursor: text;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 
   &::placeholder {
     color: $txDarker;
@@ -266,10 +273,16 @@ function isConfirmingDelete(setId) {
 }
 
 .chevron {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  min-width: 40px;
   padding: $sm $xlg;
   color: $txDarker;
   transition: transform 0.2s ease;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &.open {
     transform: rotate(180deg);
@@ -286,6 +299,7 @@ function isConfirmingDelete(setId) {
   left: 0;
   right: 0;
   background-color: $boxDarkBackground;
+  padding-top: $xxxxs;
   border: 1px solid $boxDarkOutline;
   border-top: none;
   border-radius: 0 0 $sm $sm;
