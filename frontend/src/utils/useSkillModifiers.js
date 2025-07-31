@@ -158,6 +158,7 @@ export function useSkillModifiers() {
     fineMaterialFind,
     chestFind,
     craftingOutcome,
+    stepsPerAction,
     stepsPerCompletion,
     stepsPerRewardRoll,
     craftsPerMaterial,
