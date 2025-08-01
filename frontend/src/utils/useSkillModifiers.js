@@ -84,14 +84,18 @@ export function useSkillModifiers() {
     return getStat("craftingOutcome", "flat");
   });
 
-  const stepsPerCompletion = computed(() => {
+  const uncappedStepsPerCompletion = computed(() => {
     const { workRequired } = activity.value || 0;
     if (!workRequired) return 0;
     const stepsRequired = getStat("stepsRequired", "flat");
-    return Math.max(
-      10,
-      Math.ceil(workRequired / (1 + workEfficiency.value)) + stepsRequired
+    return (
+      Math.ceil(workRequired / (1 + workEfficiency.value)) +
+      stepsRequired
     );
+  });
+
+  const stepsPerCompletion = computed(() => {
+    return Math.max(10, uncappedStepsPerCompletion.value);
   });
 
   const stepsPerAction = computed(() => {
@@ -159,6 +163,7 @@ export function useSkillModifiers() {
     chestFind,
     craftingOutcome,
     stepsPerAction,
+    uncappedStepsPerCompletion,
     stepsPerCompletion,
     stepsPerRewardRoll,
     craftsPerMaterial,
