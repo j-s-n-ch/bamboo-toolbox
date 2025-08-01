@@ -164,6 +164,7 @@ export function useSkillModifiers() {
     fineMaterialFind,
     chestFind,
     craftingOutcome,
+    doubleAction,
     stepsRequired,
     stepsPerAction,
     uncappedStepsPerCompletion,
