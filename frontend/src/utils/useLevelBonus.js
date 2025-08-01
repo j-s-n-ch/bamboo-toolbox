@@ -23,6 +23,8 @@ export function useLevelBonus() {
       return null;
     const isActivity = activityStore.activitySelected;
     const activity = isActivity ? activityStore.activity : activityStore.recipe;
+    const isTravelling = activity.id === "travelling";
+
     const [skill] = isActivity
       ? activity.relatedSkillsList
       : activity.relatedSkills;
@@ -31,8 +33,10 @@ export function useLevelBonus() {
       : recipeLevelRequirement(activity);
     const playerLevel = playerStore.skillLevels[skill] || 1;
 
-    const levelDiff = Math.min(20, Math.max(playerLevel - levelRequirement, 0));
-    const value = levelDiff * 0.0125;
+    const levelDiff = isTravelling
+      ? Math.max(playerLevel - levelRequirement, 0)
+      : Math.min(20, Math.max(playerLevel - levelRequirement, 0));
+    const value = isTravelling ? levelDiff * 0.005 : levelDiff * 0.0125;
 
     return {
       id: "work_efficiency_bonus",
