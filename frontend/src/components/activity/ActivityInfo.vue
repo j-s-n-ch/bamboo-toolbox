@@ -22,6 +22,7 @@ const {
   uncappedWorkEfficiency,
   effectiveMaxWorkEfficiency,
   stepsPerAction,
+  uncappedStepsPerCompletion,
   stepsPerCompletion,
   xpRewards,
   xpPerStep,
@@ -69,7 +70,11 @@ const sections = computed(() => {
     component: InfoBubble,
     items: [
       {
-        text: `${stepsPerCompletion.value} / ${workRequired || 1000}`,
+        text: `${stepsPerCompletion.value}${
+          uncappedStepsPerCompletion.value !== stepsPerCompletion.value
+            ? ` (${uncappedStepsPerCompletion.value})`
+            : ""
+        } / ${workRequired || 1000}`,
         tooltip: `${stepsPerCompletion.value} steps per action`,
         iconPath: "assets/icons/text/general_icons/steps.png",
       },
