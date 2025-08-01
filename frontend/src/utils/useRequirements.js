@@ -67,6 +67,8 @@ export function useRequirements() {
         value = true;
         break;
       case "realm":
+        // TODO: add location check for travelling
+        if (activity) value = activity.id === "travelling";
         if (location)
           value =
             location.faction === requirement.realm ||
