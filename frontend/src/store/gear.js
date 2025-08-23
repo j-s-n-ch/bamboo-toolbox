@@ -1,7 +1,11 @@
 import { defineStore } from "pinia";
 import { getItem, searchItems } from "@/utils/axios/api_routes";
 import { useItemsStore } from "./items";
-import { EquipItemCommand, UnequipAllCommand, EquipMultipleCommand } from "./gearCommands";
+import {
+  EquipItemCommand,
+  UnequipAllCommand,
+  EquipMultipleCommand,
+} from "./gearCommands";
 
 // Lazy import for history store to avoid circular dependencies
 let useHistoryStore = null;
@@ -71,7 +75,7 @@ export const useGearStore = defineStore("gearStore", {
     },
     setGearSlot(slot, item) {
       const previousItem = this.gearSlots[slot];
-      
+
       // Create and execute command
       const command = new EquipItemCommand(this, slot, item, previousItem);
       this._executeCommand(command);
@@ -188,11 +192,11 @@ export const useGearStore = defineStore("gearStore", {
         return;
 
       const quality = itemQuality || this.determineQuality(id);
-      
+
       // Fetch the item data first
       const cachedItem = this._getFromCache(id, quality);
       let itemData = cachedItem;
-      
+
       if (!itemData) {
         const { data } = await getItem({ id });
         if (data) {
@@ -200,17 +204,22 @@ export const useGearStore = defineStore("gearStore", {
           this._setInCache(id, quality, itemData);
         }
       }
-      
+
       if (itemData) {
         // Use command system to track this change
-        const command = new EquipItemCommand(this, itemSlot, itemData, previousItem);
+        const command = new EquipItemCommand(
+          this,
+          itemSlot,
+          itemData,
+          previousItem
+        );
         this._executeCommand(command);
       }
     },
 
     unequipAll() {
       const previousGearSlots = { ...this.gearSlots };
-      
+
       // Create and execute command
       const command = new UnequipAllCommand(this, previousGearSlots);
       this._executeCommand(command);
@@ -219,19 +228,29 @@ export const useGearStore = defineStore("gearStore", {
     // Direct setter for all slots that doesn't record history (used by commands)
     _setAllGearSlotsDirect(gearSlots) {
       const newGearSlots = Object.fromEntries(
-        Object.keys(this.gearSlots).map((slot) => [slot, gearSlots[slot] || null])
+        Object.keys(this.gearSlots).map((slot) => [
+          slot,
+          gearSlots[slot] || null,
+        ])
       );
       this.gearSlots = newGearSlots;
     },
 
     async equipMultiple(gearSetData, useQuality = false) {
       const previousGearSlots = { ...this.gearSlots };
-      
+
       // Process the gear set data first
-      const processedGearSlots = await this._processGearSetData(gearSetData, useQuality);
-      
+      const processedGearSlots = await this._processGearSetData(
+        gearSetData,
+        useQuality
+      );
+
       // Create and execute command
-      const command = new EquipMultipleCommand(this, processedGearSlots, previousGearSlots);
+      const command = new EquipMultipleCommand(
+        this,
+        processedGearSlots,
+        previousGearSlots
+      );
       this._executeCommand(command);
     },
 
@@ -347,11 +366,11 @@ export const useGearStore = defineStore("gearStore", {
     async _executeCommand(command) {
       try {
         const historyStore = await getHistoryStore();
-        
+
         // Execute the command
         await command.execute();
-        
-        console.log('record command', command);
+
+        console.log("record command", command);
 
         // Record in history if available
         if (historyStore) {
@@ -362,7 +381,6 @@ export const useGearStore = defineStore("gearStore", {
       }
     },
 
-    // Initialize history tracking (simplified since we use commands now)
     async initializeHistoryTracking() {
       try {
         const historyStore = await getHistoryStore();
@@ -370,8 +388,7 @@ export const useGearStore = defineStore("gearStore", {
           console.debug("History store not available");
           return false;
         }
-        
-        console.debug("History tracking initialized");
+
         return true;
       } catch (error) {
         console.debug("Failed to initialize history tracking:", error);

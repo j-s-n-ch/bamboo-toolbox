@@ -7,11 +7,11 @@ export function useUndoRedoShortcuts() {
   const handleKeydown = (event) => {
     // Only handle shortcuts if we're not in an input/textarea/contenteditable
     const activeElement = document.activeElement;
-    const isInInput = activeElement && (
-      activeElement.tagName === "INPUT" ||
-      activeElement.tagName === "TEXTAREA" ||
-      activeElement.contentEditable === "true"
-    );
+    const isInInput =
+      activeElement &&
+      (activeElement.tagName === "INPUT" ||
+        activeElement.tagName === "TEXTAREA" ||
+        activeElement.contentEditable === "true");
 
     if (isInInput) {
       return;
@@ -19,23 +19,32 @@ export function useUndoRedoShortcuts() {
 
     // Check for Ctrl key (Windows/Linux) or Cmd key (Mac)
     const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+    const key = event.key.toLowerCase();
 
-    if (isCtrlOrCmd && event.key === "z") {
-      event.preventDefault();
-      
-      if (event.shiftKey) {
-        // Ctrl+Shift+Z = Redo
+    if (isCtrlOrCmd) {
+      // Ctrl+Shift+Z = Redo (primary)
+      if (key === "z" && event.shiftKey) {
+        event.preventDefault();
+        event.stopPropagation();
         historyStore.redo();
-      } else {
-        // Ctrl+Z = Undo
-        historyStore.undo();
+        return;
       }
-    }
 
-    // Alternative redo shortcut: Ctrl+Y
-    if (isCtrlOrCmd && event.key === "y") {
-      event.preventDefault();
-      historyStore.redo();
+      // Ctrl+Z = Undo (only if shift is NOT pressed)
+      if (key === "z" && !event.shiftKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        historyStore.undo();
+        return;
+      }
+
+      // Alternative redo shortcut: Ctrl+Y
+      if (key === "y") {
+        event.preventDefault();
+        event.stopPropagation();
+        historyStore.redo();
+        return;
+      }
     }
   };
 
