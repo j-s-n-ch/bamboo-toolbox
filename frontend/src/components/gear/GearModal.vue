@@ -108,12 +108,6 @@ const unequipItem = (slotName) => {
   display: flex;
   flex-direction: column;
   gap: $sm;
-}
-
-.tab-content {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
   overflow-y: auto;
 }
 

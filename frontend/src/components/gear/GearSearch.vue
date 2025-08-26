@@ -233,8 +233,7 @@ const handleClick = (item) => {
 .search-wrapper {
   background-color: $boxDarkBackground;
   border: 2px solid $boxDarkOutline;
-  border-radius: $sm $sm $lg $lg;
-  overflow: hidden;
+  border-radius: $sm $sm 0 0;
 }
 
 .gear-search {
@@ -253,6 +252,7 @@ const handleClick = (item) => {
   justify-content: space-between;
   align-items: center;
   background-color: $boxDarkBackground;
+  border-radius: calc($sm - 2px) calc($sm - 2px) 0 0;
 }
 
 .stat-filter-select {
@@ -260,7 +260,7 @@ const handleClick = (item) => {
   width: 100%;
   align-items: center;
   gap: $xxs;
-  padding: 0 $xxs;
+  padding: $xxs;
   box-sizing: border-box;
 
   select {

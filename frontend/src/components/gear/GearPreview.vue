@@ -54,7 +54,6 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
   background-color: $bgPrimary;
   border-radius: $sm $sm $lg $lg;
   border: 2px solid $boxDarkOutline;
-  overflow: hidden;
 
   .header {
     background-color: $boxDarkBackground;
@@ -63,6 +62,7 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
     justify-content: space-between;
     gap: $xxlg;
     margin-bottom: $xxs;
+    border-radius: calc($sm - 2px) calc($sm - 2px) 0 0;
 
     .base-info {
       padding: 0;
@@ -89,6 +89,12 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
         background-color: $boxDarkOutline;
       }
     }
+  }
+
+  /* Ensure the last child (stats-display) respects bottom border radius */
+  > :last-child {
+    border-radius: 0 0 calc($lg - 2px) calc($lg - 2px);
+    width: 100%;
   }
 }
 
