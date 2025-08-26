@@ -72,7 +72,10 @@ const attrs = computed(() => mapAttrs(props.quality));
 
 <template>
   <div class="stats-display">
-    <wiki-button :name="item.name" />
+    <div class="header">
+      <slot></slot>
+      <wiki-button :name="item.name" />
+    </div>
     <div class="keywords">
       <keyword-display
         v-for="(keyword, index) in keywords"
@@ -118,5 +121,13 @@ const attrs = computed(() => mapAttrs(props.quality));
     display: flex;
     flex-direction: column;
   }
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $xs;
+  margin-bottom: $xxxs;
 }
 </style>
