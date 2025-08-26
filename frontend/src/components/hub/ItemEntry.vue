@@ -126,21 +126,24 @@ const qualityInputs = computed(() => {
     </section>
 
     <section v-if="hasAttrs && isOpen">
-      <label class="toggle">
-        <input
-          @click="toggleHidden"
-          type="checkbox"
-          v-model="isHidden"
-          aria-label="Toggle visibility"
-        />
-        Hide
-      </label>
       <stats-display
         v-if="isOpen"
         :item="props.item"
         :quality="quality"
         show-quality-border
-      />
+      >
+        <template #default>
+          <label class="toggle">
+            <input
+              @click="toggleHidden"
+              type="checkbox"
+              v-model="isHidden"
+              aria-label="Toggle visibility"
+            />
+            Hide
+          </label>
+        </template>
+      </stats-display>
       <stats-display
         v-if="qualities > 1 && quality2 && quality !== quality2"
         :item="props.item"

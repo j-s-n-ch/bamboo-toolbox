@@ -31,29 +31,12 @@ onMounted(() => {
   });
 });
 
-// Define tabs and map them to their components
-const tabs = [
-  { label: "Gear Preview", component: GearPreview },
-  { label: "Gear Search", component: GearSearch },
-];
-
 const gearStore = useGearStore();
 const urlStore = useUrlStore();
 
 const closeDialog = () => {
   emit("update:visible", false);
 };
-
-// Computed property to get the active component based on the selected tab
-const activeComponent = computed(() => tabs[selectedTab.value].component);
-
-// Function to select a tab
-const selectTab = (index) => {
-  selectedTab.value = index;
-};
-
-// Track which tab is selected
-const selectedTab = ref(gearStore.slotFilled(props.slotName) ? 0 : 1);
 
 const handleSelectItem = async (item) => {
   await gearStore.loadItem(props.slotName, item.id, item.quality);
@@ -66,7 +49,6 @@ const unequipItem = (slotName) => {
   gearStore.setGearSlot(slotName, null);
 
   urlStore.encodeAndPushToUrl();
-  closeDialog();
 };
 </script>
 
@@ -77,28 +59,20 @@ const unequipItem = (slotName) => {
   <!-- Modal Dialog Content -->
   <transition appear name="slide-up">
     <div class="bottom-dialog">
-      <div class="tab-navigation">
-        <button
-          v-for="(tab, index) in tabs"
-          :key="index"
-          :class="{ active: selectedTab === index }"
-          @click="selectTab(index)"
-        >
-          {{ tab.label }}
-        </button>
-        <button class="close-button" @click="closeDialog">x</button>
-      </div>
-
-      <!-- Dynamic Content Based on Selected Tab -->
-      <div class="tab-content">
-        <component
-          :is="activeComponent"
-          :gear-type="gearType"
-          :slot-name="slotName"
-          @select-item="handleSelectItem"
-          @unequip="unequipItem(slotName)"
-        />
-      </div>
+      <gear-preview
+        v-if="gearStore.slotFilled(props.slotName)"
+        :gear-type="gearType"
+        :slot-name="slotName"
+        @unequip="unequipItem(slotName)"
+        @close="closeDialog"
+      />
+      <gear-search
+        :gear-type="gearType"
+        :slot-name="slotName"
+        :show-close="!gearStore.slotFilled(props.slotName)"
+        @select-item="handleSelectItem"
+        @close="closeDialog"
+      />
     </div>
   </transition>
 </template>
@@ -124,7 +98,7 @@ const unequipItem = (slotName) => {
   width: 100%;
   max-width: 550px;
   padding: 0;
-  background-color: $boxDarkBackground;
+  background-color: $bgPrimary;
   border: 2px solid $boxDarkOutline;
 
   border-top-left-radius: $base;
@@ -133,12 +107,7 @@ const unequipItem = (slotName) => {
 
   display: flex;
   flex-direction: column;
-}
-
-.tab-content {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+  gap: $sm;
   overflow-y: auto;
 }
 
@@ -150,43 +119,5 @@ const unequipItem = (slotName) => {
 .slide-up-enter,
 .slide-up-leave-to {
   transform: translateY(100%);
-}
-
-/* Tab navigation */
-.tab-navigation {
-  display: flex;
-  justify-content: center;
-  margin-bottom: $base;
-
-  button {
-    flex-grow: 1;
-    background-color: $boxDarkBackground;
-    padding: $base $base $xs;
-    border: none;
-    cursor: pointer;
-    color: $txPrimary;
-
-    &:first-child {
-      border-top-left-radius: $base;
-    }
-
-    &:last-child {
-      border-top-right-radius: $base;
-    }
-  }
-
-  button.active {
-    font-weight: bold;
-    color: $txLighter;
-    border-bottom: 2px solid $txLighter;
-  }
-
-  button:hover {
-    background-color: $chipBackground;
-  }
-
-  .close-button {
-    flex-grow: 0;
-  }
 }
 </style>

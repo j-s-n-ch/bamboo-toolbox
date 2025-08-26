@@ -1,9 +1,11 @@
 # Stage 1: Node environment for building the Vite app
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 
 COPY . .
 RUN npm install
+
+# Build the application
 RUN npm run build
 
 # Stage 2: Nginx to serve the built app
