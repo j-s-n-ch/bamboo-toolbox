@@ -170,6 +170,12 @@ const craftingOdds = computed(() => {
 
   return odds;
 });
+
+const wikiLink = computed(() => {
+  const { name, itemRewards } = activityStore.recipe;
+  if (name.toLowerCase() === "upcycle trash") return "Upcycle_Trash";
+  return `${Object.keys(itemRewards || {})[0]}#Recipes`;
+});
 </script>
 
 <template>
@@ -177,13 +183,13 @@ const craftingOdds = computed(() => {
     <summary>Recipe Info</summary>
     <section :class="['recipe-info', borderClass]">
       <div class="info-section">
-        <wiki-button :name="`${activityStore.recipe?.relatedSkills[0]}#Recipes`" />
-      </div>
-      <div class="info-section">
-        <label>
-          <input type="checkbox" v-model="useFineMaterials" />
-          Fine Materials
-        </label>
+        <div class="info-row">
+          <label>
+            <input type="checkbox" v-model="useFineMaterials" />
+            Fine Materials
+          </label>
+          <wiki-button :name="wikiLink" />
+        </div>
         <div class="info-row">
           <info-bubble
             label="Steps"
@@ -310,6 +316,7 @@ const craftingOdds = computed(() => {
   align-items: flex-start;
 
   .info-row {
+    align-items: center;
     display: flex;
     flex-wrap: wrap;
     gap: $md;
