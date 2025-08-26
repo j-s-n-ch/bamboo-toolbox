@@ -48,7 +48,7 @@ function resetForm() {
 
 <template>
   <div class="user-settings">
-    <ws-label label="Optimizer User ID" />
+    <ws-label label="Gear Tool User ID" />
     <input
       v-model="uuidInput"
       type="text"
@@ -60,7 +60,7 @@ function resetForm() {
     />
     <p class="description">
       This ID is only used by this tool. Change it to match between devices, to
-      sync your optimizer data.
+      sync your gear tool data.
     </p>
     <div class="actions">
       <ws-button @click="saveUuid" text="Save" />
