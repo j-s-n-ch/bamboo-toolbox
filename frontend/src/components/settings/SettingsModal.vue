@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import BaseModal from "../common/BaseModal.vue";
 import UserSettings from "./UserSettings.vue";
+import GearSettings from "./GearSettings.vue";
 
 const props = defineProps({
   modelValue: Boolean,
@@ -9,7 +10,10 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue", "update-uuid"]);
 
 const activeTab = ref("user");
-const tabs = [{ id: "user", label: "User", component: UserSettings }];
+const tabs = [
+  { id: "user", label: "User", component: UserSettings },
+  { id: "gear", label: "Gear", component: GearSettings },
+];
 
 function setActiveTab(tabId) {
   activeTab.value = tabId;
