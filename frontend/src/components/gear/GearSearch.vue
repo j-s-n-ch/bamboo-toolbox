@@ -21,9 +21,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  showClose: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["selectItem"]);
+const emit = defineEmits(["selectItem", "close"]);
 
 const gearStore = useGearStore();
 const itemsStore = useItemsStore();
@@ -182,23 +186,28 @@ const handleClick = (item) => {
 
 <template>
   <div class="search-wrapper">
-    <div class="stat-filter-select">
-      <label for="stat-filter">Filter stat:</label>
-      <ws-icon
-        v-if="dataStore.selectedStat !== 'none'"
-        :icon-path="dataStore.filterStat.icon"
-        size="sm"
-      />
-      <select id="stat-filter" v-model="dataStore.selectedStat">
-        <option value="none">None</option>
-        <option
-          v-for="stat in dataStore.mainStats"
-          :key="stat"
-          :value="stat.type"
-        >
-          {{ stat.name }}
-        </option>
-      </select>
+    <div class="header">
+      <div class="stat-filter-select">
+        <label for="stat-filter">Filter stat:</label>
+        <ws-icon
+          v-if="dataStore.selectedStat !== 'none'"
+          :icon-path="dataStore.filterStat.icon"
+          size="sm"
+        />
+        <select id="stat-filter" v-model="dataStore.selectedStat">
+          <option value="none">None</option>
+          <option
+            v-for="stat in dataStore.mainStats"
+            :key="stat"
+            :value="stat.type"
+          >
+            {{ stat.name }}
+          </option>
+        </select>
+      </div>
+      <button v-if="showClose" class="close-button" @click="$emit('close')">
+        x
+      </button>
     </div>
 
     <input
@@ -221,6 +230,13 @@ const handleClick = (item) => {
 </template>
 
 <style lang="scss" scoped>
+.search-wrapper {
+  background-color: $boxDarkBackground;
+  border: 2px solid $boxDarkOutline;
+  border-radius: $sm $sm $lg $lg;
+  overflow: hidden;
+}
+
 .gear-search {
   width: 100%;
   padding: $sm;
@@ -232,12 +248,19 @@ const handleClick = (item) => {
   }
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $boxDarkBackground;
+}
+
 .stat-filter-select {
   display: flex;
   width: 100%;
   align-items: center;
   gap: $xxs;
-  padding: $xxs;
+  padding: 0 $xxs;
   box-sizing: border-box;
 
   select {
@@ -261,5 +284,18 @@ const handleClick = (item) => {
   flex-direction: column;
   gap: $xxxs;
   background-color: $bgPrimary;
+}
+
+.close-button {
+  background-color: $boxDarkBackground;
+  padding: $base $base $xs;
+  border: none;
+  cursor: pointer;
+  color: $txPrimary;
+
+  &:hover,
+  &:focus {
+    background-color: $boxDarkOutline;
+  }
 }
 </style>

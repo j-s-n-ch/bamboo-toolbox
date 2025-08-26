@@ -15,7 +15,7 @@ const props = defineProps({
   },
 });
 
-defineEmits(["unequip"]);
+defineEmits(["unequip", "close"]);
 
 const gearStore = useGearStore();
 
@@ -25,13 +25,19 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
 <template>
   <div v-if="gearStore.slotFilled(slotName)" class="preview-wrapper">
     <div class="header">
-      <div class="base-info">
-        <ws-icon :icon-path="item.icon" />
-        <p>
-          {{ item.name }}
-        </p>
+      <div class="start"></div>
+      <div class="mid">
+        <div class="base-info">
+          <ws-icon :icon-path="item.icon" />
+          <p>
+            {{ item.name }}
+          </p>
+        </div>
+        <button class="unequip" @click="$emit('unequip')">Unequip</button>
       </div>
-      <button class="unequip" @click="$emit('unequip')">Unequip</button>
+      <div class="end">
+        <button class="close-button" @click="$emit('close')">x</button>
+      </div>
     </div>
     <stats-display :item="item" :quality="item.quality" />
   </div>
@@ -45,13 +51,18 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $lg;
+  background-color: $bgPrimary;
+  border-radius: $sm $sm $lg $lg;
+  border: 2px solid $boxDarkOutline;
+  overflow: hidden;
 
   .header {
+    background-color: $boxDarkBackground;
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     gap: $xxlg;
+    margin-bottom: $xxs;
 
     .base-info {
       padding: 0;
@@ -59,6 +70,24 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
       align-items: center;
       align-self: center;
       gap: $md;
+    }
+
+    .mid {
+      display: flex;
+      gap: $md;
+    }
+
+    .close-button {
+      background-color: $boxDarkBackground;
+      padding: $base $base $xs;
+      border: none;
+      cursor: pointer;
+      color: $txPrimary;
+
+      &:hover,
+      &:focus {
+        background-color: $boxDarkOutline;
+      }
     }
   }
 }
