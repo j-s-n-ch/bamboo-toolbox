@@ -5,6 +5,7 @@ import InfoBubble from "@/components/common/InfoBubble.vue";
 import LocationBubble from "@/components/common/LocationBubble.vue";
 import SkillBubble from "@/components/common/SkillBubble.vue";
 import EquippedKeywordDisplay from "@/components/common/EquippedKeywordDisplay.vue";
+import WikiButton from "@/components/common/WikiButton.vue";
 import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
 import { usePlayerStore } from "@/store/player";
@@ -182,6 +183,9 @@ const sections = computed(() => {
     <summary>Activity Info</summary>
 
     <section :class="['activity-info', borderClass]">
+      <div class="info-section">
+        <wiki-button :name="activityStore.activity?.name" />
+      </div>
       <div
         v-for="section in sections"
         class="info-section"

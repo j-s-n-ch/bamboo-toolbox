@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { useDataStore } from "@/store/data";
 import { toDeepRaw } from "@/utils/rawData";
 import { sumAttrs } from "@/utils/qualityAttrs";
-import { getWikiUrl } from "@/utils/wiki";
+import WikiButton from "@/components/common/WikiButton.vue";
 import StatRequirementDisplay from "./StatRequirementDisplay.vue";
 import KeywordDisplay from "@/components/common/KeywordDisplay.vue";
 
@@ -72,9 +72,7 @@ const attrs = computed(() => mapAttrs(props.quality));
 
 <template>
   <div class="stats-display">
-    <div class="wiki-link">
-      <p><a :href="getWikiUrl(item.name)" target="_blank">wiki</a></p>
-    </div>
+    <wiki-button :name="item.name" />
     <div class="keywords">
       <keyword-display
         v-for="(keyword, index) in keywords"
