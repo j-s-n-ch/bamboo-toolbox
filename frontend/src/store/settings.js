@@ -4,12 +4,14 @@ export const useSettingsStore = defineStore("settingsStore", {
   state: () => ({
     userSettings: {},
     gearSettings: {},
+    activitySettings: {},
     isLoaded: false,
   }),
   actions: {
     fetchSettingsData() {
       const settings = this.defaultSettingsData();
       this.gearSettings = settings.gearSettings;
+      this.activitySettings = settings.activitySettings;
       this.isLoaded = true;
     },
 

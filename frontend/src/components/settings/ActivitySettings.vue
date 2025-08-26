@@ -5,18 +5,18 @@ import SettingsTable from "./SettingsTable.vue";
 const settingsStore = useSettingsStore();
 
 function updateSettingValue(key, value) {
-  settingsStore.gearSettings[key].value = value;
+  settingsStore.activitySettings[key].value = value;
 }
 
 function updateSettingDisplay(key, display) {
-  settingsStore.gearSettings[key].display = display ? 1 : 0;
+  settingsStore.activitySettings[key].display = display ? 1 : 0;
 }
 </script>
 
 <template>
   <settings-table
-    title="Gear Settings"
-    :settings="settingsStore.gearSettings"
+    title="Activity Settings"
+    :settings="settingsStore.activitySettings"
     @update-setting-value="updateSettingValue"
     @update-setting-display="updateSettingDisplay"
   />

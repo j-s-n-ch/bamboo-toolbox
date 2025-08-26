@@ -3,6 +3,7 @@ import { ref } from "vue";
 import BaseModal from "../common/BaseModal.vue";
 import UserSettings from "./UserSettings.vue";
 import GearSettings from "./GearSettings.vue";
+import ActivitySettings from "./ActivitySettings.vue";
 
 const props = defineProps({
   modelValue: Boolean,
@@ -13,6 +14,7 @@ const activeTab = ref("user");
 const tabs = [
   { id: "user", label: "User", component: UserSettings },
   { id: "gear", label: "Gear", component: GearSettings },
+  { id: "activity", label: "Activity", component: ActivitySettings },
 ];
 
 function setActiveTab(tabId) {
