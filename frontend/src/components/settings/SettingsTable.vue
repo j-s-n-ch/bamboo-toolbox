@@ -28,7 +28,7 @@ function updateSettingDisplay(key, display) {
       <thead>
         <tr>
           <th>Setting</th>
-          <th>Enabled</th>
+          <th>Enabled (Default)</th>
           <th>Visible in UI</th>
         </tr>
       </thead>
