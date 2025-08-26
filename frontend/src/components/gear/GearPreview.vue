@@ -1,7 +1,6 @@
 <script setup>
 import { computed } from "vue";
 import { useGearStore } from "@/store/gear";
-import { getWikiUrl } from "@/utils/wiki";
 import WsIcon from "@/components/common/WsIcon.vue";
 import StatsDisplay from "../common/StatsDisplay.vue";
 
@@ -29,9 +28,7 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
       <div class="base-info">
         <ws-icon :icon-path="item.icon" />
         <p>
-          {{ item.name }} (<a :href="getWikiUrl(item.name)" target="_blank"
-            >wiki</a
-          >)
+          {{ item.name }}
         </p>
       </div>
       <button class="unequip" @click="$emit('unequip')">Unequip</button>

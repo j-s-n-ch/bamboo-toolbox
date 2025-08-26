@@ -6,6 +6,7 @@ import InfoBubble from "@/components/common/InfoBubble.vue";
 import ServiceBubble from "@/components/common/ServiceBubble.vue";
 import LocationBubble from "@/components/common/LocationBubble.vue";
 import SkillBubble from "@/components/common/SkillBubble.vue";
+import WikiButton from "@/components/common/WikiButton.vue";
 import { useActivityStore } from "@/store/activity";
 import { useItemsStore } from "@/store/items";
 import { useSkillModifiers } from "@/utils/useSkillModifiers";
@@ -175,6 +176,9 @@ const craftingOdds = computed(() => {
   <details open>
     <summary>Recipe Info</summary>
     <section :class="['recipe-info', borderClass]">
+      <div class="info-section">
+        <wiki-button :name="`${activityStore.recipe?.relatedSkills[0]}#Recipes`" />
+      </div>
       <div class="info-section">
         <label>
           <input type="checkbox" v-model="useFineMaterials" />
