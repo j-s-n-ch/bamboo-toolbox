@@ -33,23 +33,27 @@ export class SetActivityCommand {
 
   async undo() {
     // Don't record history during execute/undo
-    // Set undo flag to prevent auto-selection
-    this.activityStore._isUndoRedoOperation = true;
-
-    try {
-      if (this.previousActivity) {
-        this.activityStore._setActivityDirect(this.previousActivity);
-        this.activityStore._setLocationsDirect(this.previousLocations);
-        this.activityStore._setLocationDirect(this.previousLocation);
-      } else if (this.previousRecipe) {
-        this.activityStore._setRecipeDirect(this.previousRecipe);
-        this.activityStore._setLocationsDirect(this.previousLocations);
-        this.activityStore._setLocationDirect(this.previousLocation);
-      }
-    } finally {
-      // Always clear the undo flag
-      this.activityStore._isUndoRedoOperation = false;
+    // Set undo flag and restore state in one batch to minimize reactivity
+    if (this.previousActivity) {
+      this.activityStore._batchUpdateActivityState({
+        _isUndoRedoOperation: true,
+        activity: this.previousActivity,
+        locations: this.previousLocations,
+        location: this.previousLocation
+      });
+    } else if (this.previousRecipe) {
+      this.activityStore._batchUpdateActivityState({
+        _isUndoRedoOperation: true,
+        recipe: this.previousRecipe,
+        locations: this.previousLocations,
+        location: this.previousLocation
+      });
     }
+    
+    // Clear the undo flag after a microtask
+    setTimeout(() => {
+      this.activityStore._isUndoRedoOperation = false;
+    }, 0);
   }
 }
 
@@ -98,25 +102,29 @@ export class SetRecipeCommand {
 
   async undo() {
     // Don't record history during execute/undo
-    // Set undo flag to prevent auto-selection
-    this.activityStore._isUndoRedoOperation = true;
-
-    try {
-      if (this.previousRecipe) {
-        this.activityStore._setRecipeDirect(this.previousRecipe);
-        this.activityStore._setServicesDirect(this.previousServices);
-        this.activityStore._setServiceDirect(this.previousService);
-        this.activityStore._setLocationsDirect(this.previousLocations);
-        this.activityStore._setLocationDirect(this.previousLocation);
-      } else if (this.previousActivity) {
-        this.activityStore._setActivityDirect(this.previousActivity);
-        this.activityStore._setLocationsDirect(this.previousLocations);
-        this.activityStore._setLocationDirect(this.previousLocation);
-      }
-    } finally {
-      // Always clear the undo flag
-      this.activityStore._isUndoRedoOperation = false;
+    // Set undo flag and restore state in one batch to minimize reactivity
+    if (this.previousRecipe) {
+      this.activityStore._batchUpdateActivityState({
+        _isUndoRedoOperation: true,
+        recipe: this.previousRecipe,
+        services: this.previousServices,
+        service: this.previousService,
+        locations: this.previousLocations,
+        location: this.previousLocation
+      });
+    } else if (this.previousActivity) {
+      this.activityStore._batchUpdateActivityState({
+        _isUndoRedoOperation: true,
+        activity: this.previousActivity,
+        locations: this.previousLocations,
+        location: this.previousLocation
+      });
     }
+    
+    // Clear the undo flag after a microtask
+    setTimeout(() => {
+      this.activityStore._isUndoRedoOperation = false;
+    }, 0);
   }
 }
 
@@ -137,15 +145,16 @@ export class SetLocationCommand {
 
   async undo() {
     // Don't record history during execute/undo
-    // Set undo flag to prevent auto-selection
-    this.activityStore._isUndoRedoOperation = true;
-
-    try {
-      this.activityStore._setLocationDirect(this.previousLocation);
-    } finally {
-      // Always clear the undo flag
+    // Set undo flag and restore state in one batch
+    this.activityStore._batchUpdateActivityState({
+      _isUndoRedoOperation: true,
+      location: this.previousLocation
+    });
+    
+    // Clear the undo flag after a microtask
+    setTimeout(() => {
       this.activityStore._isUndoRedoOperation = false;
-    }
+    }, 0);
   }
 }
 
@@ -182,17 +191,17 @@ export class SetServiceCommand {
 
   async undo() {
     // Don't record history during execute/undo
-    // Set undo flag to prevent auto-selection
-    this.activityStore._isUndoRedoOperation = true;
-
-    try {
-      // Restore the previous state
-      this.activityStore._setServiceDirect(this.previousService);
-      this.activityStore._setLocationsDirect(this.previousLocations);
-      this.activityStore._setLocationDirect(this.previousLocation);
-    } finally {
-      // Always clear the undo flag
+    // Set undo flag and restore state in one batch to minimize reactivity
+    this.activityStore._batchUpdateActivityState({
+      _isUndoRedoOperation: true,
+      service: this.previousService,
+      locations: this.previousLocations,
+      location: this.previousLocation
+    });
+    
+    // Clear the undo flag after a microtask
+    setTimeout(() => {
       this.activityStore._isUndoRedoOperation = false;
-    }
+    }, 0);
   }
 }

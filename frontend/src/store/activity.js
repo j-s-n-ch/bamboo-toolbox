@@ -176,6 +176,25 @@ export const useActivityStore = defineStore("activityStore", {
     _setServicesDirect(services) {
       this.services = services;
     },
+
+    // Batch update method to minimize reactivity triggers
+    _batchUpdateActivityState(updates) {
+      // Apply all updates in one go to minimize reactive updates
+      const newState = { ...this.$state };
+
+      if ("activity" in updates) newState.activity = updates.activity;
+      if ("recipe" in updates) newState.recipe = updates.recipe;
+      if ("service" in updates) newState.service = updates.service;
+      if ("services" in updates) newState.services = updates.services;
+      if ("location" in updates) newState.location = updates.location;
+      if ("locations" in updates) newState.locations = updates.locations;
+      if ("_isUndoRedoOperation" in updates)
+        newState._isUndoRedoOperation = updates._isUndoRedoOperation;
+
+      // Apply all changes at once
+      Object.assign(this.$state, newState);
+    },
+
     async loadActivity(id) {
       const { data: activity } = await getActivity({ id });
       this.setActivity(activity);

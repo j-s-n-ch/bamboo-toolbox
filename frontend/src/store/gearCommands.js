@@ -96,15 +96,18 @@ export class LoadGearSetCommand {
       this.gearSetStore._createNewSetDirect();
     }
 
-    // Process and equip the gear
+    // Process and equip the gear efficiently
     if (this.gearSetMapping && Object.keys(this.gearSetMapping).length > 0) {
+      // Process gear data and update state in one batch operation
       const processedGearSlots = await this.gearStore._processGearSetData(
         this.gearSetMapping
       );
-      await this.gearStore._equipMultipleDirect(processedGearSlots);
+      
+      // Use the optimized batch update method
+      await this.gearStore._batchUpdateGearState(processedGearSlots);
     } else {
       // Clear all gear if no mapping provided
-      await this.gearStore._equipMultipleDirect({});
+      await this.gearStore._batchUpdateGearState({});
     }
   }
 

@@ -262,7 +262,21 @@ export const useGearStore = defineStore("gearStore", {
       this.gearSlots = completeGearSlots;
     },
 
-    // Helper method to process gear set data (extracted from equipMultiple)
+    // Optimized batch update for both gear and cache operations
+    async _batchUpdateGearState(gearSetData, cacheOperations = null) {
+      // Perform cache operations first if provided (batch them)
+      if (cacheOperations && cacheOperations.length > 0) {
+        // Batch cache updates to minimize Map operations
+        cacheOperations.forEach(({ id, quality, data }) => {
+          this._setInCache(id, quality, data);
+        });
+      }
+      
+      // Apply all gear changes at once to minimize reactive updates
+      const completeGearSlots = { ...this.gearSlots };
+      Object.assign(completeGearSlots, gearSetData);
+      this.gearSlots = completeGearSlots;
+    },    // Helper method to process gear set data (extracted from equipMultiple)
     async _processGearSetData(gearSetData, useQuality = false) {
       const itemsStore = useItemsStore();
 
