@@ -6,7 +6,6 @@ import GearButtons from "./GearButtons.vue";
 import Stats from "../stats/StatsList.vue";
 import GearSets from "./GearSets.vue";
 import UndoRedoButtons from "@/components/common/UndoRedoButtons.vue";
-import HistoryDebug from "@/components/common/HistoryDebug.vue";
 import { useSettingsStore } from "@/store/settings";
 import { useGearStore } from "@/store/gear";
 import { onMounted } from "vue";
@@ -55,10 +54,6 @@ onMounted(async () => {
     <details open>
       <summary>Skill Modifiers</summary>
       <stats />
-    </details>
-    <details>
-      <summary>History Debug (Development)</summary>
-      <history-debug />
     </details>
   </tab-content-wrapper>
 </template>
