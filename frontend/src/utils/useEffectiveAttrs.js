@@ -6,11 +6,7 @@ import { useRequirements } from "./useRequirements";
 import { useLevelBonus } from "./useLevelBonus";
 import { sumAttrs } from "./qualityAttrs";
 import { toDeepRaw } from "./rawData";
-
-const stripHtmlTags = (text) => {
-  if (!text) return "";
-  return text.replace(/<[^>]*>/g, "");
-};
+import { stripHtmlTags } from "./stripHtmlTags";
 
 export function useEffectiveAttrs() {
   const { checkRequirements } = useRequirements();
