@@ -21,8 +21,6 @@ export const useActivityStore = defineStore("activityStore", {
     locations: null,
     services: null,
     service: null,
-    showCombined: true,
-    hideOwnedCollectibles: true,
     isLoaded: false,
   }),
   getters: {

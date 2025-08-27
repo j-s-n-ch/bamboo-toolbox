@@ -27,8 +27,6 @@ export const useGearStore = defineStore("gearStore", {
       consumable: null,
       service: null,
     },
-    showOwned: true,
-    showUseful: true,
     // Cache for fetched items to avoid refetching
     itemCache: new Map(),
   }),
