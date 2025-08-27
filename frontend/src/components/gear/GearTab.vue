@@ -42,6 +42,7 @@ onMounted(async () => {
           </label>
         </div>
         <undo-redo-buttons
+          v-if="gearSettings.undoRedo.display === 1"
           size="small"
           variant="minimal"
           direction="horizontal"
