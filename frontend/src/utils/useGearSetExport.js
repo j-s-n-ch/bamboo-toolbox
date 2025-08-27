@@ -92,7 +92,7 @@ export function useGearSetExport() {
       };
     } catch (error) {
       let errorMessage = "Failed to import gear set";
-      console.log(error);
+      console.error(error);
 
       if (error.includes("Invalid character")) {
         errorMessage += ": Invalid base64 format";
