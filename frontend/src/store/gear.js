@@ -370,8 +370,6 @@ export const useGearStore = defineStore("gearStore", {
         // Execute the command
         await command.execute();
 
-        console.log("record command", command);
-
         // Record in history if available
         if (historyStore) {
           historyStore.recordCommand(command);

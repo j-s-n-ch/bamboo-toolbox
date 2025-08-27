@@ -63,6 +63,7 @@ const bootstrap = async () => {
   const gearSetStore = useGearSetStore();
   const playerStore = usePlayerStore();
   const itemsStore = useItemsStore();
+  const settingsStore = useSettingsStore();
 
   playerStore.setUuid(getOrCreateUserUuid());
 
@@ -75,6 +76,9 @@ const bootstrap = async () => {
     gearSetStore.fetchGearSets(),
     settingsStore.fetchSettingsData(),
   ]);
+
+  // Initialize history tracking for stores
+  await activityStore.initializeHistoryTracking();
 
   await urlStore.decodeFromUrlAndApply();
   isLoaded.value = true;
