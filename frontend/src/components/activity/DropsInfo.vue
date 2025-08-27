@@ -8,6 +8,7 @@ import { useItemsStore } from "@/store/items";
 import { useSettingsStore } from "@/store/settings";
 import { useRequirements } from "@/utils/useRequirements";
 import { sumAttrs } from "@/utils/qualityAttrs";
+import { stripHtmlTags } from "@/utils/stripHtmlTags";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
 
@@ -39,7 +40,7 @@ watchEffect(async () => {
         return tables.map((table) => {
           return {
             ...table,
-            tableSource: item.name,
+            tableSource: stripHtmlTags(item.customText) || item.name,
             slot,
             stat: customText,
             rollChance: stats?.[0]?.value || 1,

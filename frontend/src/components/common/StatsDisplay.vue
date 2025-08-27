@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { useDataStore } from "@/store/data";
 import { toDeepRaw } from "@/utils/rawData";
 import { sumAttrs } from "@/utils/qualityAttrs";
+import { stripHtmlTags } from "@/utils/stripHtmlTags";
 import WikiButton from "@/components/common/WikiButton.vue";
 import StatRequirementDisplay from "./StatRequirementDisplay.vue";
 import KeywordDisplay from "@/components/common/KeywordDisplay.vue";
@@ -34,11 +35,6 @@ const keywords = props.hideKeywords
   : props.item.keywords
       .map((keyword) => dataStore.getKeywordById(keyword))
       .filter((k) => k.icon);
-
-const stripHtmlTags = (text) => {
-  if (!text) return "";
-  return text.replace(/<[^>]*>/g, "");
-};
 
 const mapAttrs = (quality) => {
   const itemCopy = toDeepRaw(props.item);
