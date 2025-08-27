@@ -77,13 +77,13 @@ watchEffect(async () => {
 });
 
 const filteredLootTables = computed(() => {
-  if (!activityStore.hideOwnedCollectibles) {
+  if (!activitySettings.value.hideOwnedCollectibles.value) {
     return resolvedLootTables.value;
   }
 
   return resolvedLootTables.value.filter((table) => {
     if (
-      activityStore.hideOwnedCollectibles &&
+      activitySettings.value.hideOwnedCollectibles.value &&
       table.type.includes("collectible")
     ) {
       const id = table.tables?.[0]?.tableRows?.[0]?.rowItemID || null;
@@ -187,7 +187,7 @@ const groupedLootTables = computed(() => {
       </label>
     </div>
     <section class="drops-info">
-      <template v-if="activityStore.showCombined">
+      <template v-if="activitySettings.showCombined.value">
         <drop-item-display
           v-for="(items, index) in combinedItems"
           :key="index"
