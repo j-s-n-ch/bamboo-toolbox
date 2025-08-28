@@ -5,6 +5,7 @@ import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
 import { usePlayerStore } from "@/store/player";
 import { useSettingsStore } from "@/store/settings";
+import { useRequirements } from "@/utils/useRequirements";
 import WsIcon from "@/components/common/WsIcon.vue";
 
 import { n } from "@/utils/number";
@@ -18,6 +19,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  showActiveColors: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const activityStore = useActivityStore();
@@ -25,6 +30,7 @@ const dataStore = useDataStore();
 const playerStore = usePlayerStore();
 const settingsStore = useSettingsStore();
 const { gearSettings } = storeToRefs(settingsStore);
+const { checkRequirements } = useRequirements();
 const isOpen = ref(gearSettings.value.openStatRequirements.value);
 
 const storeStat = computed(
@@ -41,107 +47,114 @@ const displayValue = computed(() => {
   return isPercent ? `${prefix}${n(100 * value)}%` : `${prefix}${n(value)}`;
 });
 
-const reqs = props.requirements.map((req) => {
-  const { type, opposite, requirement } = req;
-  if (type === "mainSkill") {
-    const skill = playerStore.skillsMap[requirement.skill];
+const reqs = computed(() =>
+  props.requirements.map((req) => {
+    const { type, opposite, requirement } = req;
+    let out;
+    if (type === "mainSkill") {
+      const skill = playerStore.skillsMap[requirement.skill];
+      out = {
+        prefix: `While${opposite ? " NOT" : ""}`,
+        text: skill.name,
+        icon: skill.icon,
+      };
+    } else if (type === "traveling") {
+      out = {
+        prefix: `While${opposite ? " NOT" : ""}`,
+        text: "Traveling",
+        icon: "",
+      };
+    } else if (type === "locationHasKeywords") {
+      out = requirement.keywords
+        .map(dataStore.getKeywordById)
+        .filter(Boolean)
+        .map(({ name, icon }) => ({
+          prefix: `While${opposite ? " NOT" : ""} in`,
+          text: `${name} location`,
+          icon,
+        }))[0];
+    } else if (type === "realm") {
+      const realm = playerStore.factionsMap[requirement.realm];
+      out = {
+        prefix: `While${opposite ? " NOT" : ""} in`,
+        text: `${realm.name} area`,
+        icon: realm.icon,
+      };
+    } else if (type === "distinctKeywordItemsEquipped") {
+      const { quantity } = requirement;
+      out = requirement.keywords
+        .map(dataStore.getKeywordById)
+        .filter(Boolean)
+        .map(({ name, icon }) => ({
+          prefix: `While${opposite ? " NOT" : ""} wearing ${quantity}`,
+          text: name,
+          icon,
+        }))[0];
+    } else if (type === "achievementPoint") {
+      out = {
+        prefix: "Have",
+        text: `${requirement.value} achievement points`,
+        icon: "assets/icons/text/general_icons/achievement_point.png",
+      };
+    } else if (type === "historyData") {
+      if (requirement.category === "stepsWalkedActivity") {
+        // Not used anymore
+        const activity = activityStore.activitiesMap[requirement.data];
+        out = {
+          prefix: `Have taken ${requirement.value} steps on the`,
+          text: `${activity.name} activity`,
+          icon: activity.icon,
+        };
+      } else if (requirement.category === "actionCompleted") {
+        const activity = activityStore.activitiesMap[requirement.data];
+        out = {
+          prefix: `Have completed`,
+          text: `${activity.name} activity ${requirement.value} times`,
+          icon: activity.icon,
+        };
+      }
+    } else if (type === "skillLevel") {
+      const skill = playerStore.skillsMap[requirement.skill];
+      out = {
+        prefix: `While at least ${requirement.level}`,
+        text: skill.name,
+        icon: skill.icon,
+      };
+    } else if (type === "totalSkillLevelUps") {
+      const skillLevels = Object.values(playerStore.skillLevels).reduce(
+        (a, b) => a + b - 1,
+        0
+      );
+
+      out = {
+        text: `Level up your skills ${Math.min(
+          skillLevels,
+          requirement.levels
+        )}/${requirement.levels} times`,
+      };
+    } else if (type === "activityType") {
+      const activity = activityStore.activitiesMap[requirement.activity];
+      if (activity) {
+        out = {
+          prefix: `While${opposite ? " NOT" : ""} doing`,
+          text: `${activity.name} activity`,
+          icon: activity.icon,
+        };
+      }
+    }
+    if (out) {
+      const active = checkRequirements([req]);
+      return {
+        ...out,
+        active,
+      };
+    }
     return {
-      prefix: `While${opposite ? " NOT" : ""}`,
-      text: skill.name,
-      icon: skill.icon,
-    };
-  } else if (type === "traveling") {
-    return {
-      prefix: `While${opposite ? " NOT" : ""}`,
-      text: "Traveling",
+      text: requirement,
       icon: "",
     };
-  } else if (type === "locationHasKeywords") {
-    return requirement.keywords
-      .map(dataStore.getKeywordById)
-      .filter(Boolean)
-      .map(({ name, icon }) => ({
-        prefix: `While${opposite ? " NOT" : ""} in`,
-        text: `${name} location`,
-        icon,
-      }))[0];
-  } else if (type === "realm") {
-    const realm = playerStore.factionsMap[requirement.realm];
-    return {
-      prefix: `While${opposite ? " NOT" : ""} in`,
-      text: `${realm.name} area`,
-      icon: realm.icon,
-    };
-  } else if (type === "distinctKeywordItemsEquipped") {
-    const { quantity } = requirement;
-    return requirement.keywords
-      .map(dataStore.getKeywordById)
-      .filter(Boolean)
-      .map(({ name, icon }) => ({
-        prefix: `While${opposite ? " NOT" : ""} wearing ${quantity}`,
-        text: name,
-        icon,
-      }))[0];
-  } else if (type === "achievementPoint") {
-    return {
-      prefix: "Have",
-      text: `${requirement.value} achievement points`,
-      icon: "assets/icons/text/general_icons/achievement_point.png",
-    };
-  } else if (type === "historyData") {
-    if (requirement.category === "stepsWalkedActivity") {
-      // Not used anymore
-      const activity = activityStore.activitiesMap[requirement.data];
-      return {
-        prefix: `Have taken ${requirement.value} steps on the`,
-        text: `${activity.name} activity`,
-        icon: activity.icon,
-      };
-    }
-    if (requirement.category === "actionCompleted") {
-      const activity = activityStore.activitiesMap[requirement.data];
-      return {
-        prefix: `Have completed`,
-        text: `${activity.name} activity ${requirement.value} times`,
-        icon: activity.icon,
-      };
-    }
-  } else if (type === "skillLevel") {
-    const skill = playerStore.skillsMap[requirement.skill];
-    return {
-      prefix: `While at least ${requirement.level}`,
-      text: skill.name,
-      icon: skill.icon,
-    };
-  } else if (type === "totalSkillLevelUps") {
-    const skillLevels = Object.values(playerStore.skillLevels).reduce(
-      (a, b) => a + b - 1,
-      0
-    );
-
-    return {
-      text: `Level up your skills ${Math.min(
-        skillLevels,
-        requirement.levels
-      )}/${requirement.levels} times`,
-    };
-  } else if (type === "activityType") {
-    const activity = activityStore.activitiesMap[requirement.activity];
-    if (activity) {
-      return {
-        prefix: "doing",
-        text: `${activity.name} activity`,
-        icon: activity.icon,
-        opposite,
-      };
-    }
-  }
-  return {
-    text: requirement,
-    icon: "",
-    opposite,
-  };
-});
+  })
+);
 
 const toggle = () => {
   isOpen.value = !isOpen.value;
@@ -171,13 +184,18 @@ const toggle = () => {
     </button>
     <div v-if="isOpen" class="requirements-list">
       <p
-        v-for="({ prefix, text, icon }, index) in reqs"
+        v-for="({ prefix, text, icon, active }, index) in reqs"
         :key="index"
         class="requirement"
       >
         <template v-if="prefix">{{ prefix }} </template>
         <ws-icon v-if="icon" :iconPath="icon" size="sm" />
-        {{ text }}
+        <span
+          v-if="props.showActiveColors"
+          :class="[active ? 'positive' : 'negative']"
+          >{{ text }}</span
+        >
+        <span v-else>{{ text }}</span>
       </p>
     </div>
   </div>
@@ -230,6 +248,14 @@ const toggle = () => {
 
     ws-icon {
       display: inline;
+    }
+
+    .negative {
+      color: $txNegativeDark;
+    }
+
+    .positive {
+      color: $txPositiveDark;
     }
   }
 }

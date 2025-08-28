@@ -26,6 +26,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  showActiveColors: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const dataStore = useDataStore();
@@ -90,6 +94,7 @@ const attrs = computed(() => mapAttrs(props.quality));
         :key="key"
         :stat="stat"
         :requirements="requirements"
+        :show-active-colors="props.showActiveColors"
       />
     </div>
   </div>
