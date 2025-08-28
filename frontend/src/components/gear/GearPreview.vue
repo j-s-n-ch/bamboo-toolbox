@@ -33,7 +33,7 @@ const item = computed(() => gearStore.gearSlots[props.slotName]);
       </div>
       <button class="unequip" @click="$emit('unequip')">Unequip</button>
     </div>
-    <stats-display :item="item" :quality="item.quality" />
+    <stats-display :item="item" :quality="item.quality" showActiveColors />
   </div>
   <div v-else>
     <p>Select an item on the search tab</p>

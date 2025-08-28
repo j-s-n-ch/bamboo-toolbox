@@ -43,12 +43,14 @@ const toggle = () => {
       v-if="isOpen"
       :item="props.item"
       :quality="props.item.quality"
+      showActiveColors
     />
     <stats-display
       v-if="!isOpen && props.highlightStat !== 'none'"
       :item="props.item"
       :quality="props.item.quality"
       :filter-stat="props.highlightStat === 'none' ? '' : props.highlightStat"
+      showActiveColors
       hide-keywords
     />
   </div>
