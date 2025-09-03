@@ -58,20 +58,24 @@ const getCombinedRollChance = (sourcesInGroup) => {
   }, 0);
 };
 
-const sourceDropChance = (source, combinedRollChance = null) => {
-  const { rowWeight, tableWeight, noDropChance, rollChance, type, rollAmount } =
-    source;
+const rollChance = (source, combinedRollChance = null) => {
+  const { rowWeight, tableWeight, noDropChance, rollChance, type } = source;
   const effectiveRollChance = Math.min(
     1,
     combinedRollChance ?? (rollChance || 1)
   );
-  const odds =
+  return (
     (1 - noDropChance) *
     effectiveRollChance *
     (rowWeight / tableWeight) *
-    dropChanceMultipliers(type);
+    dropChanceMultipliers(type)
+  );
+};
 
-  return 1 - (1 - odds) ** rollAmount;
+const sourceDropChance = (source, combinedRollChance = null) => {
+  const baseOdds = rollChance(source, combinedRollChance);
+  const { rollAmount } = source;
+  return 1 - (1 - baseOdds) ** rollAmount;
 };
 
 const totalDropChance = computed(() => {
@@ -120,23 +124,28 @@ const stepsPerItem = computed(() => {
       if (sourcesInGroup.length === 1) {
         // Single source, use normal calculation
         const source = sourcesInGroup[0];
-        const { rowMinimumAmount, rowMaximumAmount } = source;
+        const { rowMinimumAmount, rowMaximumAmount, rollAmount } = source;
         const avgAmount = (rowMaximumAmount + rowMinimumAmount) / 2;
-        return stepsPerRewardRoll.value / sourceDropChance(source) / avgAmount;
+        const dropChance = rollChance(source);
+        const expectedItemsPerAction = rollAmount * dropChance * avgAmount;
+
+        return stepsPerRewardRoll.value / expectedItemsPerAction;
       } else {
         // Multiple sources with same stat, sum their rollChance values
         const combinedRollChance = getCombinedRollChance(sourcesInGroup);
 
         // Use the first source as template but with combined rollChance
         const templateSource = sourcesInGroup[0];
-        const { rowMinimumAmount, rowMaximumAmount } = templateSource;
+        const { rowMinimumAmount, rowMaximumAmount, rollAmount } =
+          templateSource;
         const avgAmount = (rowMaximumAmount + rowMinimumAmount) / 2;
 
-        return (
-          stepsPerRewardRoll.value /
-          sourceDropChance(templateSource, combinedRollChance) /
-          avgAmount
-        );
+        const dropChance = rollChance(templateSource, combinedRollChance);
+
+        // Expected items per action = rolls * individual chance * avg amount
+        const expectedItemsPerAction = rollAmount * dropChance * avgAmount;
+
+        return stepsPerRewardRoll.value / expectedItemsPerAction;
       }
     }
   );
@@ -147,39 +156,7 @@ const stepsPerItem = computed(() => {
 });
 
 const itemsPerStep = computed(() => {
-  const groupedSources = groupSourcesByStat(props.sources);
-
-  // Calculate items per step for each stat group
-  const itemsPerStatGroup = Object.values(groupedSources).map(
-    (sourcesInGroup) => {
-      if (sourcesInGroup.length === 1) {
-        // Single source, use normal calculation
-        const source = sourcesInGroup[0];
-        const { rowMinimumAmount, rowMaximumAmount } = source;
-        const avgAmount = (rowMaximumAmount + rowMinimumAmount) / 2;
-        return (
-          (sourceDropChance(source) * avgAmount) / stepsPerRewardRoll.value
-        );
-      } else {
-        // Multiple sources with same stat, sum their rollChance values
-        const combinedRollChance = sourcesInGroup.reduce((sum, source) => {
-          return sum + (source.rollChance || 1);
-        }, 0);
-
-        // Use the first source as template but with combined rollChance
-        const templateSource = sourcesInGroup[0];
-        const { rowMinimumAmount, rowMaximumAmount } = templateSource;
-        const avgAmount = (rowMaximumAmount + rowMinimumAmount) / 2;
-
-        return (
-          (sourceDropChance(templateSource, combinedRollChance) * avgAmount) /
-          stepsPerRewardRoll.value
-        );
-      }
-    }
-  );
-
-  return 1000 * itemsPerStatGroup.reduce((total, rate) => total + rate, 0);
+  return 1000 / stepsPerItem.value;
 });
 
 const dropCounts = computed(() => {
