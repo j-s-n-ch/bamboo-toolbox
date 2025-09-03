@@ -89,7 +89,7 @@ const resolveLootTableWeights = (params) => {
       return {
         ...row,
         rowWeight:
-          requirementsBonuses && requirementsBonuses.length
+          requirementsBonuses?.length
             ? resolveWeight({ rowWeight, minWeightScale, requirementsBonuses })
             : rowWeight,
       };
