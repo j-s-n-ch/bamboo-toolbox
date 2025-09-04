@@ -1,5 +1,18 @@
 import { config } from "@vue/test-utils";
-import ElementPlus from "element-plus";
-import "element-plus/dist/index.css";
+import { vi } from "vitest";
 
-config.global.plugins = [ElementPlus];
+// Mock APIs that might not be available in happy-dom
+config.global.ResizeObserver = vi.fn(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+config.global.IntersectionObserver = vi.fn(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// Mock scrollTo if needed
+config.global.scrollTo = vi.fn();
