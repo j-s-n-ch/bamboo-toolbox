@@ -1,5 +1,5 @@
 import { levelFromXp } from "./skillXp";
-import { qualityOptions } from "./quality";
+import { qualityOptions } from "@/constants/quality";
 
 /**
  * Processes skills data from import

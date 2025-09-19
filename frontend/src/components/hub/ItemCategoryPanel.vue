@@ -3,7 +3,8 @@ import { computed, ref, watch } from "vue";
 import { useItemsStore } from "@/store/items";
 import ItemEntry from "./ItemEntry.vue";
 import ConsumableEntry from "./ConsumableEntry.vue";
-import { itemQualityNameSort, consumableQualityOptions } from "@/utils/quality";
+import { itemQualityNameSort } from "@/utils/quality";
+import { consumableQualityOptions } from "@/constants/quality";
 
 const props = defineProps({
   group: String,
