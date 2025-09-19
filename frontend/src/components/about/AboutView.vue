@@ -60,7 +60,7 @@ defineEmits(["back"]);
           <li>Gear set optimizer</li>
           <li>Comparing gear sets</li>
           <li>
-            Calulator section (actions/steps to target level, materials needed
+            Calculator section (actions/steps to target level, materials needed
             to level up, ...)
           </li>
           <li>Steps to full inventory estimation</li>

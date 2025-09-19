@@ -43,20 +43,25 @@ export function useShowItemForActivity() {
 
     const hideOwnedCollectibles =
       activitySettings.value.hideOwnedCollectibles.value;
-    const activityCollectibles = activity.tables
-      .filter(({ type }) => type.includes("collectible"))
-      .flatMap(({ tables }) => tables)
-      .map((table) => {
-        const tableData = dataStore.detailedLootTablesMap[table];
-        if (tableData.tableRows.length === 0) return false;
-        return tableData.tableRows[0].rowItemID;
-      })
-      .filter(Boolean)
-      .filter(
-        (collectible) =>
-          !hideOwnedCollectibles ||
-          (hideOwnedCollectibles && !(collectible in itemStore.ownedItems))
-      );
+
+    const activityCollectibles =
+      activity.tables !== null
+        ? activity.tables
+            .filter(({ type }) => type.includes("collectible"))
+            .flatMap(({ tables }) => tables)
+            .map((table) => {
+              const tableData = dataStore.detailedLootTablesMap[table];
+              if (tableData.tableRows.length === 0) return false;
+              return tableData.tableRows[0].rowItemID;
+            })
+            .filter(Boolean)
+            .filter(
+              (collectible) =>
+                !hideOwnedCollectibles ||
+                (hideOwnedCollectibles &&
+                  !(collectible in itemStore.ownedItems))
+            )
+        : [];
 
     const filterActivityOnlyAttrs = (attr) => {
       if (!isRecipe) return true;
