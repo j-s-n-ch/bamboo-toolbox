@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { getUrlMap } from "@/utils/axios/api_routes";
-import { useUrlMap } from "@/utils/useUrlMap";
+import { useUrlMap } from "@/composables/useUrlMap";
 import { useActivityStore } from "./activity";
 import { useGearStore } from "./gear";
 

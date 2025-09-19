@@ -9,7 +9,7 @@ import UndoRedoButtons from "@/components/common/UndoRedoButtons.vue";
 import { useSettingsStore } from "@/store/settings";
 import { useGearStore } from "@/store/gear";
 import { onMounted } from "vue";
-import { useUndoRedoShortcuts } from "@/utils/useUndoRedoShortcuts";
+import { useUndoRedoShortcuts } from "@/composables/useUndoRedoShortcuts";
 
 const gearStore = useGearStore();
 const settingsStore = useSettingsStore();

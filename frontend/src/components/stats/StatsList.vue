@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import StatDisplay from "./StatDisplay.vue";
 import { useDataStore } from "@/store/data";
-import { useEffectiveAttrs } from "@/utils/useEffectiveAttrs";
+import { useEffectiveAttrs } from "@/composables/useEffectiveAttrs";
 
 const { allAttrs } = useEffectiveAttrs();
 const dataStore = useDataStore();
@@ -51,7 +51,7 @@ const includedStats = computed(() => {
 <template>
   <section class="stats">
     <stat-display
-      v-for="({ stat, isPercent }) in includedStats"
+      v-for="{ stat, isPercent } in includedStats"
       :key="`${stat.id}-${isPercent}`"
       :stat="stat"
       :isPercent="isPercent"

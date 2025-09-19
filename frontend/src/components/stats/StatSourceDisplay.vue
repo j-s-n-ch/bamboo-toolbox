@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import { useEffectiveAttrs } from "@/utils/useEffectiveAttrs";
+import { useEffectiveAttrs } from "@/composables/useEffectiveAttrs";
 import WsIcon from "@/components/common/WsIcon.vue";
 import { n } from "@/utils/number";
 

@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { useGearSetExport } from "@/utils/useGearSetExport";
+import { useGearSetExport } from "@/composables/useGearSetExport";
 import { useNotificationStore } from "@/store/notifications";
 import WsButton from "@/components/common/WsButton.vue";
 import ExportCodeModal from "./ExportCodeModal.vue";

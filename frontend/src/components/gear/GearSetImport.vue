@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import WsButton from "@/components/common/WsButton.vue";
 import GearSetImportModal from "./GearSetImportModal.vue";
-import { useGearSetExport } from "@/utils/useGearSetExport";
+import { useGearSetExport } from "@/composables/useGearSetExport";
 import { useNotificationStore } from "@/store/notifications";
 import { useGearStore } from "@/store/gear";
 import { useUrlStore } from "@/store/url";

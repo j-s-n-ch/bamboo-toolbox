@@ -1,4 +1,4 @@
-import { intersect } from "./intersect";
+import { intersect } from "../utils/intersect";
 import { useActivityStore } from "@/store/activity";
 import { useGearStore } from "@/store/gear";
 import { usePlayerStore } from "@/store/player";

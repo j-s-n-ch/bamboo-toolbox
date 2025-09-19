@@ -1,6 +1,6 @@
 import pako from "pako";
 import { useGearStore } from "@/store/gear";
-import { getOldItemIds } from "./axios/api_routes";
+import { getOldItemIds } from "../utils/axios/api_routes";
 
 export function useGearSetExport() {
   const gearStore = useGearStore();
