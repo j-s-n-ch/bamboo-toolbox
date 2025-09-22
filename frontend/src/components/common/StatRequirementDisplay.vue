@@ -6,7 +6,7 @@ import { useDataStore } from "@/store/data";
 import { useItemsStore } from "@/store/items";
 import { usePlayerStore } from "@/store/player";
 import { useSettingsStore } from "@/store/settings";
-import { useRequirements } from "@/utils/useRequirements";
+import { useRequirements } from "@/composables/useRequirements";
 import WsIcon from "@/components/common/WsIcon.vue";
 
 import { n } from "@/utils/number";

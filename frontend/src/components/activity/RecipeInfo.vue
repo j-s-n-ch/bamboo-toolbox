@@ -9,8 +9,8 @@ import SkillBubble from "@/components/common/SkillBubble.vue";
 import WikiButton from "@/components/common/WikiButton.vue";
 import { useActivityStore } from "@/store/activity";
 import { useItemsStore } from "@/store/items";
-import { useSkillModifiers } from "@/utils/useSkillModifiers";
-import { craftingQualityOptions } from "@/utils/quality";
+import { useSkillModifiers } from "@/composables/useSkillModifiers";
+import { craftingQualityOptions } from "@/constants/quality";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
 

@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import WsIcon from "./WsIcon.vue";
-import { useEffectiveAttrs } from "@/utils/useEffectiveAttrs";
+import { useEffectiveAttrs } from "@/composables/useEffectiveAttrs";
 
 const props = defineProps({
   keyword: Object,

@@ -2,7 +2,7 @@
 import { computed, ref, watch } from "vue";
 import WsLabel from "@/components/common/WsLabel.vue";
 import InfoBubble from "@/components/common/InfoBubble.vue";
-import { useSkillModifiers } from "@/utils/useSkillModifiers";
+import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { n } from "@/utils/number";
 
 const {

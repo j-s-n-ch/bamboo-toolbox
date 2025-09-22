@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
-import { useSkillModifiers } from "@/utils/useSkillModifiers";
+import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { useItemsStore } from "@/store/items";
 import { usePlayerStore } from "@/store/player";
 import { n } from "@/utils/number";

@@ -2,7 +2,7 @@ import { storeToRefs } from "pinia";
 import { useActivityStore } from "@/store/activity";
 import { useItemsStore } from "@/store/items";
 import { useDataStore } from "@/store/data";
-import { useRequirements } from "@/utils/useRequirements";
+import { useRequirements } from "@/composables/useRequirements";
 import { useSettingsStore } from "@/store/settings";
 import { getRawData } from "@/utils/rawData";
 import { sumAttrs } from "@/utils/qualityAttrs";

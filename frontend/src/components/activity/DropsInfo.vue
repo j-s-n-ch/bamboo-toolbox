@@ -7,7 +7,7 @@ import { useGearStore } from "@/store/gear";
 import { useItemsStore } from "@/store/items";
 import { usePlayerStore } from "@/store/player";
 import { useSettingsStore } from "@/store/settings";
-import { useRequirements } from "@/utils/useRequirements";
+import { useRequirements } from "@/composables/useRequirements";
 import { sumAttrs } from "@/utils/qualityAttrs";
 import { stripHtmlTags } from "@/utils/stripHtmlTags";
 import DropItemDisplay from "./DropItemDisplay.vue";
@@ -88,10 +88,9 @@ const resolveLootTableWeights = (params) => {
       const { rowWeight, minWeightScale, requirementsBonuses } = row;
       return {
         ...row,
-        rowWeight:
-          requirementsBonuses?.length
-            ? resolveWeight({ rowWeight, minWeightScale, requirementsBonuses })
-            : rowWeight,
+        rowWeight: requirementsBonuses?.length
+          ? resolveWeight({ rowWeight, minWeightScale, requirementsBonuses })
+          : rowWeight,
       };
     })
   );

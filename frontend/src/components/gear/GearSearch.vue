@@ -6,9 +6,9 @@ import { useItemsStore } from "@/store/items";
 import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
 import { useSettingsStore } from "@/store/settings";
-import { useRequirements } from "@/utils/useRequirements";
-import { useShowItemForActivity } from "@/utils/useShowItemForActivity";
-import { itemQualityNameSort } from "@/utils/quality";
+import { useRequirements } from "@/composables/useRequirements";
+import { useShowItemForActivity } from "@/composables/useShowItemForActivity";
+import { itemQualityNameSort } from "@/utils/sorting";
 import { sumAttrs } from "@/utils/qualityAttrs";
 import { intersect } from "@/utils/intersect";
 import WsIcon from "@/components/common/WsIcon.vue";
@@ -101,10 +101,13 @@ const filteredItems = computed(() => {
 
   return slotItems
     .map((item) => {
-      const { id } = item;
+      const { id, type } = item;
+      const isCrafted = type === "crafted";
+
       const owned = id in itemsStore.ownedItems;
       const hidden = owned ? itemsStore.ownedItems[id].hidden : false;
-      const quality = owned ? itemsStore.ownedItems[id].quality : item.quality;
+      const quality =
+        owned && isCrafted ? itemsStore.ownedItems[id].quality : item.quality;
       const quality2 = owned ? itemsStore.ownedItems[id].quality2 : null;
 
       const attrs =

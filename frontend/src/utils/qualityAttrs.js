@@ -1,4 +1,4 @@
-import { qualityOptions, consumableQualityOptions } from "@/utils/quality";
+import { qualityOptions, consumableQualityOptions } from "@/constants/quality";
 import { toDeepRaw } from "./rawData";
 
 // Create a quality rank mapping for sorting

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted, watch } from "vue";
-import { consumableQualityOptions } from "@/utils/quality";
+import { consumableQualityOptions } from "@/constants/quality";
 import { useItemsStore } from "@/store/items";
 import WsIcon from "@/components/common/WsIcon.vue";
 import StatsDisplay from "../common/StatsDisplay.vue";

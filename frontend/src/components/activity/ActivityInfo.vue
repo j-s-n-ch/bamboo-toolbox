@@ -9,7 +9,7 @@ import WikiButton from "@/components/common/WikiButton.vue";
 import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
 import { usePlayerStore } from "@/store/player";
-import { useSkillModifiers } from "@/utils/useSkillModifiers";
+import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
 

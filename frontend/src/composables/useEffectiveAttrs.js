@@ -4,9 +4,9 @@ import { useGearStore } from "@/store/gear";
 import { useItemsStore } from "@/store/items";
 import { useRequirements } from "./useRequirements";
 import { useLevelBonus } from "./useLevelBonus";
-import { sumAttrs } from "./qualityAttrs";
-import { toDeepRaw } from "./rawData";
-import { stripHtmlTags } from "./stripHtmlTags";
+import { sumAttrs } from "../utils/qualityAttrs";
+import { toDeepRaw } from "../utils/rawData";
+import { stripHtmlTags } from "../utils/stripHtmlTags";
 
 export function useEffectiveAttrs() {
   const { checkRequirements } = useRequirements();
