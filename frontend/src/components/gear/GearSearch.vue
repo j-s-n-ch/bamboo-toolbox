@@ -8,6 +8,7 @@ import { useDataStore } from "@/store/data";
 import { useSettingsStore } from "@/store/settings";
 import { useRequirements } from "@/composables/useRequirements";
 import { useShowItemForActivity } from "@/composables/useShowItemForActivity";
+import { consumableQualityOptions } from "@/constants/quality";
 import { itemQualityNameSort } from "@/utils/sorting";
 import { sumAttrs } from "@/utils/qualityAttrs";
 import { intersect } from "@/utils/intersect";
@@ -101,14 +102,30 @@ const filteredItems = computed(() => {
 
   return slotItems
     .map((item) => {
-      const { id, type } = item;
-      const isCrafted = type === "crafted";
+      const { id, type, gearType } = item;
+      const isConsumable = type === "consumable";
+      const isRing = gearType === "ring";
 
       const owned = id in itemsStore.ownedItems;
       const hidden = owned ? itemsStore.ownedItems[id].hidden : false;
-      const quality =
-        owned && isCrafted ? itemsStore.ownedItems[id].quality : item.quality;
-      const quality2 = owned ? itemsStore.ownedItems[id].quality2 : null;
+      let quality = owned ? itemsStore.ownedItems[id].quality : item.quality;
+      let quality2 = null;
+
+      if (owned) {
+        quality = itemsStore.ownedItems[id].quality;
+        quality2 = itemsStore.ownedItems[id].quality2;
+      }
+
+      if (isConsumable) {
+        if (showOwned) {
+          quality2 = owned ? itemsStore.ownedItems[id].quality2 : null;
+        } else {
+          quality = consumableQualityOptions[0].value;
+          quality2 = consumableQualityOptions[1].value;
+        }
+      } else if (isRing) {
+        quality2 = owned ? itemsStore.ownedItems[id].quality2 : item.quality2;
+      }
 
       const attrs =
         dataStore.selectedStat !== "none"
