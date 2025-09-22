@@ -103,11 +103,14 @@ const filteredItems = computed(() => {
     .map((item) => {
       const { id, type } = item;
       const isCrafted = type === "crafted";
+      const isConsumable = type === "consumable";
 
       const owned = id in itemsStore.ownedItems;
       const hidden = owned ? itemsStore.ownedItems[id].hidden : false;
       const quality =
-        owned && isCrafted ? itemsStore.ownedItems[id].quality : item.quality;
+        owned && (isCrafted || isConsumable)
+          ? itemsStore.ownedItems[id].quality
+          : item.quality;
       const quality2 = owned ? itemsStore.ownedItems[id].quality2 : null;
 
       const attrs =
