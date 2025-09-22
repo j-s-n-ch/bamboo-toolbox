@@ -101,10 +101,14 @@ const filteredItems = computed(() => {
 
   return slotItems
     .map((item) => {
-      const { id } = item;
+      const { id, quality: propQuality, type } = item;
+      const isCrafted = type === "crafted";
+      console.log(propQuality, isCrafted);
+
       const owned = id in itemsStore.ownedItems;
       const hidden = owned ? itemsStore.ownedItems[id].hidden : false;
-      const quality = owned ? itemsStore.ownedItems[id].quality : item.quality;
+      const quality =
+        owned && isCrafted ? itemsStore.ownedItems[id].quality : item.quality;
       const quality2 = owned ? itemsStore.ownedItems[id].quality2 : null;
 
       const attrs =
