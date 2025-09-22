@@ -23,11 +23,22 @@ const isOpen = ref(false);
 
 onMounted(() => {
   const entry = itemsStore.ownedItems[props.item.id];
-  isOwned.value = entry?.owned ?? false;
-  isHidden.value = entry?.hidden ?? false;
-  quality.value = entry?.quality ?? props.item?.quality ?? defaultQuality;
-  quality2.value =
-    props.qualities < 2 ? null : entry?.quality2 ?? defaultQuality;
+  const isCrafted = props.item?.type === "crafted";
+
+  if (!entry) {
+    isOwned.value = false;
+    isHidden.value = false;
+    quality.value = props.item?.quality ?? defaultQuality;
+    quality2.value = props.qualities < 2 ? null : defaultQuality;
+  } else {
+    isOwned.value = entry.owned;
+    isHidden.value = entry.hidden;
+    quality.value = isCrafted
+      ? entry.quality
+      : props.item?.quality ?? defaultQuality;
+    quality2.value =
+      props.qualities < 2 ? null : entry.quality2 ?? defaultQuality;
+  }
 });
 
 watch(
