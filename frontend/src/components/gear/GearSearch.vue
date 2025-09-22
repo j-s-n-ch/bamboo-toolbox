@@ -101,9 +101,8 @@ const filteredItems = computed(() => {
 
   return slotItems
     .map((item) => {
-      const { id, quality: propQuality, type } = item;
+      const { id, type } = item;
       const isCrafted = type === "crafted";
-      console.log(propQuality, isCrafted);
 
       const owned = id in itemsStore.ownedItems;
       const hidden = owned ? itemsStore.ownedItems[id].hidden : false;
