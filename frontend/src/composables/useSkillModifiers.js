@@ -171,6 +171,8 @@ export function useSkillModifiers() {
     chestFind,
     craftingOutcome,
     doubleAction,
+    doubleRewards,
+    noMaterialsConsumed,
     stepsRequiredFlat,
     stepsRequiredPercent,
     stepsPerAction,
