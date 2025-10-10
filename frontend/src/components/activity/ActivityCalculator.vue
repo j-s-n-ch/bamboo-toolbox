@@ -7,16 +7,25 @@ import IconInputBubble from "../common/IconInputBubble.vue";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import WsIcon from "@/components/common/WsIcon.vue";
 import WsLabel from "@/components/common/WsLabel.vue";
-import { xpToLevelSkill } from "@/utils/skillXp";
+import { levelFromXp, xpToLevelSkill } from "@/utils/skillXp";
 
-const { stepsPerAction, xpPerStep, xpRewards } = useSkillModifiers();
+const { stepsPerAction, xpPerStep, xpRewards, craftsPerMaterial } =
+  useSkillModifiers();
 const playerStore = usePlayerStore();
 
 const activityStore = useActivityStore();
-const { activity } = storeToRefs(activityStore);
+const { activity, recipe, activitySelected, recipeSelected } =
+  storeToRefs(activityStore);
+const source = computed(() =>
+  activitySelected.value ? activity.value : recipe.value
+);
 
 const { skillLevels } = storeToRefs(playerStore);
-const activitySkills = computed(() => Object.keys(activity.value.xpRewardsMap));
+const skillList = computed(() =>
+  activitySelected.value
+    ? Object.keys(source.value.xpRewardsMap)
+    : Object.keys(source.value.xpRewards)
+);
 
 const steps = ref(0);
 
@@ -27,9 +36,18 @@ const actions = computed({
   },
 });
 
+const materials = computed({
+  get: () => Math.ceil(actions.value / craftsPerMaterial.value),
+  set: (val) => {
+    actions.value = Math.floor(val * craftsPerMaterial.value);
+  },
+});
+
 const skillXpStartRefs = reactive({});
 const skillXpGainRefs = reactive({});
 const skillXpEndRefs = reactive({});
+const skillLevelStartRefs = reactive({});
+const skillLevelEndRefs = reactive({});
 
 const getXpPerStepFor = (skill) =>
   xpPerStep.value.find((o) => o.skill === skill).value;
@@ -38,7 +56,7 @@ const getXpPerActionFor = (skill) =>
   xpRewards.value.find((o) => o.skill === skill).value;
 
 watchEffect(() => {
-  const list = activitySkills.value;
+  const list = skillList.value;
 
   // remove keys that are no longer present
   Object.keys(skillXpGainRefs).forEach((k) => {
@@ -60,7 +78,11 @@ watchEffect(() => {
       },
     });
 
-    skillXpStartRefs[s] = ref(xpToLevelSkill(skillLevels.value[s]));
+    skillXpStartRefs[s] = xpToLevelSkill(skillLevels.value[s] - 1);
+    skillLevelStartRefs[s] = computed({
+      get: () => levelFromXp(skillXpStartRefs[s]),
+      set: (val) => (skillXpStartRefs[s] = xpToLevelSkill(val - 1)),
+    });
 
     skillXpEndRefs[s] = computed({
       get: () => {
@@ -69,6 +91,10 @@ watchEffect(() => {
       set: (val) => {
         skillXpGainRefs[s] = Math.max(0, val - skillXpStartRefs[s]);
       },
+    });
+    skillLevelEndRefs[s] = computed({
+      get: () => levelFromXp(skillXpEndRefs[s]),
+      set: (val) => (skillXpEndRefs[s] = xpToLevelSkill(val - 1)),
     });
   }
 });
@@ -97,10 +123,20 @@ watchEffect(() => {
           :setValue="() => {}"
           @input="(val) => (actions = val)"
         />
+        <icon-input-bubble
+          v-if="recipeSelected"
+          label="materials"
+          key="materials"
+          id="materials"
+          :max="1000000"
+          :getValue="() => materials"
+          :setValue="() => {}"
+          @input="(val) => (materials = val)"
+        />
       </div>
       <div
         :class="['skill-row', `border-${skill}`]"
-        v-for="skill in activitySkills"
+        v-for="skill in skillList"
         :key="skill"
       >
         <p class="skill-title">
@@ -112,9 +148,9 @@ watchEffect(() => {
         </p>
         <div class="info-row">
           <icon-input-bubble
-            label="starting xp"
-            :key="`${skill}-starting-xp`"
-            :id="`${skill}-starting-xp`"
+            label="start xp"
+            :key="`${skill}-start-xp`"
+            :id="`${skill}-start-xp`"
             :max="99999999"
             :getValue="() => skillXpStartRefs[skill]"
             :setValue="() => {}"
@@ -130,13 +166,31 @@ watchEffect(() => {
             @input="(val) => (skillXpGainRefs[skill] = val)"
           />
           <icon-input-bubble
-            label="end xp"
-            :key="`${skill}-end-xp`"
-            :id="`${skill}-end-xp`"
+            label="target xp"
+            :key="`${skill}-target-xp`"
+            :id="`${skill}-target-xp`"
             :max="99999999"
             :getValue="() => skillXpEndRefs[skill]"
             :setValue="() => {}"
             @input="(val) => (skillXpEndRefs[skill] = val)"
+          />
+          <icon-input-bubble
+            label="start lvl"
+            :key="`${skill}-start-lvl`"
+            :id="`${skill}-start-lvl`"
+            :max="99"
+            :getValue="() => skillLevelStartRefs[skill]"
+            :setValue="() => {}"
+            @input="(val) => (skillLevelStartRefs[skill] = val)"
+          />
+          <icon-input-bubble
+            label="end lvl"
+            :key="`${skill}-end-lvl`"
+            :id="`${skill}-end-lvl`"
+            :max="99"
+            :getValue="() => skillLevelEndRefs[skill]"
+            :setValue="() => {}"
+            @input="(val) => (skillLevelEndRefs[skill] = val)"
           />
         </div>
       </div>
