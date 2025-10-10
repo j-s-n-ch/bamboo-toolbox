@@ -5,6 +5,7 @@ import { useActivityStore } from "@/store/activity";
 import { usePlayerStore } from "@/store/player";
 import IconInputBubble from "../common/IconInputBubble.vue";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
+import WsIcon from "@/components/common/WsIcon.vue";
 import WsLabel from "@/components/common/WsLabel.vue";
 import { xpToLevelSkill } from "@/utils/skillXp";
 
@@ -102,7 +103,13 @@ watchEffect(() => {
         v-for="skill in activitySkills"
         :key="skill"
       >
-        <ws-label :label="skill" />
+        <p class="skill-title">
+          <ws-icon
+            :iconPath="`assets/icons/text/skill_icons/${skill}.png`"
+            size="sm"
+          />
+          <ws-label :label="skill" />
+        </p>
         <div class="info-row">
           <icon-input-bubble
             label="starting xp"
@@ -148,6 +155,12 @@ watchEffect(() => {
   gap: $lg;
 
   padding: $md;
+
+  .skill-title {
+    display: flex;
+    gap: $xxs;
+    align-items: center;
+  }
 
   .skill-row {
     display: flex;
