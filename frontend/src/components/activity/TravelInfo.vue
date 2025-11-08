@@ -52,26 +52,12 @@ const stepsPerNode = (distance) => {
 };
 
 // Calculate expected number of node completions with double action
-const expectedNodeCompletions = (totalNodes) => {
-  const doubleActionChance = doubleAction.value;
-
-  if (doubleActionChance === 0) {
-    // No double action, need to complete all nodes
-    return totalNodes;
-  }
-
-  // With double action, each completion has a chance to skip the next node
-  // This creates a Markov chain where we need to calculate expected completions
-  // For simplicity, we can use the approximation: totalNodes / (1 + doubleActionChance)
-  // This assumes double action distributes evenly across all nodes
-
-  return totalNodes / (1 + doubleActionChance);
-};
+const expectedNodeCompletions = () => 10 / (1 + doubleAction.value);
 
 // Calculate average steps for a single route
 const averageStepsPerRoute = (distance) => {
   const stepsPerSingleNode = stepsPerNode(distance);
-  const expectedCompletions = expectedNodeCompletions(10); // 10 nodes per route
+  const expectedCompletions = expectedNodeCompletions();
   return Math.ceil(stepsPerSingleNode * expectedCompletions);
 };
 
