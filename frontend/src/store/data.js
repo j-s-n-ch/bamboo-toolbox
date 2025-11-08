@@ -4,6 +4,9 @@ import {
   getStats,
   getLootTables,
   getMultipleLootTables,
+  getLocations,
+  getRoutes,
+  getTerrainModifiers,
 } from "@/utils/axios/api_routes";
 
 export const useDataStore = defineStore("dataStore", {
@@ -16,6 +19,9 @@ export const useDataStore = defineStore("dataStore", {
     statsMap: {},
     lootTables: [],
     detailedLootTablesMap: {},
+    locations: [],
+    routes: [],
+    terrainModifiers: [],
     selectedStat: "none",
   }),
   getters: {
@@ -35,12 +41,28 @@ export const useDataStore = defineStore("dataStore", {
     async fetchGameData() {
       if (this.isLoaded) return;
 
-      const [{ data: keywords }, { data: statList }, { data: lootTables }] =
-        await Promise.all([getKeywords(), getStats(), getLootTables()]);
+      const [
+        { data: keywords },
+        { data: statList },
+        { data: lootTables },
+        { data: locations },
+        { data: routes },
+        { data: terrainModifiers },
+      ] = await Promise.all([
+        getKeywords(),
+        getStats(),
+        getLootTables(),
+        getLocations(),
+        getRoutes(),
+        getTerrainModifiers(),
+      ]);
 
       this.keywords = keywords;
       this.keywordsMap = Object.fromEntries(
-        keywords.map(({ id, name, icon, bannedKeywords }) => [id, { id, name, icon, bannedKeywords }])
+        keywords.map(({ id, name, icon, bannedKeywords }) => [
+          id,
+          { id, name, icon, bannedKeywords },
+        ])
       );
 
       const filteredStats = ["skillLevel", "travelingDistance"];
@@ -53,6 +75,9 @@ export const useDataStore = defineStore("dataStore", {
       );
 
       this.lootTables = lootTables;
+      this.locations = locations;
+      this.routes = routes;
+      this.terrainModifiers = terrainModifiers;
 
       this.isLoaded = true;
     },
