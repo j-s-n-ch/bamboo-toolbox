@@ -83,6 +83,12 @@ export function getOldItemIds(ids) {
   });
 }
 
+export function getLocations() {
+  return proxy({
+    url: "locations",
+  });
+}
+
 export function searchLocations({ activityList, serviceList }) {
   return proxy({
     url: "locations/search",
@@ -153,6 +159,18 @@ export function getMultipleLootTables(ids) {
     options: {
       ids,
     },
+  });
+}
+
+export function getRoutes() {
+  return proxy({
+    url: "routes",
+  });
+}
+
+export function getTerrainModifiers() {
+  return proxy({
+    url: "terrain_modifiers",
   });
 }
 
