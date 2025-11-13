@@ -1,133 +1,170 @@
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import WsLabel from "@/components/common/WsLabel.vue";
 import InfoBubble from "@/components/common/InfoBubble.vue";
-import { useSkillModifiers } from "@/composables/useSkillModifiers";
+import NestedDropdown from "@/components/common/dropdowns/NestedDropdown.vue";
+import WsIcon from "../common/WsIcon.vue";
+import { usePlayerStore } from "@/store/player";
+import { useRouteStore } from "@/store/route";
+import { useRoutes } from "@/composables/useRoutes";
 import { n } from "@/utils/number";
 
-const {
-  maxWorkEfficiency,
-  workEfficiency,
-  uncappedWorkEfficiency,
-  effectiveMaxWorkEfficiency,
-  stepsRequiredFlat,
-  stepsRequiredPercent,
-  doubleAction,
-} = useSkillModifiers();
+const playerStore = usePlayerStore();
+const routeStore = useRouteStore();
+const { getRoute, averageStepsPerRoute, stepsPerNode } = useRoutes();
 
-// Local ref for route count
-const routeCount = ref(1);
-
-// Local ref array for route distances
-const routeDistances = ref([1000]);
-
-// Watch routeCount to adjust the routeDistances array
-const adjustRouteDistances = () => {
-  const currentCount = routeCount.value;
-  const currentDistances = routeDistances.value;
-
-  if (currentCount > currentDistances.length) {
-    // Add new distances with default value of 1000
-    for (let i = currentDistances.length; i < currentCount; i++) {
-      currentDistances.push(1000);
+const start = computed({
+  get: () => routeStore.start,
+  set: (val) => {
+    if (val !== routeStore.start) {
+      routeStore.setStart(val);
     }
-  } else if (currentCount < currentDistances.length) {
-    // Remove excess distances
-    routeDistances.value = currentDistances.slice(0, currentCount);
-  }
-};
+  },
+});
 
-// Watch for changes in routeCount
-watch(routeCount, adjustRouteDistances, { immediate: true });
+const end = computed({
+  get: () => routeStore.end,
+  set: (val) => {
+    if (val !== routeStore.end) {
+      routeStore.setEnd(val);
+    }
+  },
+});
 
-const stepsPerNode = (distance) => {
-  const we = 1 + workEfficiency.value;
-  return Math.ceil(
-    Math.max(
-      10,
-      (distance / we / 10) * stepsRequiredPercent.value +
-        stepsRequiredFlat.value
-    )
-  );
-};
+const noneLocation = { value: "None" };
 
-// Calculate expected number of node completions with double action
-const expectedNodeCompletions = () => 10 / (1 + doubleAction.value);
+const locationsByFaction = [
+  noneLocation,
+  ...playerStore.factions
+    .map(({ id, name, icon }) => {
+      const locs = routeStore.locations
+        .filter(({ faction }) => faction === id)
+        .map((loc) => {
+          return { value: loc.name, ...loc };
+        })
+        .sort((a, b) => a.name.localeCompare(b.name));
+      return {
+        value: name,
+        icon,
+        items: locs,
+      };
+    })
+    .filter(({ items }) => items.length > 0),
+];
 
-// Calculate average steps for a single route
-const averageStepsPerRoute = (distance) => {
-  const stepsPerSingleNode = stepsPerNode(distance);
-  const expectedCompletions = expectedNodeCompletions();
-  return Math.ceil(stepsPerSingleNode * expectedCompletions);
-};
+const routeRef = computed(() => {
+  if (!(start.value && end.value)) return [];
+  return getRoute(start.value.id, end.value.id);
+});
 
-// Calculate total average steps across all routes
+const segments = computed(() => {
+  if (!(start.value && end.value)) return [];
+  return routeRef.value.segments;
+});
+
 const totalAverageSteps = computed(() => {
-  return routeDistances.value.reduce((total, distance) => {
-    return total + averageStepsPerRoute(distance);
+  return segments.value.reduce((total, { distance, stats }) => {
+    return total + averageStepsPerRoute(distance, stats);
   }, 0);
 });
 
-// Calculate min/max steps (for range display)
 const totalMinSteps = computed(() => {
-  // Best case: double action triggers optimally
-  const doubleActionChance = doubleAction.value;
-
-  return routeDistances.value.reduce((total, distance) => {
-    const stepsPerSingleNode = stepsPerNode(distance);
-    const routeMinCompletions = doubleActionChance > 0 ? 5 : 10; // 5 if double action can trigger, 10 otherwise
+  return segments.value.reduce((total, { distance, stats }) => {
+    const { doubleAction } = stats;
+    const stepsPerSingleNode = stepsPerNode(distance, stats);
+    const routeMinCompletions = doubleAction > 0 ? 5 : 10;
     return total + stepsPerSingleNode * routeMinCompletions;
   }, 0);
 });
 
 const totalMaxSteps = computed(() => {
-  // Worst case: no double action triggers
-  return routeDistances.value.reduce((total, distance) => {
-    return total + stepsPerNode(distance) * 10; // 10 nodes per route, no skips
+  return segments.value.reduce((total, { distance, stats }) => {
+    return total + stepsPerNode(distance, stats) * 10;
   }, 0);
 });
 
-const statsRow = computed(() => ({
-  label: "Travel Stats (min - max steps, ~average)",
-  component: InfoBubble,
-  items: [
-    {
-      text: `${Math.round(totalMinSteps.value)} - ${
-        totalMaxSteps.value
-      } (~${Math.round(totalAverageSteps.value)})`,
-      tooltip: `Min steps: ${Math.round(
-        totalMinSteps.value
-      )} (best case with double action)\nMax steps: ${
-        totalMaxSteps.value
-      } (worst case, no double action)\nAverage steps: ${Math.round(
-        totalAverageSteps.value
-      )} (expected with ${Math.round(
-        doubleAction.value * 100
-      )}% double action)`,
-      iconPath: "assets/icons/text/general_icons/steps.png",
-    },
-    {
-      text: `${n(uncappedWorkEfficiency.value * 100)} / ${Math.round(
-        (maxWorkEfficiency.value - 1) * 100
-      )}%`,
-      tooltip: `Your Work Efficiency: ${Math.round(
-        uncappedWorkEfficiency.value * 100
-      )}%\nMax Work Efficiency: ${n((maxWorkEfficiency.value - 1) * 100, 0)}%`,
-      iconPath: "assets/icons/text/stats/skilling/work_efficiency.png",
-      borderClass:
-        workEfficiency.value >= effectiveMaxWorkEfficiency.value - 1
-          ? "border-green"
-          : "",
-    },
-    {
-      text: `${Math.round(doubleAction.value * 100)}%`,
-      tooltip: `Double Action chance: ${Math.round(
-        doubleAction.value * 100
-      )}%\nWhen triggered, you get the next node completion for free`,
-      iconPath: "assets/icons/text/stats/skilling/double_action.png",
-    },
-  ],
-}));
+const stats = (segment) => {
+  const {
+    uncappedWorkEfficiency,
+    workEfficiency,
+    effectiveMaxWorkEfficiency,
+    doubleAction,
+  } = segment.stats;
+
+  return {
+    component: InfoBubble,
+    items: [
+      {
+        text: `~${averageStepsPerRoute(segment.distance, segment.stats)}`,
+        tooltip: "",
+        iconPath: "assets/icons/text/general_icons/steps.png",
+      },
+      {
+        text: `${n(uncappedWorkEfficiency * 100)}%`,
+        tooltip: "",
+        iconPath: "assets/icons/text/stats/skilling/work_efficiency.png",
+        borderClass:
+          workEfficiency >= effectiveMaxWorkEfficiency - 1
+            ? "border-green"
+            : "",
+      },
+      {
+        text: `${n(doubleAction * 100)}%`,
+        tooltip: "",
+        iconPath: "assets/icons/text/stats/skilling/double_action.png",
+      },
+    ],
+  };
+};
+
+const statsRow = computed(() => {
+  const segmentStats = segments.value.map(({ stats }) => stats);
+  const segmentWE = segmentStats.map(({ workEfficiency }) => workEfficiency);
+  const weRange = [Math.min(...segmentWE), Math.max(...segmentWE)];
+
+  const segmentsDA = segmentStats.map(({ doubleAction }) => doubleAction);
+  const daRange = [Math.min(...segmentsDA), Math.max(...segmentsDA)];
+
+  return {
+    label: "Total steps (min - max steps, ~average)",
+    component: InfoBubble,
+    items: [
+      {
+        text: `${Math.round(totalMinSteps.value)} - ${
+          totalMaxSteps.value
+        } (~${Math.round(totalAverageSteps.value)})`,
+        tooltip: `Min steps: ${Math.round(
+          totalMinSteps.value
+        )} (best case with double action)\nMax steps: ${
+          totalMaxSteps.value
+        } (worst case, no double action)\nAverage steps: ${Math.round(
+          totalAverageSteps.value
+        )}`,
+        iconPath: "assets/icons/text/general_icons/steps.png",
+      },
+      {
+        text: `${n(weRange[0] * 100)} - ${Math.round(weRange[1] * 100)}%`,
+        tooltip: `${n(weRange[0] * 100)} - ${Math.round(weRange[1] * 100)}%`,
+        iconPath: "assets/icons/text/stats/skilling/work_efficiency.png",
+      },
+      {
+        text: `${n(daRange[0] * 100)} - ${Math.round(daRange[1] * 100)}%`,
+        tooltip: `${n(daRange[0] * 100)} - ${Math.round(daRange[1] * 100)}%`,
+        iconPath: "assets/icons/text/stats/skilling/double_action.png",
+      },
+    ],
+  };
+});
+
+const updateStart = (location) => {
+  if (location.value === "None") start.value = null;
+  else start.value = location;
+};
+
+const updateEnd = (location) => {
+  if (location.value === "None") end.value = null;
+  else end.value = location;
+};
 </script>
 
 <template>
@@ -135,42 +172,26 @@ const statsRow = computed(() => ({
     <summary>Travel Info</summary>
 
     <section :class="['travel-info', 'border-agility']">
-      <p>This is still under development</p>
+      <div class="dropdowns">
+        <nested-dropdown
+          label="Start"
+          :data="locationsByFaction"
+          v-model="start"
+          default-text="start location"
+          @select="updateStart"
+        />
 
-      <div class="route-config">
-        <div class="input-group">
-          <ws-label label="Route Count" />
-          <select v-model.number="routeCount" class="route-select">
-            <option v-for="num in 10" :key="num" :value="num">
-              {{ num }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Route Distance Inputs -->
-      <div class="route-distances">
-        <ws-label label="Route Distances" />
-        <div class="distance-inputs">
-          <div
-            v-for="(distance, index) in routeDistances"
-            :key="index"
-            class="input-group"
-          >
-            <ws-label :label="`Route ${index + 1}`" />
-            <input
-              v-model.number="routeDistances[index]"
-              type="number"
-              min="1"
-              class="route-input"
-              :placeholder="`Distance for route ${index + 1}`"
-            />
-          </div>
-        </div>
+        <nested-dropdown
+          label="End"
+          :data="locationsByFaction"
+          v-model="end"
+          default-text="end location"
+          @select="updateEnd"
+        />
       </div>
 
       <!-- Stats Display -->
-      <div class="info-section">
+      <div v-if="segments.length" class="info-section">
         <ws-label :label="statsRow.label" />
         <div class="info-row">
           <component
@@ -178,6 +199,36 @@ const statsRow = computed(() => ({
             :is="statsRow.component"
             v-bind="item"
             :key="idx"
+          />
+        </div>
+      </div>
+
+      <div v-if="segments.length" class="routes">
+        <div v-for="route in segments" :key="route[0]" class="segment">
+          <p class="route-text">
+            <ws-icon :icon-path="route.from.icon" size="xs" />
+            <span
+              :style="{
+                color: `${route.from.color}`,
+              }"
+            >
+              {{ route.from.name }}</span
+            >
+            to
+            <ws-icon :icon-path="route.to.icon" size="xs" />
+            <span
+              :style="{
+                color: `${route.to.color}`,
+              }"
+            >
+              {{ route.to.name }}</span
+            >
+          </p>
+          <component
+            v-for="(item, idx) in stats(route).items"
+            :is="InfoBubble"
+            v-bind="item"
+            :key="`route-${route.to.name}-${idx}`"
           />
         </div>
       </div>
@@ -194,6 +245,34 @@ const statsRow = computed(() => ({
   align-items: flex-start;
   gap: $lg;
   padding: $md;
+}
+
+.routes {
+  display: flex;
+  flex-direction: column;
+  gap: $lg;
+}
+
+.segment {
+  display: flex;
+  align-items: center;
+  gap: $xs;
+}
+
+.route-text {
+  display: flex;
+  align-items: center;
+  gap: $xxxs;
+}
+
+.dropdowns {
+  width: 100%;
+  display: flex;
+  gap: $lg;
+
+  .wrapper {
+    width: 100%;
+  }
 }
 
 .route-config {
