@@ -104,16 +104,18 @@ export function useEffectiveAttrs() {
     return mappedAttrs;
   });
 
-  const effectiveAttrs = computed(() => {
-    return allAttrs.value.filter(({ requirements }) =>
-      checkRequirements(requirements)
-    );
-  });
+  const effectiveAttrs = computed(() => effectiveAttrsWithContext());
 
-  const totalsByStat = computed(() => {
+  const effectiveAttrsWithContext = (context) => {
+    return allAttrs.value.filter(({ requirements }) =>
+      checkRequirements(requirements, context)
+    );
+  };
+
+  const totalsByStatWithContext = (context) => {
     const totals = {};
 
-    for (const attr of effectiveAttrs.value) {
+    for (const attr of effectiveAttrsWithContext(context)) {
       for (const stat of attr.stats) {
         const { type, isPercent, value, isNegative } = stat;
 
@@ -139,12 +141,16 @@ export function useEffectiveAttrs() {
     }
 
     return totals;
-  });
+  };
+
+  const totalsByStat = computed(() => totalsByStatWithContext());
 
   return {
     allEquippedItems,
     allAttrs,
     effectiveAttrs,
+    effectiveAttrsWithContext,
+    totalsByStatWithContext,
     equippedKeywords,
     totalsByStat,
   };
