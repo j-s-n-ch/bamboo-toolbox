@@ -1,10 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
-import { useItemsStore } from "@/store/items";
-import { usePlayerStore } from "@/store/player";
 import { useSettingsStore } from "@/store/settings";
 import { useRequirements } from "@/composables/useRequirements";
 import WsIcon from "@/components/common/WsIcon.vue";
@@ -26,13 +23,10 @@ const props = defineProps({
   },
 });
 
-const activityStore = useActivityStore();
 const dataStore = useDataStore();
-const itemsStore = useItemsStore();
-const playerStore = usePlayerStore();
 const settingsStore = useSettingsStore();
 const { gearSettings } = storeToRefs(settingsStore);
-const { checkRequirements } = useRequirements();
+const { checkRequirements, mapRequirementsText } = useRequirements();
 const isOpen = ref(gearSettings.value.openStatRequirements.value);
 
 const storeStat = computed(
@@ -58,122 +52,7 @@ const statActive = computed(() => {
 });
 
 const reqs = computed(() =>
-  props.requirements.map((req, idx) => {
-    const { type, opposite, requirement } = req;
-    let out;
-    if (type === "mainSkill") {
-      const skill = playerStore.skillsMap[requirement.skill];
-      out = {
-        prefix: `While${opposite ? " NOT" : ""}`,
-        text: skill.name,
-        icon: skill.icon,
-      };
-    } else if (type === "traveling") {
-      out = {
-        prefix: `While${opposite ? " NOT" : ""}`,
-        text: "Traveling",
-        icon: "",
-      };
-    } else if (type === "locationHasKeywords") {
-      out = requirement.keywords
-        .map(dataStore.getKeywordById)
-        .filter(Boolean)
-        .map(({ name, icon }) => ({
-          prefix: `While${opposite ? " NOT" : ""} in`,
-          text: `${name} location`,
-          icon,
-        }))[0];
-    } else if (type === "realm") {
-      const realm = playerStore.factionsMap[requirement.realm];
-      out = {
-        prefix: `While${opposite ? " NOT" : ""} in`,
-        text: `${realm.name} area`,
-        icon: realm.icon,
-      };
-    } else if (type === "distinctKeywordItemsEquipped") {
-      const { quantity } = requirement;
-      out = requirement.keywords
-        .map(dataStore.getKeywordById)
-        .filter(Boolean)
-        .map(({ name, icon }) => ({
-          prefix: `While${opposite ? " NOT" : ""} wearing ${quantity}`,
-          text: name,
-          icon,
-        }))[0];
-    } else if (type === "achievementPoint") {
-      out = {
-        prefix: "Have",
-        text: `${requirement.value} achievement points`,
-        icon: "assets/icons/text/general_icons/achievement_point.png",
-      };
-    } else if (type === "historyData") {
-      if (requirement.category === "stepsWalkedActivity") {
-        // Not used anymore
-        const activity = activityStore.activitiesMap[requirement.data];
-        out = {
-          prefix: `Have taken ${requirement.value} steps on the`,
-          text: `${activity.name} activity`,
-          icon: activity.icon,
-        };
-      } else if (requirement.category === "actionCompleted") {
-        const activity = activityStore.activitiesMap[requirement.data];
-        out = {
-          prefix: `Have completed`,
-          text: `${activity.name} activity ${requirement.value} times`,
-          icon: activity.icon,
-        };
-      }
-    } else if (type === "skillLevel") {
-      const skill = playerStore.skillsMap[requirement.skill];
-      out = {
-        prefix: `While at least ${requirement.level}`,
-        text: skill.name,
-        icon: skill.icon,
-      };
-    } else if (type === "totalSkillLevelUps") {
-      const skillLevels = Object.values(playerStore.skillLevels).reduce(
-        (a, b) => a + b - 1,
-        0
-      );
-
-      out = {
-        text: `Level up your skills ${Math.min(
-          skillLevels,
-          requirement.levels
-        )}/${requirement.levels} times`,
-      };
-    } else if (type === "activityType") {
-      const activity = activityStore.activitiesMap[requirement.activity];
-      if (activity) {
-        out = {
-          prefix: `While${opposite ? " NOT" : ""} doing`,
-          text: `${activity.name} activity`,
-          icon: activity.icon,
-        };
-      }
-    } else if (type === "itemAnywhere") {
-      const { item: itemID } = requirement;
-      const item = itemsStore.allItems[itemID];
-      if (item) {
-        out = {
-          prefix: `Own a`,
-          text: item.name,
-          icon: item.icon,
-        };
-      }
-    }
-    if (out) {
-      const active = requirementsActive.value[idx];
-      return {
-        ...out,
-        active,
-      };
-    }
-    return {
-      text: requirement,
-      icon: "",
-    };
-  })
+  mapRequirementsText(props.requirements, requirementsActive.value)
 );
 
 const toggle = () => {

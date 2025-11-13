@@ -7,11 +7,13 @@ import WsIcon from "../common/WsIcon.vue";
 import { usePlayerStore } from "@/store/player";
 import { useRouteStore } from "@/store/route";
 import { useRoutes } from "@/composables/useRoutes";
+import { useRequirements } from "@/composables/useRequirements";
 import { n } from "@/utils/number";
 
 const playerStore = usePlayerStore();
 const routeStore = useRouteStore();
 const { getRoute, averageStepsPerRoute, stepsPerNode } = useRoutes();
+const { checkRequirements, mapRequirementsText } = useRequirements();
 
 const start = computed({
   get: () => routeStore.start,
@@ -164,6 +166,24 @@ const statsRow = computed(() => {
   };
 });
 
+const reqs = computed(() => {
+  const segmentRequirements = segments.value.map(
+    ({ requirements, context }) => {
+      return { requirements, context };
+    }
+  );
+  const requirementsActive = segmentRequirements.map(
+    ({ requirements, context }) =>
+      requirements.map((reqs) => checkRequirements([reqs], context))
+  );
+
+  return segmentRequirements.map(({ requirements }, idx) => {
+    if (requirements.length) {
+      return mapRequirementsText(requirements, requirementsActive[idx]);
+    } else return [];
+  });
+});
+
 const updateStart = (location) => {
   if (location.value === "None") start.value = null;
   else start.value = location;
@@ -216,7 +236,7 @@ const updateEnd = (location) => {
       </div>
 
       <div v-if="segments.length" class="routes">
-        <div v-for="route in segments" :key="route[0]" class="segment">
+        <div v-for="(route, idx) in segments" :key="route[0]" class="segment">
           <p class="route-text">
             <ws-icon :icon-path="route.from.icon" size="xs" />
             <span
@@ -236,12 +256,25 @@ const updateEnd = (location) => {
               {{ route.to.name }}</span
             >
           </p>
-          <component
-            v-for="(item, idx) in stats(route).items"
-            :is="InfoBubble"
-            v-bind="item"
-            :key="`route-${route.to.name}-${idx}`"
-          />
+          <div v-if="reqs[idx]">
+            <p
+              v-for="({ prefix, text, icon }, idx) in reqs[idx]"
+              :key="`${idx}-${text}`"
+              class="requirement"
+            >
+              <template v-if="prefix">{{ prefix }} </template>
+              <ws-icon v-if="icon" :iconPath="icon" size="sm" />
+              <span>{{ text }}</span>
+            </p>
+          </div>
+          <div class="components">
+            <component
+              v-for="(item, idx) in stats(route).items"
+              :is="InfoBubble"
+              v-bind="item"
+              :key="`route-${route.to.name}-${idx}`"
+            />
+          </div>
         </div>
       </div>
     </section>
@@ -267,8 +300,17 @@ const updateEnd = (location) => {
 
 .segment {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: $xs;
+  border: 1px solid $boxDarkOutline;
+  border-radius: $md;
+
+  .components {
+    display: flex;
+    align-items: center;
+    gap: $xs;
+  }
 }
 
 .route-text {
@@ -281,6 +323,7 @@ const updateEnd = (location) => {
   width: 100%;
   display: flex;
   gap: $lg;
+  flex-wrap: wrap;
 
   .wrapper {
     width: 100%;
@@ -359,6 +402,29 @@ const updateEnd = (location) => {
     display: flex;
     flex-wrap: wrap;
     gap: $md;
+  }
+}
+
+.requirement {
+  display: flex;
+  justify-content: flex-start;
+  text-align: left;
+  align-items: center;
+  padding: $xxxxs $xs;
+  gap: $xxs;
+  border-radius: $lg;
+  flex-wrap: wrap;
+  color: $txLighter;
+
+  background-color: $boxDarkBackground;
+  border: 1px solid $boxDarkOutline;
+
+  ws-icon {
+    display: inline;
+  }
+
+  &.disabled {
+    color: $txDarker;
   }
 }
 </style>
