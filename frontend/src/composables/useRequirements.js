@@ -4,6 +4,7 @@ import { useGearStore } from "@/store/gear";
 import { usePlayerStore } from "@/store/player";
 import { useItemsStore } from "@/store/items";
 import { useRouteStore } from "@/store/route";
+import { useDataStore } from "@/store/data";
 
 export function useRequirements() {
   const activity = useActivityStore();
@@ -11,6 +12,7 @@ export function useRequirements() {
   const player = usePlayerStore();
   const items = useItemsStore();
   const route = useRouteStore();
+  const data = useDataStore();
 
   const getRequirementsContext = () => {
     return {
@@ -142,8 +144,128 @@ export function useRequirements() {
     return opposite ? !value : value;
   };
 
+  const mapRequirementsText = (requirements, requirementsActive) => {
+    return requirements.map((req, idx) => {
+      const { type, opposite, requirement } = req;
+      let out;
+      if (type === "mainSkill") {
+        const skill = player.skillsMap[requirement.skill];
+        out = {
+          prefix: `While${opposite ? " NOT" : ""}`,
+          text: skill.name,
+          icon: skill.icon,
+        };
+      } else if (type === "traveling") {
+        out = {
+          prefix: `While${opposite ? " NOT" : ""}`,
+          text: "Traveling",
+          icon: "",
+        };
+      } else if (type === "locationHasKeywords") {
+        out = requirement.keywords
+          .map(data.getKeywordById)
+          .filter(Boolean)
+          .map(({ name, icon }) => ({
+            prefix: `While${opposite ? " NOT" : ""} in`,
+            text: `${name} location`,
+            icon,
+          }))[0];
+      } else if (type === "realm") {
+        const realm = player.factionsMap[requirement.realm];
+        out = {
+          prefix: `While${opposite ? " NOT" : ""} in`,
+          text: `${realm.name} area`,
+          icon: realm.icon,
+        };
+      } else if (type === "distinctKeywordItemsEquipped") {
+        const { quantity } = requirement;
+        out = requirement.keywords
+          .map(data.getKeywordById)
+          .filter(Boolean)
+          .map(({ name, icon }) => ({
+            prefix: `While${opposite ? " NOT" : ""} wearing ${quantity}`,
+            text: name,
+            icon,
+          }))[0];
+      } else if (type === "achievementPoint") {
+        out = {
+          prefix: "Have",
+          text: `${requirement.value} achievement points`,
+          icon: "assets/icons/text/general_icons/achievement_point.png",
+        };
+      } else if (type === "historyData") {
+        if (requirement.category === "stepsWalkedActivity") {
+          // Not used anymore
+          const activity = activity.activitiesMap[requirement.data];
+          out = {
+            prefix: `Have taken ${requirement.value} steps on the`,
+            text: `${activity.name} activity`,
+            icon: activity.icon,
+          };
+        } else if (requirement.category === "actionCompleted") {
+          const activity = activity.activitiesMap[requirement.data];
+          out = {
+            prefix: `Have completed`,
+            text: `${activity.name} activity ${requirement.value} times`,
+            icon: activity.icon,
+          };
+        }
+      } else if (type === "skillLevel") {
+        const skill = player.skillsMap[requirement.skill];
+        out = {
+          prefix: `While at least ${requirement.level}`,
+          text: skill.name,
+          icon: skill.icon,
+        };
+      } else if (type === "totalSkillLevelUps") {
+        const skillLevels = Object.values(player.skillLevels).reduce(
+          (a, b) => a + b - 1,
+          0
+        );
+
+        out = {
+          text: `Level up your skills ${Math.min(
+            skillLevels,
+            requirement.levels
+          )}/${requirement.levels} times`,
+        };
+      } else if (type === "activityType") {
+        const activity = activity.activitiesMap[requirement.activity];
+        if (activity) {
+          out = {
+            prefix: `While${opposite ? " NOT" : ""} doing`,
+            text: `${activity.name} activity`,
+            icon: activity.icon,
+          };
+        }
+      } else if (type === "itemAnywhere" || type === "itemAnywhereWithYou") {
+        const { item: itemID } = requirement;
+        const item = items.allItems[itemID];
+        if (item) {
+          out = {
+            prefix: `Own a`,
+            text: item.name,
+            icon: item.icon,
+          };
+        }
+      }
+      if (out) {
+        const active = requirementsActive[idx];
+        return {
+          ...out,
+          active,
+        };
+      }
+      return {
+        text: requirement,
+        icon: "",
+      };
+    });
+  };
+
   return {
     getRequirementsContext,
     checkRequirements,
+    mapRequirementsText,
   };
 }
