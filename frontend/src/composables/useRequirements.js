@@ -31,7 +31,7 @@ export function useRequirements() {
     const baseData = getRequirementsContext();
     const data = {
       activity: context.activity || baseData.activity,
-      recipe: context.recipe || baseData.receipe,
+      recipe: context.recipe || baseData.recipe,
       location: context.location || baseData.location,
       achievementPoints:
         context.achievementPoints || baseData.achievementPoints,
@@ -67,6 +67,7 @@ export function useRequirements() {
     let value = false;
     switch (type) {
       case "mainSkill":
+        console.log(activity, recipe, requirement.skill);
         if (activity)
           value = activity.relatedSkillsList[0] === requirement.skill;
         if (recipe) value = recipe.relatedSkills[0] === requirement.skill;
