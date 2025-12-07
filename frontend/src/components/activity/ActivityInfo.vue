@@ -10,6 +10,7 @@ import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
 import { usePlayerStore } from "@/store/player";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
+import { useRequirements } from "@/composables/useRequirements";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
 
@@ -28,6 +29,8 @@ const {
   xpRewards,
   xpPerStep,
 } = useSkillModifiers();
+
+const { getLevelRequirementsMap } = useRequirements()
 
 const borderClass = computed(
   () => `border-${activityStore.activity?.relatedSkillsList[0]}`
@@ -57,11 +60,11 @@ const sections = computed(() => {
   const {
     id,
     workRequired,
-    levelRequirementsMap,
     requiredKeywords,
     requirements,
     rewards,
   } = activityStore.activity;
+  const levelRequirementsMap = getLevelRequirementsMap(requirements);
 
   const isTravel = id === "travelling";
   const showRewards = rewards && rewards.length > 0;

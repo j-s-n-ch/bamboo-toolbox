@@ -5,7 +5,6 @@ export const activityNone = {
   value: "None",
   keywords: [],
   relatedSkillsList: [],
-  levelRequirementsMap: null,
   requiredKeywords: null,
   xpRewardsMap: null,
   workRequired: null,

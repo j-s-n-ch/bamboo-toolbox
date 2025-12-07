@@ -2,21 +2,16 @@ import { computed } from "vue";
 import { useActivityStore } from "@/store/activity";
 import { usePlayerStore } from "@/store/player";
 import { useItemsStore } from "@/store/items";
+import { useRequirements } from "./useRequirements";
 
 export function useLevelBonus() {
   const activityStore = useActivityStore();
   const playerStore = usePlayerStore();
   const itemStore = useItemsStore();
+  const { getLevelRequirementsMap } = useRequirements();
 
-  const activityLevelRequirement = (activity, skill) =>
-    activity?.levelRequirementsMap?.[skill] || 1;
-
-  const recipeLevelRequirement = (recipe) => {
-    const [{ level }] = recipe.requirements
-      .map(({ requirement }) => requirement)
-      .filter(({ runtimeType }) => runtimeType === "skillLevel");
-    return level || 1;
-  };
+  const getLevelRequirement = (activity, skill) => 
+    getLevelRequirementsMap(activity.requirements)?.[skill] || 1
 
   const workEfficiencyBonus = computed(() => {
     if (!activityStore.activitySelected && !activityStore.recipeSelected)
@@ -28,9 +23,7 @@ export function useLevelBonus() {
     const [skill] = isActivity
       ? activity.relatedSkillsList
       : activity.relatedSkills;
-    const levelRequirement = isActivity
-      ? activityLevelRequirement(activity, skill)
-      : recipeLevelRequirement(activity);
+    const levelRequirement = getLevelRequirement(activity, skill);
     const playerLevel = playerStore.skillLevels[skill] || 1;
 
     const levelDiff = isTravelling

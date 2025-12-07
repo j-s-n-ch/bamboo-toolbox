@@ -263,9 +263,20 @@ export function useRequirements() {
     });
   };
 
+  const getLevelRequirementsMap = (requirements) => {
+    const map = {};
+    requirements.forEach(({ type, requirement }) => {
+      if (type !== "skillLevel") return;
+      const { level, skill } = requirement;
+      map[skill] = level
+    });
+    return map
+  };
+
   return {
     getRequirementsContext,
     checkRequirements,
     mapRequirementsText,
+    getLevelRequirementsMap,
   };
 }
