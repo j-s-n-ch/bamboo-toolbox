@@ -71,6 +71,16 @@ export function useRequirements() {
           value = activity.relatedSkillsList[0] === requirement.skill;
         if (recipe) value = recipe.relatedSkills[0] === requirement.skill;
         break;
+      case "mainSkillType":
+        if (activity)
+          value =
+            player.skillsMap[activity.relatedSkillsList[0]].type ==
+            requirement.type;
+        if (recipe)
+          value =
+            player.skillsMap[activity.relatedSkills[0]].type ==
+            requirement.type;
+        break;
       case "locationHasKeywords":
         if (location)
           value =
@@ -154,6 +164,12 @@ export function useRequirements() {
           prefix: `While${opposite ? " NOT" : ""}`,
           text: skill.name,
           icon: skill.icon,
+        };
+      } else if (type == "mainSkillType") {
+        out = {
+          prefix: `While${opposite ? " NOT" : ""} doing`,
+          text: `${requirement.type} skills`,
+          icon: "",
         };
       } else if (type === "traveling") {
         out = {
@@ -268,9 +284,9 @@ export function useRequirements() {
     requirements.forEach(({ type, requirement }) => {
       if (type !== "skillLevel") return;
       const { level, skill } = requirement;
-      map[skill] = level
+      map[skill] = level;
     });
-    return map
+    return map;
   };
 
   return {
