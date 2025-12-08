@@ -204,7 +204,6 @@ details[open] summary {
 .sections {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: $xxxlg;
 }
 
