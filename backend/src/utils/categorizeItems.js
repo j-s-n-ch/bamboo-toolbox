@@ -8,6 +8,7 @@ export function categorizeItems(data) {
     containers,
     consumables,
     chestItems,
+    craftingRecipes,
     ...sourceInfo
   } = data;
 
@@ -25,7 +26,7 @@ export function categorizeItems(data) {
   categoryGroups.push({ title: "Chests", categories: chestCategories });
   categoryGroups.push({
     title: "Crafted",
-    categories: resolveCraftedCategories(crafted),
+    categories: resolveCraftedCategories(crafted, craftingRecipes, loot),
   });
   categoryGroups.splice(1, 0, {
     title: "Consumables",
@@ -164,7 +165,7 @@ const resolveChestCategories = (loot, chestTables, containers) => {
   return { chestCategories: chestTableCategories };
 };
 
-const resolveCraftedCategories = (crafted) => {
+const resolveCraftedCategories = (crafted, craftingRecipes, loot) => {
   const categories = [
     { suffix: "hatchets", keyword: "hatchet" },
     { suffix: "pickaxes", keyword: "pickaxe" },
@@ -191,6 +192,15 @@ const resolveCraftedCategories = (crafted) => {
       ),
     };
   });
+
+  const upgraded = resolveUpgradedItems(crafted, craftingRecipes, loot);
+  if (upgraded.length)
+    categories.push({
+      title: "Upgraded Items",
+      key: "upgraded_crafted",
+      qualities: 1,
+      items: upgraded,
+    });
 
   const miscCraftedItems = resolveMiscItems(crafted, categories);
   if (miscCraftedItems.length)
@@ -245,4 +255,19 @@ const resolveMiscItems = (source, categories) => {
     categories.flatMap(({ items }) => items.map(({ id }) => id))
   );
   return source.filter(({ id }) => !resolvedItemIds.has(id));
+};
+
+const resolveUpgradedItems = (source, craftingRecipes, loot) => {
+  const lootIdMap = Object.fromEntries(loot.map(({ id }) => [id, true]));
+
+  const upgradedItems = new Set(
+    craftingRecipes
+      .map(({ itemRewards, materials }) => [
+        Object.keys(itemRewards)[0],
+        materials.flatMap(({ options }) => options.flatMap(({ item }) => item)),
+      ])
+      .filter(([_, materials]) => materials.some((item) => item in lootIdMap))
+      .map(([id, _]) => id)
+  );
+  return source.filter(({ id }) => upgradedItems.has(id));
 };
