@@ -67,7 +67,7 @@ export function useLevelBonus() {
       return null;
 
     const [skill] = recipe.relatedSkills;
-    const levelRequirement = recipeLevelRequirement(recipe);
+    const levelRequirement = getLevelRequirement(recipe);
     const playerLevel = playerStore.skillLevels[skill] || 1;
     const value = Math.max(playerLevel - levelRequirement, 0);
 
