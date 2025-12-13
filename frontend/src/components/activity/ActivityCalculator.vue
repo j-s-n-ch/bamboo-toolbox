@@ -3,10 +3,12 @@ import { ref, computed, reactive, watchEffect } from "vue";
 import { storeToRefs } from "pinia";
 import { useActivityStore } from "@/store/activity";
 import { usePlayerStore } from "@/store/player";
+import { useItemsStore } from "@/store/items";
 import IconInputBubble from "../common/IconInputBubble.vue";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import WsIcon from "@/components/common/WsIcon.vue";
 import WsLabel from "@/components/common/WsLabel.vue";
+import CalculatorQualityOutcomeTable from "./CalculatorQualityOutcomeTable.vue";
 import { levelFromXp, xpToLevelSkill } from "@/utils/skillXp";
 
 const {
@@ -17,6 +19,7 @@ const {
   doubleRewards,
 } = useSkillModifiers();
 const playerStore = usePlayerStore();
+const itemsStore = useItemsStore();
 
 const activityStore = useActivityStore();
 const { activity, recipe, activitySelected, recipeSelected } =
@@ -51,6 +54,17 @@ const materialsOutput = computed({
   set: (val) => {
     actions.value = val / (1 + doubleRewards.value);
   },
+});
+
+const resultHasCO = computed(() => {
+  if (recipeSelected.value) {
+    const [itemId] = Object.keys(recipe.value.itemRewards);
+    return (
+      itemId in itemsStore.allItems &&
+      itemsStore.allItems[itemId].type === "crafted"
+    );
+  }
+  return false;
 });
 
 const skillXpStartRefs = reactive({});
@@ -213,6 +227,9 @@ watchEffect(() => {
             @input="(val) => (skillLevelEndRefs[skill] = val)"
           />
         </div>
+      </div>
+      <div v-if="resultHasCO">
+        <calculator-quality-outcome-table :crafts="materialsOutput" />
       </div>
     </section>
   </details>
