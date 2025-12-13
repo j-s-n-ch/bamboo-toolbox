@@ -95,8 +95,8 @@ export function useRoutes() {
     const [from, to] = locations;
     const dist = Math.floor(distance * distanceModifier);
 
-    addRoute(from, to, dist, getTerrainModifier(from, options));
-    addRoute(to, from, dist, getTerrainModifier(to, options));
+    addRoute(from, to, dist, getTerrainModifier(from, options || []));
+    addRoute(to, from, dist, getTerrainModifier(to, options || []));
   });
 
   const getRoute = (start, goal) => {
