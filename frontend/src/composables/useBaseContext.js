@@ -16,13 +16,13 @@ function useBaseContext() {
     activitySelected: computed(() => activityStore.activitySelected),
     recipeSelected: computed(() => activityStore.recipeSelected),
 
-    activity: computed(
-      () => activityStore.activitySelected && activityStore.activity
+    activity: computed(() =>
+      activityStore.activitySelected ? activityStore.activity : null
     ),
-    recipe: computed(
-      () => activityStore.recipeSelected && activityStore.recipe
+    recipe: computed(() =>
+      activityStore.recipeSelected ? activityStore.recipe : null
     ),
-    location: computed(() => activityStore.location),
+    location: computed(() => activityStore.activity.location),
 
     skillLevels: computed(() => playerStore.skillLevels),
     achievementPoints: computed(() => playerStore.achievementPoints),
