@@ -78,7 +78,7 @@ export function useRequirements() {
             requirement.type;
         if (recipe)
           value =
-            player.skillsMap[activity.relatedSkills[0]].type ==
+            player.skillsMap[recipe.relatedSkills[0]].type ==
             requirement.type;
         break;
       case "locationHasKeywords":
