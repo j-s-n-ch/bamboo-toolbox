@@ -22,6 +22,11 @@ function useBaseContext() {
     recipe: computed(() =>
       activityStore.recipeSelected ? activityStore.recipe : null
     ),
+    source: computed(() => {
+      if (activityStore.activitySelected) return activityStore.activity;
+      if (activityStore.recipeSelected) return activityStore.recipe;
+      return null;
+    }),
     location: computed(() => activityStore.location),
     service: computed(() => activityStore.service),
 

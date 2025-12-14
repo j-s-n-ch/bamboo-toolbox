@@ -20,6 +20,7 @@ const activityStore = useActivityStore();
 const dataStore = useDataStore();
 const playerStore = usePlayerStore();
 
+const ctx = useBaseContext();
 const {
   maxWorkEfficiency,
   workEfficiency,
@@ -30,9 +31,8 @@ const {
   stepsPerCompletion,
   xpRewards,
   xpPerStep,
-} = useSkillModifiers();
+} = useSkillModifiers(ctx);
 
-const ctx = useBaseContext();
 const { getLevelRequirementsMap } = useRequirements(ctx);
 
 const borderClass = computed(

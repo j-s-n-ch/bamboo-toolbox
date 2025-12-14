@@ -10,6 +10,7 @@ import WikiButton from "@/components/common/WikiButton.vue";
 import QualityOutcomeTable from "./QualityOutcomeTable.vue";
 import { useActivityStore } from "@/store/activity";
 import { useItemsStore } from "@/store/items";
+import useBaseContext from "@/composables/useBaseContext";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
@@ -19,6 +20,7 @@ const itemsStore = useItemsStore();
 const useFineMaterials = ref(false);
 
 const { recipe } = storeToRefs(activityStore);
+const ctx = useBaseContext();
 const stats = computed(() => {
   const {
     maxWorkEfficiency,
@@ -32,7 +34,7 @@ const stats = computed(() => {
     craftsPerMaterial,
     xpRewards,
     xpPerStep,
-  } = useSkillModifiers();
+  } = useSkillModifiers(ctx);
 
   const xpRewardsMultiplier = useFineMaterials.value ? 1.5 : 1;
 

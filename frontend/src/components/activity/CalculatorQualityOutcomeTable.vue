@@ -19,6 +19,7 @@ const itemsStore = useItemsStore();
 const { recipe } = storeToRefs(activityStore);
 const ctx = useBaseContext();
 const { getLevelRequirementsMap } = useRequirements(ctx);
+const { qualityOutcome } = useSkillModifiers(ctx);
 const useFineMaterials = ref(false);
 
 const canUseFineMaterials = computed(() => {
@@ -32,8 +33,6 @@ const canUseFineMaterials = computed(() => {
 const craftingOdds = computed(() => {
   const levelMap = getLevelRequirementsMap(recipe.value.requirements);
   const level = Object.values(levelMap)[0];
-
-  const { qualityOutcome } = useSkillModifiers();
 
   const odds = getOutcomeOdds(
     level,
