@@ -13,16 +13,19 @@ function useBaseContext() {
   const routeStore = useRouteStore();
 
   return {
-    activitySelected: computed(() => activityStore.activitySelected),
-    recipeSelected: computed(() => activityStore.recipeSelected),
+    // Getters
+    activitySelected: activityStore.activitySelected,
+    recipeSelected: activityStore.recipeSelected,
+    equippedGear: gearStore.equippedGear,
 
+    // State
     activity: computed(() =>
       activityStore.activitySelected ? activityStore.activity : null
     ),
     recipe: computed(() =>
       activityStore.recipeSelected ? activityStore.recipe : null
     ),
-    location: computed(() => activityStore.activity.location),
+    location: computed(() => activityStore.activity?.location || null),
 
     skillLevels: computed(() => playerStore.skillLevels),
     achievementPoints: computed(() => playerStore.achievementPoints),
@@ -31,7 +34,6 @@ function useBaseContext() {
     items: computed(() => itemsStore.allItems),
 
     gearSlots: computed(() => gearStore.gearSlots),
-    equippedGear: computed(() => gearStore.equippedGear),
 
     segments: computed(() => routeStore.segments),
   };

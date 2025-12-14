@@ -20,8 +20,8 @@ export function useRequirements(ctx) {
   const checkRequirement = (req, context) => {
     const { type, opposite, requirement } = req;
 
-    const equippedKeywordCounts = context.equippedGear.value
-      ? context.equippedGear.value
+    const equippedKeywordCounts = context.equippedGear
+      ? context.equippedGear
           .flatMap(({ keywords }) => keywords)
           .reduce((acc, val) => {
             acc[val] = (acc[val] || 0) + 1;
@@ -51,8 +51,8 @@ export function useRequirements(ctx) {
       case "locationHasKeywords":
         if (context.location.value)
           value =
-            intersect(context.location.value.keywords, requirement.keywords).length ===
-            requirement.keywords.length;
+            intersect(context.location.value.keywords, requirement.keywords)
+              .length === requirement.keywords.length;
         if (!context.location.value && context.activity.value) {
           const locationKeywords = context.segments.value.map(
             ({ from }) => from.keywords
