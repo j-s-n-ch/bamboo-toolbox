@@ -18,8 +18,8 @@ export function useEffectiveAttrs(ctx) {
   });
 
   const allEquippedItems = computed(() => {
-    const owned = ctx.ownedItems;
-    const gearSet = ctx.equippedGear;
+    const owned = ctx.ownedItems.value;
+    const gearSet = ctx.equippedGear.value;
 
     const ownedCollectibles = collectibleIds.value.filter(
       ({ id }) => id in owned
@@ -45,7 +45,7 @@ export function useEffectiveAttrs(ctx) {
   });
 
   const equippedKeywords = computed(() => {
-    const gearSet = ctx.equippedGear;
+    const gearSet = ctx.equippedGear.value;
     return gearSet
       .flatMap(({ keywords }) => keywords)
       .reduce((acc, val) => {

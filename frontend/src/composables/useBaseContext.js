@@ -13,12 +13,9 @@ function useBaseContext() {
   const routeStore = useRouteStore();
 
   return {
-    // Getters
-    activitySelected: activityStore.activitySelected,
-    recipeSelected: activityStore.recipeSelected,
-    equippedGear: gearStore.equippedGear,
+    activitySelected: computed(() => activityStore.activitySelected),
+    recipeSelected: computed(() => activityStore.recipeSelected),
 
-    // State
     activity: computed(() =>
       activityStore.activitySelected ? activityStore.activity : null
     ),
@@ -37,6 +34,7 @@ function useBaseContext() {
     ownedItems: computed(() => itemsStore.ownedItems),
 
     gearSlots: computed(() => gearStore.gearSlots),
+    equippedGear: computed(() => gearStore.equippedGear),
 
     segments: computed(() => routeStore.segments),
   };

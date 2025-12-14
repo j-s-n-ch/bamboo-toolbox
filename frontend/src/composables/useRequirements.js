@@ -20,8 +20,8 @@ export function useRequirements(ctx) {
   const checkRequirement = (req, context) => {
     const { type, opposite, requirement } = req;
 
-    const equippedKeywordCounts = context.equippedGear
-      ? context.equippedGear
+    const equippedKeywordCounts = context.equippedGear.value
+      ? context.equippedGear.value
           .flatMap(({ keywords }) => keywords)
           .reduce((acc, val) => {
             acc[val] = (acc[val] || 0) + 1;

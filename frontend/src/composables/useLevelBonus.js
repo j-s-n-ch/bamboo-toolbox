@@ -8,9 +8,9 @@ export function useLevelBonus(ctx) {
     getLevelRequirementsMap(activity.requirements)?.[skill] || 1;
 
   const workEfficiencyBonus = computed(() => {
-    if (!ctx.activitySelected && !ctx.recipeSelected) return null;
+    if (!ctx.activitySelected.value && !ctx.recipeSelected.value) return null;
 
-    const activity = ctx.activitySelected
+    const activity = ctx.activitySelected.value
       ? ctx.activity.value
       : ctx.recipe.value;
 
@@ -18,7 +18,7 @@ export function useLevelBonus(ctx) {
 
     const isTravelling = activity.id === "travelling";
 
-    const [skill] = ctx.activitySelected
+    const [skill] = ctx.activitySelected.value
       ? activity.relatedSkillsList
       : activity.relatedSkills;
 
