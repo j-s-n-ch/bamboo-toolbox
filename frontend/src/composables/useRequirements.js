@@ -110,6 +110,11 @@ export function useRequirements(ctx) {
         if (context.activity.value)
           value = context.activity.value.id === requirement.activity;
         break;
+      case "totalSkillLevel":
+        value =
+          Object.values(playerStore.skillLevels).reduce((a, b) => a + b, 0) >=
+          requirement.levels;
+        break;
       case "totalSkillLevelUps":
         value =
           Object.values(playerStore.skillLevels).reduce(
@@ -206,6 +211,17 @@ export function useRequirements(ctx) {
           prefix: `While at least ${requirement.level}`,
           text: skill.name,
           icon: skill.icon,
+        };
+      } else if (type === "totalSkilllevel") {
+        const skillLevels = Object.values(playerStore.skillLevels).reduce(
+          (a, b) => a + b,
+          0
+        );
+
+        out = {
+          text: `Have ${Math.min(skillLevels, requirement.levels)}/${
+            requirement.levels
+          } total level`,
         };
       } else if (type === "totalSkillLevelUps") {
         const skillLevels = Object.values(playerStore.skillLevels).reduce(
