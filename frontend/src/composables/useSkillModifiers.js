@@ -1,17 +1,8 @@
 import { computed } from "vue";
 import { useEffectiveAttrs } from "./useEffectiveAttrs";
-import { useActivityStore } from "../store/activity";
 
-export function useSkillModifiers(totals = {}) {
-  const activityStore = useActivityStore();
-  const { totalsByStat } = useEffectiveAttrs();
-
-  const isActivity = computed(() => activityStore.activitySelected);
-  const activity = computed(() => {
-    if (!activityStore.activitySelected && !activityStore.recipeSelected)
-      return null;
-    return isActivity.value ? activityStore.activity : activityStore.recipe;
-  });
+export function useSkillModifiers(ctx, totals = {}) {
+  const { totalsByStat } = useEffectiveAttrs(ctx);
 
   const getStat = (stat, key = "percent") => {
     const source = { ...totalsByStat.value, ...totals };
@@ -23,11 +14,11 @@ export function useSkillModifiers(totals = {}) {
   };
 
   const maxWorkEfficiency = computed(() => {
-    return activity.value?.maxWorkEfficiency || 1;
+    return ctx.source.value?.maxWorkEfficiency || 1;
   });
 
   const effectiveMaxWorkEfficiency = computed(() => {
-    const { workRequired } = activity.value || 1;
+    const { workRequired } = ctx.source.value || 1;
     const minSteps = Math.ceil(workRequired / maxWorkEfficiency.value);
     return workRequired / minSteps;
   });
@@ -94,7 +85,7 @@ export function useSkillModifiers(totals = {}) {
   });
 
   const uncappedStepsPerCompletion = computed(() => {
-    const { workRequired } = activity.value || 0;
+    const { workRequired } = ctx.source.value || 0;
     if (!workRequired) return 0;
     return (
       Math.ceil(
@@ -120,9 +111,9 @@ export function useSkillModifiers(totals = {}) {
   });
 
   const xpRewards = computed(() => {
-    const xpRewardsMap = isActivity.value
-      ? activity.value.xpRewardsMap
-      : activity.value.xpRewards;
+    const xpRewardsMap = ctx.activitySelected.value
+      ? ctx.source.value.xpRewardsMap
+      : ctx.source.value.xpRewards;
     if (!xpRewardsMap) return {};
 
     const xpRewardsArr = Object.entries(xpRewardsMap).map(([skill, base]) => {

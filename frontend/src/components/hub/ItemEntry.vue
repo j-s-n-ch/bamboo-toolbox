@@ -17,6 +17,7 @@ const defaultQuality = qualityOptions[0].value;
 const itemsStore = useItemsStore();
 const isOwned = ref(false);
 const isHidden = ref(false);
+const isQuarantined = ref(false);
 const quality = ref("");
 const quality2 = ref("");
 const isOpen = ref(false);
@@ -24,6 +25,7 @@ const isOpen = ref(false);
 onMounted(() => {
   const entry = itemsStore.ownedItems[props.item.id];
   const isCrafted = props.item?.type === "crafted";
+  isQuarantined.value = props.item?.quarantined;
 
   if (!entry) {
     isOwned.value = false;
@@ -72,12 +74,6 @@ function emitChange(overrides = {}) {
   });
 }
 
-const toggleChecked = (e) => {
-  e.stopPropagation();
-  isOwned.value = !isOwned.value;
-  emitChange({ owned: isOwned.value });
-};
-
 const toggleHidden = (e) => {
   e.stopPropagation();
   isHidden.value = !isHidden.value;
@@ -98,18 +94,41 @@ const qualityInputs = computed(() => {
   if (props.qualities === 2) arr.push({ model: quality2, label: "q2" });
   return arr;
 });
+
+const hideQuarantine = computed(() => {
+  return isQuarantined.value && !isOwned.value;
+});
+
+const toggleChecked = (e) => {
+  e.stopPropagation();
+  if (!hideQuarantine.value) {
+    isOwned.value = !isOwned.value;
+    emitChange({ owned: isOwned.value });
+  }
+};
 </script>
 
 <template>
   <section class="item">
     <section :class="['item-entry', colorClass, ownedBgClass]">
       <div class="group" @click="toggleChecked">
-        <input type="checkbox" :checked="isOwned" readonly />
-        <ws-icon :iconPath="item.icon" :outline-class="`outline-${quality}`" />
+        <input
+          type="checkbox"
+          :checked="isOwned"
+          :disabled="hideQuarantine"
+          readonly
+        />
+        <ws-icon
+          :iconPath="hideQuarantine ? '' : item.icon"
+          :outline-class="`outline-${quality}`"
+          :key="hideQuarantine ? '' : item.icon"
+        />
 
         <div class="rows">
-          <span :class="`color-${quality}`">{{ item.name }}</span>
-          <div v-if="qualities > 0" class="group">
+          <span :class="`color-${quality}`">{{
+            hideQuarantine ? "Unknown" : item.name
+          }}</span>
+          <div v-if="hideQuarantine ? false : qualities > 0" class="group">
             <template v-for="qInput in qualityInputs" :key="qInput.label">
               <select
                 v-model="qInput.model.value"
@@ -131,7 +150,11 @@ const qualityInputs = computed(() => {
         </div>
       </div>
 
-      <button v-if="hasAttrs" class="toggle" @click="toggleOpen">
+      <button
+        v-if="hideQuarantine ? false : hasAttrs"
+        class="toggle"
+        @click="toggleOpen"
+      >
         {{ isOpen ? "▲" : "▼" }}
       </button>
     </section>

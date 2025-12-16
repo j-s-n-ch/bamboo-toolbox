@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouteStore } from "@/store/route";
 import { usePlayerStore } from "@/store/player";
 import { useRequirements } from "@/composables/useRequirements";
@@ -6,12 +6,11 @@ import { useEffectiveAttrs } from "@/composables/useEffectiveAttrs";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { argbToRgba } from "@/utils/argbToRgba";
 
-export function useRoutes() {
+export function useRoutes(baseContext) {
   const routeStore = useRouteStore();
   const playerStore = usePlayerStore();
-  const { getRequirementsContext, checkRequirements } = useRequirements();
-  const baseContext = getRequirementsContext();
-  const { totalsByStatWithContext } = useEffectiveAttrs();
+  const { checkRequirements } = useRequirements(baseContext);
+  const { totalsByStatWithContext } = useEffectiveAttrs(baseContext);
 
   const graph = ref(new Map());
 
@@ -43,11 +42,14 @@ export function useRoutes() {
   const getRouteContext = (from, route) => {
     return {
       ...baseContext,
-      location: {
-        faction: from.faction,
-        subFactions: from.subFactions,
-      },
-      terrainModifiers: route.requirements,
+      location: computed(() => {
+        return {
+          faction: from.faction,
+          subFactions: from.subFactions,
+          keywords: from.keywords,
+        };
+      }),
+      terrainModifiers: computed(() => route.requirements),
     };
   };
 
@@ -63,7 +65,7 @@ export function useRoutes() {
     const ctx = getRouteContext(from, route);
 
     const statTotals = totalsByStatWithContext(ctx);
-    const skillModifiers = useSkillModifiers(statTotals);
+    const skillModifiers = useSkillModifiers(ctx, statTotals);
     const stats = {
       maxWorkEfficiency: skillModifiers.maxWorkEfficiency.value,
       workEfficiency: skillModifiers.workEfficiency.value,
@@ -82,8 +84,8 @@ export function useRoutes() {
       route,
       context: ctx,
       distance: route.distance,
-      terrainModifiers: ctx.terrainModifiers,
-      requirements: ctx.terrainModifiers.flatMap((tm) =>
+      terrainModifiers: ctx.terrainModifiers.value,
+      requirements: ctx.terrainModifiers.value.flatMap((tm) =>
         tm.flatMap(({ requirements }) => requirements)
       ),
     };
@@ -95,8 +97,8 @@ export function useRoutes() {
     const [from, to] = locations;
     const dist = Math.floor(distance * distanceModifier);
 
-    addRoute(from, to, dist, getTerrainModifier(from, options));
-    addRoute(to, from, dist, getTerrainModifier(to, options));
+    addRoute(from, to, dist, getTerrainModifier(from, options || []));
+    addRoute(to, from, dist, getTerrainModifier(to, options || []));
   });
 
   const getRoute = (start, goal) => {

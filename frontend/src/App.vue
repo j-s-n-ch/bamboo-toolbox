@@ -15,6 +15,7 @@ import Activity from "./components/activity/ActivityTab.vue";
 import Gear from "./components/gear/GearTab.vue";
 import Footer from "./components/footer/FooterNav.vue";
 import About from "./components/about/AboutView.vue";
+import SiteNotice from "./components/about/SiteNotice.vue";
 import LoadingThrobber from "./components/common/LoadingThrobber.vue";
 import WsButton from "./components/common/WsButton.vue";
 import SettingsModal from "./components/settings/SettingsModal.vue";
@@ -166,6 +167,7 @@ onUnmounted(() => {
       @selectTab="scrollToTab"
     />
   </div>
+  <SiteNotice />
   <SettingsModal v-model="showSettings" @update-uuid="handleUuidUpdate" />
   <NotificationContainer />
 
