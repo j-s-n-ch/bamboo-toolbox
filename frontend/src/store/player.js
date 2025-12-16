@@ -40,7 +40,7 @@ export const usePlayerStore = defineStore("playerStore", {
         })
         .sort((a, b) => a.name.localeCompare(b.name));
       this.skillsMap = Object.fromEntries(
-        skills.map(({ id, icon, name }) => [id, { icon, name }])
+        skills.map(({ id, icon, name, type }) => [id, { icon, name, type }])
       );
       this.skillLevels = Object.fromEntries(
         skills.map(({ id }) => [id, playerStats[id] ?? 1])
@@ -48,8 +48,13 @@ export const usePlayerStore = defineStore("playerStore", {
       this.setAchievementPoints(playerStats.achievementPoints ?? 0);
 
       this.factions = factions.sort((a, b) => a.name.localeCompare(b.name));
+      const hiddenReputation = new Set([
+        "wallisiaReputation",
+        "wrentmarkReputation",
+      ]);
       this.reputationFactions = this.factions.filter(
-        ({ reputation }) => reputation !== null
+        ({ reputation }) =>
+          reputation !== null && !hiddenReputation.has(reputation)
       );
       this.factionReputation = Object.fromEntries(
         factions.map(({ reputation }) => [

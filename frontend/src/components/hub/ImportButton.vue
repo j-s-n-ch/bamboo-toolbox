@@ -17,10 +17,16 @@ function handleImportData(data) {
 </script>
 
 <template>
-  <div>
+  <div class="import-wrapper">
     <ws-button text="Import Data" icon-size="md" @click="openModal" />
     <import-modal v-model="showModal" @import-data="handleImportData" />
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.import-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+</style>

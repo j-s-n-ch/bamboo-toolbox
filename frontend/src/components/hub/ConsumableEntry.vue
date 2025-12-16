@@ -17,10 +17,12 @@ const itemsStore = useItemsStore();
 const normalOwned = ref(false);
 const fineOwned = ref(false);
 const isHidden = ref(false);
+const isQuarantined = ref(false);
 const isOpen = ref(false);
 
 function updateOwnedFromStore() {
   const entry = itemsStore.ownedItems[props.item.id];
+  isQuarantined.value = props.item?.quarantined;
   normalOwned.value = !!(
     entry &&
     (entry.quality === normal || entry.quality2 === normal)
@@ -70,11 +72,11 @@ const hasAttrs = computed(() => props.item.buffs.length > 0);
 
 function toggleNormal(e) {
   e.stopPropagation();
-  normalOwned.value = !normalOwned.value;
+  if (hideQuarantine.value) normalOwned.value = !normalOwned.value;
 }
 function toggleFine(e) {
   e.stopPropagation();
-  fineOwned.value = !fineOwned.value;
+  if (hideQuarantine.value) fineOwned.value = !fineOwned.value;
 }
 function toggleHidden(e) {
   e.stopPropagation();
@@ -83,6 +85,9 @@ function toggleHidden(e) {
 const toggleOpen = () => {
   isOpen.value = !isOpen.value;
 };
+const hideQuarantine = computed(() => {
+  return isQuarantined.value && !(normalOwned.value || fineOwned.value);
+});
 </script>
 
 <template>
@@ -95,6 +100,7 @@ const toggleOpen = () => {
             <input
               type="checkbox"
               v-model="normalOwned"
+              :disabled="hideQuarantine"
               @click="toggleNormal"
             />
           </label>
@@ -102,20 +108,29 @@ const toggleOpen = () => {
         <div>
           <label class="color-fine checkbox-item"
             >Fine
-            <input type="checkbox" v-model="fineOwned" @click="toggleFine"
+            <input
+              type="checkbox"
+              v-model="fineOwned"
+              :disabled="hideQuarantine"
+              @click="toggleFine"
           /></label>
         </div>
         <ws-icon
-          :iconPath="item.icon"
+          :iconPath="hideQuarantine ? '' : item.icon"
           :outline-class="fineOwned ? 'outline-fine' : ''"
+          :key="hideQuarantine ? '' : item.icon"
         />
 
         <div class="rows">
-          <span>{{ item.name }}</span>
+          <span>{{ hideQuarantine ? "Unknown" : item.name }}</span>
         </div>
       </div>
 
-      <button class="toggle" v-if="hasAttrs" @click="toggleOpen">
+      <button
+        class="toggle"
+        v-if="hideQuarantine ? false : hasAttrs"
+        @click="toggleOpen"
+      >
         {{ isOpen ? "▲" : "▼" }}
       </button>
     </section>

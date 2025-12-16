@@ -1,41 +1,34 @@
 import { computed } from "vue";
-import { useActivityStore } from "@/store/activity";
-import { usePlayerStore } from "@/store/player";
-import { useItemsStore } from "@/store/items";
+import { useRequirements } from "./useRequirements";
 
-export function useLevelBonus() {
-  const activityStore = useActivityStore();
-  const playerStore = usePlayerStore();
-  const itemStore = useItemsStore();
+export function useLevelBonus(ctx) {
+  const { getLevelRequirementsMap } = useRequirements(ctx);
 
-  const activityLevelRequirement = (activity, skill) =>
-    activity?.levelRequirementsMap?.[skill] || 1;
-
-  const recipeLevelRequirement = (recipe) => {
-    const [{ level }] = recipe.requirements
-      .map(({ requirement }) => requirement)
-      .filter(({ runtimeType }) => runtimeType === "skillLevel");
-    return level || 1;
-  };
+  const getLevelRequirement = (activity, skill) =>
+    getLevelRequirementsMap(activity.requirements)?.[skill] || 1;
 
   const workEfficiencyBonus = computed(() => {
-    if (!activityStore.activitySelected && !activityStore.recipeSelected)
-      return null;
-    const isActivity = activityStore.activitySelected;
-    const activity = isActivity ? activityStore.activity : activityStore.recipe;
+    if (!ctx.activitySelected.value && !ctx.recipeSelected.value) return null;
+
+    const activity = ctx.activitySelected.value
+      ? ctx.activity.value
+      : ctx.recipe.value;
+
+    if (!activity) return null;
+
     const isTravelling = activity.id === "travelling";
 
-    const [skill] = isActivity
+    const [skill] = ctx.activitySelected.value
       ? activity.relatedSkillsList
       : activity.relatedSkills;
-    const levelRequirement = isActivity
-      ? activityLevelRequirement(activity, skill)
-      : recipeLevelRequirement(activity);
-    const playerLevel = playerStore.skillLevels[skill] || 1;
+
+    const levelRequirement = getLevelRequirement(activity, skill);
+    const playerLevel = ctx.skillLevels.value[skill] || 1;
 
     const levelDiff = isTravelling
       ? Math.max(playerLevel - levelRequirement, 0)
       : Math.min(20, Math.max(playerLevel - levelRequirement, 0));
+
     const value = isTravelling ? levelDiff * 0.005 : levelDiff * 0.0125;
 
     return {
@@ -61,39 +54,39 @@ export function useLevelBonus() {
     };
   });
 
-  const craftingOutcomeBonus = computed(() => {
-    if (!activityStore.recipeSelected) return null;
-    const recipe = activityStore.recipe;
+  const qualityOutcomeBonus = computed(() => {
+    if (!ctx.recipeSelected.value) return null;
+
+    const recipe = ctx.recipe.value;
+    if (!recipe) return null;
+
     const [itemId] = Object.keys(recipe.itemRewards);
-    if (
-      !(
-        itemId in itemStore.allItems &&
-        itemStore.allItems[itemId].type === "crafted"
-      )
-    )
-      return null;
+    const item = ctx.allItems.value[itemId];
+
+    if (!item || item.type !== "crafted") return null;
 
     const [skill] = recipe.relatedSkills;
-    const levelRequirement = recipeLevelRequirement(recipe);
-    const playerLevel = playerStore.skillLevels[skill] || 1;
+    const levelRequirement = getLevelRequirement(recipe, skill);
+    const playerLevel = ctx.skillLevels.value[skill] || 1;
+
     const value = Math.max(playerLevel - levelRequirement, 0);
 
     return {
-      id: "crafting_outcome_bonus",
+      id: "quality_outcome_bonus",
       requirements: [],
       stats: [
         {
           isMultiplicative: true,
           isNegative: false,
           isPercent: false,
-          name: "Crafting Outcome",
-          stat: "crafting_outcome",
-          type: "craftingOutcome",
+          name: "Quality Outcome",
+          stat: "quality_outcome",
+          type: "qualityOutcome",
           value,
         },
       ],
       item: {
-        id: "crafting_outcome_bonus",
+        id: "quality_outcome_bonus",
         name: "From levels above requirement",
         icon: "",
       },
@@ -102,7 +95,7 @@ export function useLevelBonus() {
   });
 
   return {
-    craftingOutcomeBonus,
+    qualityOutcomeBonus,
     workEfficiencyBonus,
   };
 }

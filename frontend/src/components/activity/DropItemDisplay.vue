@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
+import useBaseContext from "@/composables/useBaseContext";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { useItemsStore } from "@/store/items";
 import { usePlayerStore } from "@/store/player";
@@ -14,6 +15,7 @@ const itemsStore = useItemsStore();
 const playerStore = usePlayerStore();
 const item = computed(() => props.sources?.[0] || {});
 
+const ctx = useBaseContext();
 const {
   stepsPerRewardRoll,
   fineMaterialFind,
@@ -21,7 +23,7 @@ const {
   findCollectibles,
   findGems,
   findBirdNests,
-} = useSkillModifiers();
+} = useSkillModifiers(ctx);
 
 const dropChanceMultipliers = (type) => {
   let multiplier = 1;

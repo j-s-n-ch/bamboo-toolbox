@@ -7,10 +7,11 @@ import ServiceBubble from "@/components/common/ServiceBubble.vue";
 import LocationBubble from "@/components/common/LocationBubble.vue";
 import SkillBubble from "@/components/common/SkillBubble.vue";
 import WikiButton from "@/components/common/WikiButton.vue";
+import QualityOutcomeTable from "./QualityOutcomeTable.vue";
 import { useActivityStore } from "@/store/activity";
 import { useItemsStore } from "@/store/items";
+import useBaseContext from "@/composables/useBaseContext";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
-import { craftingQualityOptions } from "@/constants/quality";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
 
@@ -19,20 +20,21 @@ const itemsStore = useItemsStore();
 const useFineMaterials = ref(false);
 
 const { recipe } = storeToRefs(activityStore);
+const ctx = useBaseContext();
 const stats = computed(() => {
   const {
     maxWorkEfficiency,
     workEfficiency,
     uncappedWorkEfficiency,
     effectiveMaxWorkEfficiency,
-    craftingOutcome,
+    qualityOutcome,
     uncappedStepsPerCompletion,
     stepsPerCompletion,
     stepsPerRewardRoll,
     craftsPerMaterial,
     xpRewards,
     xpPerStep,
-  } = useSkillModifiers();
+  } = useSkillModifiers(ctx);
 
   const xpRewardsMultiplier = useFineMaterials.value ? 1.5 : 1;
 
@@ -41,7 +43,7 @@ const stats = computed(() => {
     workEfficiency: workEfficiency.value,
     uncappedWorkEfficiency: uncappedWorkEfficiency.value,
     effectiveMaxWorkEfficiency: effectiveMaxWorkEfficiency.value,
-    craftingOutcome: craftingOutcome.value,
+    qualityOutcome: qualityOutcome.value,
     uncappedStepsPerCompletion: uncappedStepsPerCompletion.value,
     stepsPerCompletion: stepsPerCompletion.value,
     stepsPerRewardRoll: stepsPerRewardRoll.value,
@@ -93,84 +95,35 @@ const resultHasCO = computed(() => {
   );
 });
 
-const craftingOdds = computed(() => {
-  const { level: levelReq } = levelRequirement.value;
-  const weights = [
-    [1000, 4],
-    [200, 4],
-    [50, 4],
-    [10, 4],
-    [2.5, 2],
-    [0.05, 0.05],
-  ];
+const canUseFineMaterials = computed(() => {
+  const upgraded = itemsStore.itemsByCategory["upgraded_crafted"].map(
+    ({ id }) => id
+  );
+  const reward = Object.keys(recipe.value.itemRewards)[0];
+  return !upgraded.includes(reward);
+});
 
-  let base = craftingQualityOptions
-    .map((quality, index) => ({
-      ...quality,
-      qualityValue: quality.value,
-      bandStart: index * 100,
-      bandEnd: (index + 1) * (100 + levelReq),
-      weightStart: weights[index][0],
-      weightEnd: weights[index][1],
-    }))
-    .map((item) => {
-      const { bandStart, bandEnd, weightStart, weightEnd } = item;
-      return {
-        ...item,
-        slope: (weightStart - weightEnd) / (bandStart - bandEnd),
-      };
-    })
-    .map((item) => {
-      const { weightEnd, weightStart, slope, bandStart } = item;
-      return {
-        ...item,
-        weight:
-          stats.value.craftingOutcome < bandStart
-            ? weightStart
-            : Math.max(
-                weightEnd,
-                weightStart + slope * (stats.value.craftingOutcome - bandStart)
-              ),
-      };
+const materials = computed(() => {
+  return recipe.value.materials
+    .map(
+      ({ options }) =>
+        options.map(({ item, amount }) => {
+          if (!(item in itemsStore.allItems || item in itemsStore.materials))
+            return;
+
+          const fullItem =
+            itemsStore.allItems[item] || itemsStore.materials[item];
+          const { name, icon } = fullItem;
+          return {
+            name,
+            icon,
+            amount,
+          };
+        })[0]
+    )
+    .filter(({ name }) => {
+      return name;
     });
-
-  if (!useFineMaterials.value) {
-    for (let i = base.length - 2; i >= 0; i--) {
-      base[i].weight = Math.max(base[i].weight, base[i + 1].weight);
-    }
-  } else {
-    for (let i = 0; i < base.length - 1; i++) {
-      base[i].name = base[i + 1].name;
-      base[i].qualityValue = base[i + 1].qualityValue;
-    }
-    base[4].weight = base[4].weight + base[5].weight;
-    base = base.slice(0, -1);
-
-    for (let i = base.length - 2; i >= 0; i--) {
-      base[i].weight = Math.max(base[i].weight, base[i + 1].weight);
-    }
-  }
-
-  const totalWeight = base.reduce((acc, item) => acc + item.weight, 0);
-  const odds = base
-    .map((item) => {
-      const { qualityValue, name, weight } = item;
-      return {
-        qualityValue,
-        name,
-        value: weight / totalWeight,
-        crafts: totalWeight / weight,
-      };
-    })
-    .map((item) => {
-      return {
-        ...item,
-        odds: `${n(item.value * 100, 2)}%`,
-        materialsNeeded: item.crafts / stats.value.craftsPerMaterial,
-      };
-    });
-
-  return odds;
 });
 
 const wikiLink = computed(() => {
@@ -186,11 +139,22 @@ const wikiLink = computed(() => {
     <section :class="['recipe-info', borderClass]">
       <div class="info-section" :key="recipe">
         <div class="info-row">
-          <label>
+          <label v-if="canUseFineMaterials">
             <input type="checkbox" v-model="useFineMaterials" />
             Fine Materials
           </label>
           <wiki-button :name="wikiLink" />
+        </div>
+        <div class="info-row">
+          <p>Materials:</p>
+          <info-bubble
+            v-for="{ name, icon, amount } in materials"
+            :key="name"
+            :text="`${amount}`"
+            :tooltip="`${amount}x ${name}`"
+            :iconPath="icon"
+            :border-class="useFineMaterials ? 'border-fine' : ''"
+          />
         </div>
         <div class="info-row">
           <info-bubble
@@ -277,28 +241,13 @@ const wikiLink = computed(() => {
         </div>
       </div>
       <div v-if="resultHasCO" class="info-section">
-        <ws-label label="Crafting Odds" class="info-row" />
-        <table class="crafting-odds-table">
-          <thead>
-            <tr>
-              <th>Quality</th>
-              <th>Chance</th>
-              <th>Avg. Crafts</th>
-              <th>Avg. Materials Needed</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(item, index) in craftingOdds"
-              :key="`${item.name}-${index}`"
-            >
-              <td :class="`color-${item.qualityValue}`">{{ item.name }}</td>
-              <td>{{ item.odds }}</td>
-              <td>{{ n(item.crafts, 1) }}</td>
-              <td>{{ n(item.materialsNeeded, 1) }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <quality-outcome-table
+          useFineMaterials
+          :level-requirement="levelRequirement"
+          :quality-outcome="stats.qualityOutcome"
+          :crafts-per-material="stats.craftsPerMaterial"
+          class="info-row"
+        />
       </div>
     </section>
   </details>
@@ -328,20 +277,6 @@ const wikiLink = computed(() => {
     display: flex;
     flex-wrap: wrap;
     gap: $md;
-  }
-}
-
-.crafting-odds-table {
-  width: 100%;
-  border-collapse: collapse;
-  th,
-  td {
-    padding: $xxs $sm;
-    border-bottom: 1px solid $chipOutline;
-    text-align: center;
-  }
-  th {
-    background: $boxPrimaryBackground;
   }
 }
 </style>

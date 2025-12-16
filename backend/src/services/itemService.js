@@ -8,6 +8,10 @@ import {
   fetchChestItems,
 } from "../controllers/lootTableController.js";
 import { fetchSoldShopItems } from "../controllers/shopController.js";
+import {
+  fetchCraftingRecipes,
+  fetchTrinketryRecipes,
+} from "../controllers/recipeController.js";
 import { activityService, recipeService, locationService } from "./index.js";
 
 class ItemService extends BaseService {
@@ -43,6 +47,8 @@ class ItemService extends BaseService {
       activityItems,
       chestItems,
       shopItems,
+      craftingRecipes,
+      trinketryRecipes,
     ] = await Promise.all([
       this.fetchCollectibles(),
       this.fetchCrafted(),
@@ -54,6 +60,8 @@ class ItemService extends BaseService {
       fetchActivityItems(),
       fetchChestItems(),
       fetchSoldShopItems(),
+      fetchCraftingRecipes(),
+      fetchTrinketryRecipes(),
     ]);
 
     return categorizeItems({
@@ -67,6 +75,8 @@ class ItemService extends BaseService {
       activityItems,
       chestItems,
       shopItems,
+      craftingRecipes,
+      trinketryRecipes,
     });
   }
 

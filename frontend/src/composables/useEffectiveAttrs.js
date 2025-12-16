@@ -1,23 +1,16 @@
 import { computed } from "vue";
-import { useActivityStore } from "@/store/activity";
-import { useGearStore } from "@/store/gear";
-import { useItemsStore } from "@/store/items";
 import { useRequirements } from "./useRequirements";
 import { useLevelBonus } from "./useLevelBonus";
 import { sumAttrs } from "../utils/qualityAttrs";
 import { toDeepRaw } from "../utils/rawData";
 import { stripHtmlTags } from "../utils/stripHtmlTags";
 
-export function useEffectiveAttrs() {
-  const { checkRequirements } = useRequirements();
-  const { workEfficiencyBonus, craftingOutcomeBonus } = useLevelBonus();
-
-  const activities = useActivityStore();
-  const gear = useGearStore();
-  const items = useItemsStore();
+export function useEffectiveAttrs(ctx) {
+  const { checkRequirements } = useRequirements(ctx);
+  const { workEfficiencyBonus, qualityOutcomeBonus } = useLevelBonus(ctx);
 
   const collectibleIds = computed(() => {
-    return Object.entries(items.itemsByCategory)
+    return Object.entries(ctx.itemsByCategory)
       .filter(([category]) => {
         return category.endsWith("collectibles");
       })
@@ -25,8 +18,8 @@ export function useEffectiveAttrs() {
   });
 
   const allEquippedItems = computed(() => {
-    const owned = items.ownedItems;
-    const gearSet = gear.equippedGear;
+    const owned = ctx.ownedItems.value;
+    const gearSet = ctx.equippedGear.value;
 
     const ownedCollectibles = collectibleIds.value.filter(
       ({ id }) => id in owned
@@ -52,7 +45,7 @@ export function useEffectiveAttrs() {
   });
 
   const equippedKeywords = computed(() => {
-    const gearSet = gear.equippedGear;
+    const gearSet = ctx.equippedGear.value;
     return gearSet
       .flatMap(({ keywords }) => keywords)
       .reduce((acc, val) => {
@@ -89,14 +82,14 @@ export function useEffectiveAttrs() {
     if (workEfficiencyBonus.value) {
       mappedAttrs.push(workEfficiencyBonus.value);
     }
-    if (craftingOutcomeBonus.value) {
-      mappedAttrs.push(craftingOutcomeBonus.value);
+    if (qualityOutcomeBonus.value) {
+      mappedAttrs.push(qualityOutcomeBonus.value);
     }
-    if (activities.service?.attributes.length) {
-      const serviceAttrs = activities.service.attributes.map((attr) => {
+    if (ctx.service.value?.attributes.length) {
+      const serviceAttrs = ctx.service.value.attributes.map((attr) => {
         return {
           ...attr,
-          item: activities.service,
+          item: ctx.service.value,
         };
       });
       mappedAttrs.push.apply(mappedAttrs, serviceAttrs);
@@ -104,7 +97,7 @@ export function useEffectiveAttrs() {
     return mappedAttrs;
   });
 
-  const effectiveAttrs = computed(() => effectiveAttrsWithContext());
+  const effectiveAttrs = computed(() => effectiveAttrsWithContext(ctx));
 
   const effectiveAttrsWithContext = (context) => {
     return allAttrs.value.filter(({ requirements }) =>
@@ -143,7 +136,7 @@ export function useEffectiveAttrs() {
     return totals;
   };
 
-  const totalsByStat = computed(() => totalsByStatWithContext());
+  const totalsByStat = computed(() => totalsByStatWithContext(ctx));
 
   return {
     allEquippedItems,
