@@ -72,12 +72,12 @@ export function useShowItemForActivity(ctx) {
 
     const filterRecipeOnlyAttrs = (attr) => {
       if (isRecipe) return true;
-      const recipeOnlyAttrs = ["No materials consumed", "Crafting outcome"];
+      const recipeOnlyAttrs = ["No materials consumed", "Quality outcome"];
       return !recipeOnlyAttrs.includes(attr.statText);
     };
 
     const filterCO = (attr, activity) => {
-      const statIsCO = attr.statText === "Crafting outcome";
+      const statIsCO = attr.statText === "Quality outcome";
       if (!statIsCO) return true;
       if (!isRecipe) return false;
 
