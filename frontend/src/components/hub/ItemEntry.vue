@@ -74,12 +74,6 @@ function emitChange(overrides = {}) {
   });
 }
 
-const toggleChecked = (e) => {
-  e.stopPropagation();
-  isOwned.value = !isOwned.value;
-  emitChange({ owned: isOwned.value });
-};
-
 const toggleHidden = (e) => {
   e.stopPropagation();
   isHidden.value = !isHidden.value;
@@ -104,6 +98,14 @@ const qualityInputs = computed(() => {
 const hideQuarantine = computed(() => {
   return isQuarantined.value && !isOwned.value;
 });
+
+const toggleChecked = (e) => {
+  e.stopPropagation();
+  if (!hideQuarantine.value) {
+    isOwned.value = !isOwned.value;
+    emitChange({ owned: isOwned.value });
+  }
+};
 </script>
 
 <template>

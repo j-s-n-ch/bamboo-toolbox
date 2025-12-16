@@ -72,11 +72,11 @@ const hasAttrs = computed(() => props.item.buffs.length > 0);
 
 function toggleNormal(e) {
   e.stopPropagation();
-  normalOwned.value = !normalOwned.value;
+  if (hideQuarantine.value) normalOwned.value = !normalOwned.value;
 }
 function toggleFine(e) {
   e.stopPropagation();
-  fineOwned.value = !fineOwned.value;
+  if (hideQuarantine.value) fineOwned.value = !fineOwned.value;
 }
 function toggleHidden(e) {
   e.stopPropagation();
@@ -118,6 +118,7 @@ const hideQuarantine = computed(() => {
         <ws-icon
           :iconPath="hideQuarantine ? '' : item.icon"
           :outline-class="fineOwned ? 'outline-fine' : ''"
+          :key="hideQuarantine ? '' : item.icon"
         />
 
         <div class="rows">
