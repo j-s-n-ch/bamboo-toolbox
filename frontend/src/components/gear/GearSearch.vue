@@ -93,6 +93,8 @@ const filteredItems = computed(() => {
     return commonKeywords.length === 0;
   };
   const filterHidden = (item) => !item.hidden;
+  const filterQuarantined = (item) =>
+    !(item.quarantined && !(item.id in ctx.ownedItems.value));
 
   return slotItems
     .map((item) => {
@@ -176,7 +178,8 @@ const filteredItems = computed(() => {
         filterEquipped(item) &&
         filterStat(item) &&
         filterBannedKeywords(item) &&
-        filterHidden(item)
+        filterHidden(item) &&
+        filterQuarantined(item)
     )
     .sort((a, b) => {
       if (dataStore.selectedStat === "none")
