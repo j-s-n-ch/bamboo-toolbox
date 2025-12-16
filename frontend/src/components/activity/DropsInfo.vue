@@ -1,7 +1,6 @@
 <script setup>
 import { computed, ref, watchEffect } from "vue";
 import { storeToRefs } from "pinia";
-import { useActivityStore } from "@/store/activity";
 import { useDataStore } from "@/store/data";
 import { useGearStore } from "@/store/gear";
 import { useItemsStore } from "@/store/items";
@@ -14,7 +13,6 @@ import { stripHtmlTags } from "@/utils/stripHtmlTags";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
 
-const activityStore = useActivityStore();
 const dataStore = useDataStore();
 const gearStore = useGearStore();
 const itemsStore = useItemsStore();
@@ -54,9 +52,7 @@ watchEffect(async () => {
     return attrs;
   });
 
-  const source = activityStore.activitySelected
-    ? activityStore.activity
-    : activityStore.recipe;
+  const source = ctx.source.value;
   const { tables: activityTables, name } = source;
   let activityLootTables = [];
   if (activityTables) {
@@ -246,35 +242,43 @@ const groupedLootTables = computed(() => {
 <template>
   <details open>
     <summary>Drops</summary>
-    <div class="options">
-      <label v-if="activitySettings.showCombined.display === 1">
-        <input type="checkbox" v-model="activitySettings.showCombined.value" />
-        Show combined drops
-      </label>
-      <label v-if="activitySettings.hideOwnedCollectibles.display === 1">
-        <input
-          type="checkbox"
-          v-model="activitySettings.hideOwnedCollectibles.value"
-        />
-        Hide owned collectibles
-      </label>
+    <div v-if="ctx.activity.value.quarantined">
+      Info hidden during wiki quarantine
     </div>
-    <section class="drops-info">
-      <template v-if="activitySettings.showCombined.value">
-        <drop-item-display
-          v-for="(items, index) in combinedItems"
-          :key="index"
-          :sources="items"
-        />
-      </template>
-      <template v-else>
-        <loot-table-display
-          v-for="(table, index) in groupedLootTables"
-          :key="index"
-          :loot-table="table"
-        />
-      </template>
-    </section>
+    <div v-else>
+      <div class="options">
+        <label v-if="activitySettings.showCombined.display === 1">
+          <input
+            type="checkbox"
+            v-model="activitySettings.showCombined.value"
+          />
+          Show combined drops
+        </label>
+        <label v-if="activitySettings.hideOwnedCollectibles.display === 1">
+          <input
+            type="checkbox"
+            v-model="activitySettings.hideOwnedCollectibles.value"
+          />
+          Hide owned collectibles
+        </label>
+      </div>
+      <section class="drops-info">
+        <template v-if="activitySettings.showCombined.value">
+          <drop-item-display
+            v-for="(items, index) in combinedItems"
+            :key="index"
+            :sources="items"
+          />
+        </template>
+        <template v-else>
+          <loot-table-display
+            v-for="(table, index) in groupedLootTables"
+            :key="index"
+            :loot-table="table"
+          />
+        </template>
+      </section>
+    </div>
   </details>
 </template>
 
