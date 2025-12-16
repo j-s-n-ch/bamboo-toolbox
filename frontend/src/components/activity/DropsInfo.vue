@@ -242,7 +242,7 @@ const groupedLootTables = computed(() => {
 <template>
   <details open>
     <summary>Drops</summary>
-    <div v-if="ctx.activity.value.quarantined">
+    <div v-if="ctx.activity.value?.quarantined">
       Info hidden during wiki embargo
     </div>
     <div v-else>
