@@ -14,3 +14,6 @@ export const getRecipe = wrapController(
 );
 
 export const fetchCraftingRecipes = () => recipeService.fetchCraftingRecipes();
+
+export const fetchTrinketryRecipes = () =>
+  recipeService.fetchTrinketryRecipes();

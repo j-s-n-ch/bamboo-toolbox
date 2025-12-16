@@ -8,6 +8,10 @@ class RecipeService extends BaseService {
   async fetchCraftingRecipes() {
     return this.search({ relatedSkills: "crafting", detailed: true });
   }
+
+  async fetchTrinketryRecipes() {
+    return this.search({ relatedSkills: "trinketry", detailed: true });
+  }
 }
 
 export default RecipeService;

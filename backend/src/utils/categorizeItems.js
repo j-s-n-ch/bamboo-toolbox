@@ -9,6 +9,7 @@ export function categorizeItems(data) {
     consumables,
     chestItems,
     craftingRecipes,
+    trinketryRecipes,
     ...sourceInfo
   } = data;
 
@@ -26,7 +27,12 @@ export function categorizeItems(data) {
   categoryGroups.push({ title: "Chests", categories: chestCategories });
   categoryGroups.push({
     title: "Crafted",
-    categories: resolveCraftedCategories(crafted, craftingRecipes, loot),
+    categories: resolveCraftedCategories(
+      crafted,
+      craftingRecipes,
+      trinketryRecipes,
+      loot
+    ),
   });
   categoryGroups.splice(1, 0, {
     title: "Consumables",
@@ -165,7 +171,12 @@ const resolveChestCategories = (loot, chestTables, containers) => {
   return { chestCategories: chestTableCategories };
 };
 
-const resolveCraftedCategories = (crafted, craftingRecipes, loot) => {
+const resolveCraftedCategories = (
+  crafted,
+  craftingRecipes,
+  trinketryRecipes,
+  loot
+) => {
   const categories = [
     { suffix: "hatchets", keyword: "hatchet" },
     { suffix: "pickaxes", keyword: "pickaxe" },
@@ -211,7 +222,25 @@ const resolveCraftedCategories = (crafted, craftingRecipes, loot) => {
       items: miscCraftedItems,
     });
 
-  return categories;
+  const recipeLevels = Object.fromEntries(
+    craftingRecipes
+      .concat(trinketryRecipes)
+      .flatMap(({ itemRewards, requirements }) => {
+        const id = Object.keys(itemRewards)[0];
+        const skills = requirements.filter(({ type }) => type == "skillLevel");
+        const level = skills.length ? skills[0].requirement["level"] : 1;
+        return [[id, level]];
+      })
+  );
+
+  const sortedCategories = categories.map((category) => ({
+    ...category,
+    items: [...category.items].sort((a, b) => {
+      return recipeLevels[a.id] - recipeLevels[b.id];
+    }),
+  }));
+
+  return sortedCategories;
 };
 
 const resolveConsumables = (consumables) => {
