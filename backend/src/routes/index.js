@@ -7,6 +7,7 @@ import itemRoutes from "./itemRoutes.js";
 import iconRoutes from "./iconRoutes.js";
 import lootTableRoutes from "./lootTableRoutes.js";
 import {
+  abilitiesService,
   activityService,
   factionService,
   keywordService,
@@ -23,6 +24,7 @@ import {
 export function registerRoutes(app) {
   const apiRouter = Router();
 
+  apiRouter.use("/abilities", createBaseRouter("Abilities", abilitiesService));
   apiRouter.use("/achievements", achievementRoutes);
   apiRouter.use("/activities", createBaseRouter("Activity", activityService));
   apiRouter.use("/factions", createBaseRouter("Faction", factionService));

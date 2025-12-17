@@ -4,6 +4,7 @@ import SkillService from "./skillService.js";
 import ItemService from "./itemService.js";
 import RecipeService from "./recipeService.js";
 
+const abilitiesService = new BaseService("abilities");
 const achievementService = new BaseService("achievements");
 const activityService = new BaseService("activities");
 const buildingService = new BaseService("buildings");
@@ -24,6 +25,7 @@ const statService = new BaseService("stats");
 const terrainModifierService = new BaseService("terrain_modifiers");
 
 export {
+  abilitiesService,
   achievementService,
   activityService,
   buildingService,
