@@ -246,7 +246,6 @@ const wikiLink = computed(() => {
           :level-requirement="levelRequirement"
           :quality-outcome="stats.qualityOutcome"
           :crafts-per-material="stats.craftsPerMaterial"
-          class="info-row"
         />
       </div>
     </section>
