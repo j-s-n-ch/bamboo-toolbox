@@ -79,7 +79,7 @@ const sections = computed(() => {
       },
       {
         text: `${n(stepsPerRewardRoll.value, 2)}`,
-        tooltip: `steps per reward roll ${n(stepsPerRewardRoll.value, 2)}`,
+        tooltip: `Steps per reward roll: ${n(stepsPerRewardRoll.value, 2)}`,
         iconPath: "assets/icons/text/stats/skilling/double_result.png",
       },
     ],
