@@ -316,7 +316,6 @@ export function useRequirements(ctx) {
         }
       } else if (type === "itemEquipped") {
         const { item } = requirement;
-        console.log(item);
         const itemObj = ctx.allItems.value[item];
         const { name, icon } = itemObj;
 
