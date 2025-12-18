@@ -13,20 +13,17 @@ export function useShowItemForActivity(ctx) {
 
   const usefulKeywords = (item, activity, service) => {
     if (!activity) return false;
-    const kw = activity?.requiredKeywords || [];
-    const requirements = activity?.requirements || [];
+    const kwReqs = activity.requirements || [];
     const serviceRequirements = service?.requirements || [];
 
-    const kws = kw?.map(({ id }) => id) ?? [];
-    const kwEquipped =
-      [...requirements, ...serviceRequirements]
-        ?.filter((req) => req.type === "distinctKeywordItemsEquipped")
-        .flatMap(({ requirement }) => requirement.keywords) ?? [];
-
-    if (!(kws || kwEquipped)) return false;
-    return item.keywords.filter(
-      (keyword) => kws.includes(keyword) || kwEquipped.includes(keyword)
-    );
+    const matchingKeywordRequirements = [...kwReqs, ...serviceRequirements]
+      .filter(({ type }) => type.toLowerCase().includes("keyword"))
+      .map(({ requirement }) => {
+        return "keyword" in requirement
+          ? item.keywords.includes(requirement["keyword"])
+          : requirement["keywords"].some((kw) => item.keywords.includes(kw));
+      });
+    return matchingKeywordRequirements.filter((value) => value);
   };
 
   const usefulAttrs = (item, activity, quality, isRecipe) => {
@@ -155,7 +152,6 @@ export function useShowItemForActivity(ctx) {
     );
     const hasUsefulAttrs = usefulAttributes.length > 0;
     const hasTables = itemTables(item).length > 0;
-
     return hasUsefulKeywords || hasUsefulAttrs || hasTables;
   };
 
