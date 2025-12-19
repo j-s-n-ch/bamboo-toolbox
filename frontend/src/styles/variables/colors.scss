@@ -22,6 +22,21 @@ $txNegativeDark: rgb(145, 63, 68);
 $txHighlight: rgb(223, 209, 189);
 $txTransparentHighlight: rgba(223, 209, 189, 0.7);
 
+$activity-colors: (
+  "passive": rgb(184, 255, 151),
+  "active": rgb(218, 162, 255),
+  "consumable": rgb(255, 200, 128),
+  "activity": rgb(105, 240, 174),
+  "emergency": rgb(244, 143, 177),
+);
+
+@each $name, $color in $activity-colors {
+  .color-#{$name} {
+    color: $color !important;
+  }
+}
+
+
 $quality-colors: (
   "common": $txPrimary,
   "common-dark": $boxDarkBackground,
