@@ -116,7 +116,7 @@ const sections = computed(() => {
   const abilitiesRow = {
     label: "Abilities",
     component: AbilitiesDisplay,
-    items: [1],
+    items: abilities ? [1] : [],
     itemProps: () => ({ abilities }),
   };
 
