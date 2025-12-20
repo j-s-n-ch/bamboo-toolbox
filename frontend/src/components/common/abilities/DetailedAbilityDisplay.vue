@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import WsText from "@/components/common/text/WsText.vue";
 import WsIcon from "../WsIcon.vue";
 import RequirementDisplay from "@/components/activity/RequirementDisplay.vue";
 
@@ -49,7 +50,7 @@ const typeIconPaths = {
       </button>
     </div>
     <section v-if="isOpen" class="extra-info">
-      <p>{{ props.ability.desc }}</p>
+      <ws-text :text="props.ability.desc" :data="props.ability.data" />
       <div v-if="props.ability.requirements.length" class="requirements">
         <div class="openable">
           <p class="info-title">requirements</p>
