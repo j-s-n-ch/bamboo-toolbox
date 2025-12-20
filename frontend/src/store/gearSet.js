@@ -182,6 +182,7 @@ export const useGearSetStore = defineStore("gearSetStore", {
       let returnValue = true;
       // If the existing set doesn't have items (from the lightweight getGearSets call),
       // fetch the full gear set data including items
+      let oldSet = true;
       let fullGearSet = existingSet;
       if (
         !existingSet.items ||
@@ -190,6 +191,7 @@ export const useGearSetStore = defineStore("gearSetStore", {
       ) {
         try {
           fullGearSet = await getGearSet(setId);
+          oldSet = false;
         } catch (error) {
           console.error(error);
           const notificationStore = useNotificationStore();
@@ -205,9 +207,11 @@ export const useGearSetStore = defineStore("gearSetStore", {
         id: fullGearSet.id,
         name: fullGearSet.name,
         tags: [
-          ...(fullGearSet.tags.map((tagId) =>
-            this.gearSetTags.find(({ id }) => tagId === id)
-          ) || []),
+          ...(oldSet
+            ? fullGearSet.tags
+            : fullGearSet.tags.map((tagId) =>
+                this.gearSetTags.find(({ id }) => tagId === id)
+              ) || []),
         ],
         items: [...(fullGearSet.items || [])],
         isDirty: false,
