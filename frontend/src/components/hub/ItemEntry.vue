@@ -188,7 +188,10 @@ const toggleChecked = (e) => {
         show-quality-border
         hide-keywords
       />
-      <abilities-display :abilities="props.item.abilities" />
+      <abilities-display
+        v-if="props.item.abilities"
+        :abilities="props.item.abilities"
+      />
     </section>
   </section>
 </template>
