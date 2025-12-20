@@ -95,6 +95,10 @@ $skill-colors: (
 
 @each $name, $color in $skill-colors {
   .color-#{$name} {
+    color: $color !important;
+  }
+  
+  .bg-#{$name} {
     background: $color !important;
   }
 
