@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { useDataStore } from "@/store/data";
 import { toDeepRaw } from "@/utils/rawData";
-import { sumAttrs } from "@/utils/qualityAttrs";
+import { usedAttrs } from "@/utils/qualityAttrs";
 import { stripHtmlTags } from "@/utils/stripHtmlTags";
 import WikiButton from "@/components/common/WikiButton.vue";
 import StatRequirementDisplay from "./StatRequirementDisplay.vue";
@@ -14,7 +14,6 @@ const props = defineProps({
     required: true,
   },
   quality: String,
-  petLevel: { type: Number, default: null },
   showQualityBorder: {
     type: Boolean,
     default: false,
@@ -35,25 +34,16 @@ const props = defineProps({
 
 const dataStore = useDataStore();
 
-const keywords = props.hideKeywords
-  ? []
-  : props.item.keywords
-      .map((keyword) => dataStore.getKeywordById(keyword))
-      .filter((k) => k?.icon);
+const keywords =
+  !props.item.keywords || props.hideKeywords
+    ? []
+    : props.item.keywords
+        .map((keyword) => dataStore.getKeywordById(keyword))
+        .filter((k) => k?.icon);
 
 const mapAttrs = (quality) => {
   const itemCopy = toDeepRaw(props.item);
-  const usedAttrs =
-    props.petLevel !== null
-      ? itemCopy.levels[props.petLevel - 1].attributes
-      : itemCopy.itemAttrs;
-
-  const baseAttrs = sumAttrs(
-    usedAttrs,
-    itemCopy.itemQualityAttrs,
-    itemCopy.buffs,
-    quality
-  );
+  const baseAttrs = usedAttrs(itemCopy, quality);
 
   return baseAttrs
     .flatMap((obj) => {

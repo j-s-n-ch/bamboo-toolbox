@@ -8,7 +8,7 @@ import { usePlayerStore } from "@/store/player";
 import { useSettingsStore } from "@/store/settings";
 import useBaseContext from "@/composables/useBaseContext";
 import { useRequirements } from "@/composables/useRequirements";
-import { sumAttrs } from "@/utils/qualityAttrs";
+import { usedAttrs } from "@/utils/qualityAttrs";
 import { stripHtmlTags } from "@/utils/stripHtmlTags";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
@@ -25,12 +25,7 @@ const resolvedLootTables = ref([]);
 
 watchEffect(async () => {
   const gearLootTables = gearStore.filledGearSlots.flatMap(([slot, item]) => {
-    const attrs = sumAttrs(
-      item.itemAttrs,
-      item.itemQualityAttrs,
-      item.buffs,
-      item.quality
-    )
+    const attrs = usedAttrs(item, item.quality)
       .filter(
         (item) =>
           Array.isArray(item.tables) &&
