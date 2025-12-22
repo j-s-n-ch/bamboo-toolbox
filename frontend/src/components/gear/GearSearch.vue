@@ -37,7 +37,10 @@ const { showItemForActivity } = useShowItemForActivity(ctx);
 const searchTerm = ref("");
 
 const slotItems = Object.values(ctx.allItems.value).filter(
-  ({ gearType, type }) => gearType === props.gearType || type === props.gearType
+  ({ gearType, type, egg }) =>
+    gearType === props.gearType ||
+    type === props.gearType ||
+    (props.gearType === "pet" && egg)
 );
 
 const otherSlotIds = computed(() => {
@@ -94,13 +97,17 @@ const filteredItems = computed(() => {
   };
   const filterHidden = (item) => !item.hidden;
   const filterEmbargo = (item) =>
-    !(ctx.embargoedItems.value.has(item.id) && !(item.id in ctx.ownedItems.value));
+    !(
+      ctx.embargoedItems.value.has(item.id) &&
+      !(item.id in ctx.ownedItems.value)
+    );
 
   return slotItems
     .map((item) => {
-      const { id, type, gearType } = item;
+      const { id, type, gearType, egg } = item;
       const isCrafted = type === "crafted";
       const isConsumable = type === "consumable";
+      const isPet = Boolean(egg);
       const isRing = gearType === "ring";
 
       const owned = id in ctx.ownedItems.value;
@@ -109,7 +116,7 @@ const filteredItems = computed(() => {
       let quality2 = null;
 
       if (owned) {
-        if (isCrafted) {
+        if (isCrafted || isPet) {
           quality = ctx.ownedItems.value[id].quality;
         }
         quality2 = ctx.ownedItems.value[id].quality2;
