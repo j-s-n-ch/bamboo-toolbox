@@ -12,7 +12,7 @@ export function useShowItemForActivity(ctx) {
   const { checkRequirements } = useRequirements(ctx);
 
   const usefulKeywords = (item, activity, service) => {
-    if (!activity) return false;
+    if (!activity || !item.keywords) return false;
     const kwReqs = activity.requirements || [];
     const serviceRequirements = service?.requirements || [];
 
