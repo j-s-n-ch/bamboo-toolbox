@@ -139,6 +139,7 @@ export const useGearStore = defineStore("gearStore", {
       }
 
       // Fetch from API
+
       const { data } = await getItem({ id });
       if (data) {
         const itemData = { ...data, quality };
@@ -162,9 +163,14 @@ export const useGearStore = defineStore("gearStore", {
 
         // Fetch from API
         try {
-          const { data } = await getItem({ id });
+          const itemsStore = useItemsStore();
+          const isPet = id in itemsStore.petsMap;
+          const loadFn = isPet ? getPet : getItem;
+          const { data } = await loadFn({ id });
+          const icon = isPet ? getPetIcon(data, quality) : data.icon;
+
           if (data) {
-            const itemData = { ...data, quality };
+            const itemData = { ...data, quality, icon };
             this._setInCache(id, quality, itemData);
             return { id, quality, data: itemData };
           }

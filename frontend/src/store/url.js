@@ -30,6 +30,7 @@ export const useUrlStore = defineStore("url", {
       tool5: "tool",
       tool6: "tool",
       consumable: "consumable",
+      pet: "pet",
     },
     isLoaded: false,
   }),
