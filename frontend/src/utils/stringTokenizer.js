@@ -50,7 +50,7 @@ export const getDataIdMapping = (data) => {
   const mapAction = (action) => {
     const { type } = action;
     if (type === "teleport") {
-      return [action.locationId, action.location];
+      return [action.location, action.location];
     }
     if (type === "completeActions") {
       return ["count", action.count];
