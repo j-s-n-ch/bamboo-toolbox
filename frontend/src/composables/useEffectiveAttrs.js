@@ -1,7 +1,7 @@
 import { computed } from "vue";
 import { useRequirements } from "./useRequirements";
 import { useLevelBonus } from "./useLevelBonus";
-import { sumAttrs } from "../utils/qualityAttrs";
+import { usedAttrs } from "../utils/qualityAttrs";
 import { toDeepRaw } from "../utils/rawData";
 import { stripHtmlTags } from "../utils/stripHtmlTags";
 
@@ -29,16 +29,7 @@ export function useEffectiveAttrs(ctx) {
       .map((item) => {
         return {
           ...item,
-          attrs: toDeepRaw(
-            item.type !== "loot"
-              ? sumAttrs(
-                  item.itemAttrs,
-                  item.itemQualityAttrs,
-                  item.buffs,
-                  item.quality
-                )
-              : item.itemAttrs
-          ),
+          attrs: toDeepRaw(usedAttrs(item, item.quality)),
         };
       })
       .filter(({ attrs }) => attrs.length);

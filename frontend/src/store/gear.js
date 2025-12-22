@@ -1,11 +1,12 @@
 import { defineStore } from "pinia";
-import { getItem, searchItems } from "@/utils/axios/api_routes";
+import { getItem, searchItems, getPet } from "@/utils/axios/api_routes";
 import { useItemsStore } from "./items";
 import {
   EquipItemCommand,
   UnequipAllCommand,
   EquipMultipleCommand,
 } from "./gearCommands";
+import { getPetIcon } from "@/utils/pets";
 
 // Lazy import for history store to avoid circular dependencies
 let useHistoryStore = null;
@@ -43,7 +44,7 @@ export const useGearStore = defineStore("gearStore", {
       tool4: null,
       tool5: null,
       tool6: null,
-      potion: null,
+      pet: null,
       consumable: null,
       service: null,
     },
@@ -92,7 +93,7 @@ export const useGearStore = defineStore("gearStore", {
     },
     getSlotTypes(slot) {
       if (slot === "service") return ["service"];
-      else if (slot === "potion") return ["potion"];
+      else if (slot === "pet") return ["pet"];
       else if (slot === "consumable") return ["consumable"];
       return ["loot", "crafted"];
     },
@@ -138,6 +139,7 @@ export const useGearStore = defineStore("gearStore", {
       }
 
       // Fetch from API
+
       const { data } = await getItem({ id });
       if (data) {
         const itemData = { ...data, quality };
@@ -161,9 +163,14 @@ export const useGearStore = defineStore("gearStore", {
 
         // Fetch from API
         try {
-          const { data } = await getItem({ id });
+          const itemsStore = useItemsStore();
+          const isPet = id in itemsStore.petsMap;
+          const loadFn = isPet ? getPet : getItem;
+          const { data } = await loadFn({ id });
+          const icon = isPet ? getPetIcon(data, quality) : data.icon;
+
           if (data) {
-            const itemData = { ...data, quality };
+            const itemData = { ...data, quality, icon };
             this._setInCache(id, quality, itemData);
             return { id, quality, data: itemData };
           }
@@ -181,6 +188,7 @@ export const useGearStore = defineStore("gearStore", {
         console.error("no id provided");
         return;
       }
+      const isPet = itemSlot === "pet";
 
       const itemsStore = useItemsStore();
       if (!(id in itemsStore.allItems)) return;
@@ -196,9 +204,12 @@ export const useGearStore = defineStore("gearStore", {
       let itemData = cachedItem;
 
       if (!itemData) {
-        const { data } = await getItem({ id });
+        const loadFn = isPet ? getPet : getItem;
+        const { data } = await loadFn({ id });
+        const icon = isPet ? getPetIcon(data, quality) : data.icon;
+
         if (data) {
-          itemData = { ...data, quality };
+          itemData = { ...data, icon, quality };
           this._setInCache(id, quality, itemData);
         }
       }
@@ -269,12 +280,12 @@ export const useGearStore = defineStore("gearStore", {
           this._setInCache(id, quality, data);
         });
       }
-      
+
       // Apply all gear changes at once to minimize reactive updates
       const completeGearSlots = { ...this.gearSlots };
       Object.assign(completeGearSlots, gearSetData);
       this.gearSlots = completeGearSlots;
-    },    // Helper method to process gear set data (extracted from equipMultiple)
+    }, // Helper method to process gear set data (extracted from equipMultiple)
     async _processGearSetData(gearSetData, useQuality = false) {
       const itemsStore = useItemsStore();
 

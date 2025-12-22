@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { useGearStore } from "@/store/gear";
 import WsIcon from "@/components/common/WsIcon.vue";
 import StatsDisplay from "../common/StatsDisplay.vue";
+import { getPetIcon } from "@/utils/pets";
 
 const props = defineProps({
   gearType: {
@@ -20,13 +21,18 @@ defineEmits(["unequip", "close"]);
 const gearStore = useGearStore();
 
 const item = computed(() => gearStore.gearSlots[props.slotName]);
+const icon = computed(() => {
+  return "egg" in item.value
+    ? getPetIcon(item.value, item.value.quality)
+    : item.value.icon;
+});
 </script>
 
 <template>
   <div v-if="gearStore.slotFilled(slotName)" class="preview-wrapper">
     <div class="header">
       <div class="base-info">
-        <ws-icon :icon-path="item.icon" />
+        <ws-icon :icon-path="icon" />
         <p>
           {{ item.name }}
         </p>

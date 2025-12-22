@@ -22,6 +22,7 @@ export function useRequirements(ctx) {
 
     const equippedKeywordCounts = context.equippedGear.value
       ? context.equippedGear.value
+          .filter((val) => "keywords" in val)
           .flatMap(({ keywords }) => keywords)
           .reduce((acc, val) => {
             acc[val] = (acc[val] || 0) + 1;
@@ -138,7 +139,7 @@ export function useRequirements(ctx) {
         value =
           ctx.equippedGear.value.filter((gear) => {
             const { keyword } = requirement;
-            const kwCheck = gear.keywords.includes(keyword);
+            const kwCheck = gear.keywords?.includes(keyword);
             return kwCheck;
           }).length > 0;
         break;
@@ -146,7 +147,7 @@ export function useRequirements(ctx) {
         value =
           ctx.equippedGear.value.filter((gear) => {
             const { keyword, skill, level } = requirement;
-            const kwCheck = gear.keywords.includes(keyword);
+            const kwCheck = gear.keywords?.includes(keyword);
 
             const levelReqs = getLevelRequirementsMap(gear.requirements);
             const levelCheck = skill in levelReqs && levelReqs[skill] >= level;
@@ -160,7 +161,14 @@ export function useRequirements(ctx) {
           ) >= 0;
         break;
       case "abilityAvailable":
-        value = false;
+        value =
+          ctx.equippedGear.value.filter(({ abilities }) =>
+            abilities
+              ?.flatMap((ability) =>
+                typeof ability === "object" ? ability.ability : ability
+              )
+              .includes(requirement.ability)
+          ).length > 0;
         break;
       default:
         console.error("unhandled requirement", type, requirement);

@@ -3,7 +3,7 @@ import { useDataStore } from "@/store/data";
 import { useRequirements } from "@/composables/useRequirements";
 import { useSettingsStore } from "@/store/settings";
 import { getRawData } from "@/utils/rawData";
-import { sumAttrs } from "@/utils/qualityAttrs";
+import { usedAttrs } from "@/utils/qualityAttrs";
 
 export function useShowItemForActivity(ctx) {
   const dataStore = useDataStore();
@@ -12,7 +12,7 @@ export function useShowItemForActivity(ctx) {
   const { checkRequirements } = useRequirements(ctx);
 
   const usefulKeywords = (item, activity, service) => {
-    if (!activity) return false;
+    if (!activity || !item.keywords) return false;
     const kwReqs = activity.requirements || [];
     const serviceRequirements = service?.requirements || [];
 
@@ -27,12 +27,7 @@ export function useShowItemForActivity(ctx) {
   };
 
   const usefulAttrs = (item, activity, quality, isRecipe) => {
-    const baseAttrs = sumAttrs(
-      item.itemAttrs,
-      item.itemQualityAttrs || [],
-      item.buffs || [],
-      quality
-    );
+    const baseAttrs = usedAttrs(item, quality);
 
     const hideOwnedCollectibles =
       activitySettings.value.hideOwnedCollectibles.value;

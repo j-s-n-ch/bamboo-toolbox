@@ -14,6 +14,7 @@ export const useItemsStore = defineStore("itemStore", {
     itemsByCategory: {},
     ownedItems: {},
     allItems: {},
+    petsMap: {},
     embargoedItems: new Set(),
     changedOwnedItems: {},
     materials: {},
@@ -71,6 +72,9 @@ export const useItemsStore = defineStore("itemStore", {
       );
       this.fineMaterials = Object.fromEntries(
         fineMaterials.map((id) => [id, true])
+      );
+      this.petsMap = Object.fromEntries(
+        this.itemsByCategory["pets"].map((pet) => [pet.id, pet])
       );
 
       this.isLoaded = true;

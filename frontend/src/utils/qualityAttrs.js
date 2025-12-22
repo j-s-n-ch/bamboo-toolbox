@@ -75,3 +75,15 @@ export const sumBuffAttrs = (buffs, quality) => {
   const fineAttrs = buffData[0].fineAttributes.map(mapAttrs);
   return quality === normal ? attrs : fineAttrs;
 };
+
+export const usedAttrs = (item, quality) => {
+  const isPet = "egg" in item;
+  const usedAttrs = isPet
+    ? Number(quality) > 0
+      ? item.levels[Number(quality) - 1].attributes
+      : []
+    : item.itemAttrs;
+  const usedQuality = isPet ? "common" : quality;
+
+  return sumAttrs(usedAttrs, item.itemQualityAttrs, item.buffs, usedQuality);
+};

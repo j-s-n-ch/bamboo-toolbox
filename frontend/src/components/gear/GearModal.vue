@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { onMounted, onBeforeUnmount } from "vue";
 import { useGearStore } from "@/store/gear";
 import { useUrlStore } from "@/store/url";
 import GearPreview from "./GearPreview.vue";

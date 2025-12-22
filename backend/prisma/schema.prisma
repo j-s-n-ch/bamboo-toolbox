@@ -87,6 +87,7 @@ enum GearSlotType {
   potion
   consumable
   service
+  pet
 }
 
 model GearSetItem {
