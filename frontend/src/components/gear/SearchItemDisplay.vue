@@ -1,7 +1,8 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
 import StatsDisplay from "../common/StatsDisplay.vue";
+import { getPetIcon } from "@/utils/pets";
 
 const props = defineProps({
   item: {
@@ -21,16 +22,19 @@ const isOpen = ref(false);
 const toggle = () => {
   isOpen.value = !isOpen.value;
 };
+
+const icon = computed(() => {
+  return "egg" in props.item
+    ? getPetIcon(props.item, props.item.quality)
+    : props.item.icon;
+});
 </script>
 
 <template>
   <div class="display-wrapper">
     <div class="item-wrapper">
       <button class="item" @click="() => emit('click')">
-        <ws-icon
-          :iconPath="item.icon"
-          :outline-class="`outline-${item.quality}`"
-        />
+        <ws-icon :iconPath="icon" :outline-class="`outline-${item.quality}`" />
         <span :class="`color-${item.quality}`">
           {{ item.name }}
         </span>

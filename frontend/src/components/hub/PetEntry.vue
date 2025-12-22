@@ -7,6 +7,7 @@ import StatsDisplay from "../common/StatsDisplay.vue";
 import AbilitiesDisplay from "../common/abilities/AbilitiesDisplay.vue";
 import useBaseContext from "@/composables/useBaseContext";
 import RequirementDisplay from "../activity/RequirementDisplay.vue";
+import { getPetIcon } from "@/utils/pets";
 
 const props = defineProps({
   pet: Object,
@@ -83,13 +84,7 @@ const toggleChecked = (e) => {
 };
 
 const icon = computed(() => {
-  if (level.value == 0) return props.pet.egg.sprite;
-
-  const { stage } = levelOptions[level.value];
-
-  const source =
-    rarity.value === normal ? props.pet.looks[0] : props.pet.rareLooks[0];
-  return source.sprites.find((look) => look.stage === stage).sprite;
+  return getPetIcon(props.pet, level.value, rarity.value === rare);
 });
 
 const abilities = computed(() => {
