@@ -26,7 +26,8 @@ const getColor = (type, object) => {
 };
 
 const idMap = props.data.length ? getDataIdMapping(props.data) : null;
-const typeParam = idMap ? idMap[props.objectId] : props.objectId;
+const typeParam =
+  idMap && props.objectId in idMap ? idMap[props.objectId] : props.objectId;
 const { type, object } = getObjectType(typeParam);
 
 const colorClass = getColor(type, object);
