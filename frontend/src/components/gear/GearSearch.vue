@@ -153,9 +153,7 @@ const filteredItems = computed(() => {
         quality2 !== quality
       ) {
         const attrs2 =
-          dataStore.selectedStat !== "none"
-            ? usedAttrs(item.itemAttrs, quality2)
-            : [];
+          dataStore.selectedStat !== "none" ? usedAttrs(item, quality2) : [];
         const stats2 = attrs2.flatMap(({ stats }) => stats);
 
         out.push({
