@@ -10,7 +10,7 @@ export function useEffectiveAttrs(ctx) {
   const { workEfficiencyBonus, qualityOutcomeBonus } = useLevelBonus(ctx);
 
   const collectibleIds = computed(() => {
-    return Object.entries(ctx.itemsByCategory)
+    return Object.entries(ctx.itemsByCategory.value)
       .filter(([category]) => {
         return category.endsWith("collectibles");
       })
