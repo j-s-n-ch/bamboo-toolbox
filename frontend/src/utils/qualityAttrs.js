@@ -45,10 +45,16 @@ export const sumAttrs = (itemAttrs, qualityAttrs, buffs, quality) => {
         return;
       }
 
+      const getSign = (val) => val >= 0;
       const oldStat = attrs[prev].stats[0];
+      const previousSign = getSign(oldStat.value);
+
       oldStat.value =
         Math.round(10000 * oldStat.value + 10000 * stat.value) / 10000;
-      oldStat.isNegative = oldStat.isNegative && oldStat.value < 0;
+      oldStat.isNegative =
+        getSign(oldStat.value) === previousSign
+          ? oldStat.isNegative
+          : !oldStat.isNegative;
     });
   }
 
