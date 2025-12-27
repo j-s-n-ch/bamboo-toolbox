@@ -82,63 +82,65 @@ export const useDataStore = defineStore("dataStore", {
 
       this.isLoaded = true;
     },
-    async fetchDetailedLootTables(ids) {
-      const uncachedIds = ids.filter(
-        (id) => !(id in this.detailedLootTablesMap)
-      );
-
-      if (uncachedIds.length > 0) {
-        const { data: lootTables } = await getMultipleLootTables(uncachedIds);
-        lootTables.forEach((table) => {
-          this.detailedLootTablesMap[table.id] = table;
-        });
-      }
-
-      // Return loot tables in the same order as input ids
-      return ids.map((id) => this.detailedLootTablesMap[id]);
-    },
-    async fetchDetailedAbilities(ids) {
-      const validIds = ids.filter(
-        (id) =>
-          this.abilities.findIndex(({ id: abilityId }) => id === abilityId) >= 0
-      );
-
+    async fetchDetailedData(ids, categoryIds, detailedMap, fetchFn) {
+      const validIds = ids.filter((id) => id in categoryIds);
       const uncachedIds = validIds.filter(
-        (id) => !(id in this.detailedAbilitiesMap || id in this.loadingData)
+        (id) => !(id in detailedMap || id in this.loadingData)
       );
 
       if (uncachedIds.length > 0) {
-        const batchPromise = getMultipleAbilities(uncachedIds)
-          .then(({ data: abilities }) => {
-            abilities.forEach((ability) => {
-              const { id } = ability;
-              this.detailedAbilitiesMap[id] = ability;
+        const batchPromise = fetchFn(uncachedIds)
+          .then(({ data }) => {
+            data.forEach((obj) => {
+              const { id } = obj;
+              detailedMap[id] = obj;
               delete this.loadingData.id;
-              return ability;
+              return obj;
             });
-            return abilities;
+            return data;
           })
           .catch(() => {
             uncachedIds.forEach((id) => delete this.loadingData[id]);
             return [];
           });
 
-        uncachedIds.forEach(
+        validIds.forEach(
           (id) =>
-            (this.loadingData[id] = batchPromise.then(
-              () => this.detailedAbilitiesMap[id]
-            ))
+            (this.loadingData[id] = batchPromise.then(() => detailedMap[id]))
         );
 
         return Promise.all(
-          uncachedIds.map((id) =>
-            id in this.detailedAbilitiesMap
-              ? Promise.resolve(this.detailedAbilitiesMap[id])
+          validIds.map((id) =>
+            id in detailedMap
+              ? Promise.resolve(detailedMap[id])
               : this.loadingData[id]
           )
         );
       }
-      return validIds.map((id) => this.detailedAbilitiesMap[id]);
+      return validIds.map((id) => detailedMap[id]);
+    },
+
+    async fetchDetailedLootTables(ids) {
+      const idMap = Object.fromEntries(
+        this.lootTables.map(({ id }) => [id, true])
+      );
+      return this.fetchDetailedData(
+        ids,
+        idMap,
+        this.detailedLootTablesMap,
+        getMultipleLootTables
+      );
+    },
+    async fetchDetailedAbilities(ids) {
+      const idMap = Object.fromEntries(
+        this.abilities.map(({ id }) => [id, true])
+      );
+      return this.fetchDetailedData(
+        ids,
+        idMap,
+        this.detailedAbilitiesMap,
+        getMultipleAbilities
+      );
     },
   },
 });
