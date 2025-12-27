@@ -90,8 +90,8 @@ const sections = computed(() => {
 const resultHasCO = computed(() => {
   const [itemId] = Object.keys(recipe.value.itemRewards);
   return (
-    itemId in itemsStore.allItems &&
-    itemsStore.allItems[itemId].type === "crafted"
+    itemId in itemsStore.allGearItems &&
+    itemsStore.allGearItems[itemId].type === "crafted"
   );
 });
 
@@ -108,11 +108,11 @@ const materials = computed(() => {
     .map(
       ({ options }) =>
         options.map(({ item, amount }) => {
-          if (!(item in itemsStore.allItems || item in itemsStore.materials))
+          if (!(item in itemsStore.allGearItems || item in itemsStore.materials))
             return;
 
           const fullItem =
-            itemsStore.allItems[item] || itemsStore.materials[item];
+            itemsStore.allGearItems[item] || itemsStore.materials[item];
           const { name, icon } = fullItem;
           return {
             name,

@@ -35,7 +35,7 @@ function useBaseContext() {
     achievementPoints: computed(() => playerStore.achievementPoints),
     factionReputation: computed(() => playerStore.factionReputation),
 
-    allItems: computed(() => itemsStore.allItems),
+    allGearItems: computed(() => itemsStore.allGearItems),
     itemsByCategory: computed(() => itemsStore.itemsByCategory),
     ownedItems: computed(() => itemsStore.ownedItems),
     embargoedItems: computed(() => itemsStore.embargoedItems),

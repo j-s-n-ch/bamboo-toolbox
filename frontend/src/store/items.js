@@ -13,7 +13,7 @@ export const useItemsStore = defineStore("itemStore", {
     categorizedItems: [],
     itemsByCategory: {},
     ownedItems: {},
-    allItems: {},
+    allGearItems: {},
     petsMap: {},
     embargoedItems: new Set(),
     changedOwnedItems: {},
@@ -59,11 +59,11 @@ export const useItemsStore = defineStore("itemStore", {
       this.itemsByCategory = Object.fromEntries(
         categories.map(({ key, items }) => [key, items])
       );
-      this.allItems = Object.fromEntries(
+      this.allGearItems = Object.fromEntries(
         categories.flatMap(({ items }) => items).map((item) => [item.id, item])
       );
       this.embargoedItems = new Set(
-        Object.values(this.allItems)
+        Object.values(this.allGearItems)
           .filter((item) => "embargo" in item)
           .map(({ id }) => id)
       );

@@ -75,8 +75,8 @@ export function useShowItemForActivity(ctx) {
 
       const benefitsCO = Object.keys(activity.itemRewards).some(
         (itemId) =>
-          itemId in ctx.allItems.value &&
-          ctx.allItems.value[itemId].type === "crafted"
+          itemId in ctx.allGearItems.value &&
+          ctx.allGearItems.value[itemId].type === "crafted"
       );
 
       return statIsCO && benefitsCO;

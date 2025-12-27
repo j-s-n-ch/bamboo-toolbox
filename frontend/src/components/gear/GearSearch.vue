@@ -36,7 +36,7 @@ const { showItemForActivity } = useShowItemForActivity(ctx);
 
 const searchTerm = ref("");
 
-const slotItems = Object.values(ctx.allItems.value).filter(
+const slotItems = Object.values(ctx.allGearItems.value).filter(
   ({ gearType, type, egg }) =>
     gearType === props.gearType ||
     type === props.gearType ||

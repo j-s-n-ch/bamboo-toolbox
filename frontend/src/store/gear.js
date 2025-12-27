@@ -106,8 +106,8 @@ export const useGearStore = defineStore("gearStore", {
       const itemsStore = useItemsStore();
       const owned = id in itemsStore.ownedItems;
       if (!owned)
-        return id in itemsStore.allItems
-          ? itemsStore.allItems[id].quality
+        return id in itemsStore.allGearItems
+          ? itemsStore.allGearItems[id].quality
           : "common";
       const entry = itemsStore.ownedItems[id];
       let quality = "common";
@@ -191,7 +191,7 @@ export const useGearStore = defineStore("gearStore", {
       const isPet = itemSlot === "pet";
 
       const itemsStore = useItemsStore();
-      if (!(id in itemsStore.allItems)) return;
+      if (!(id in itemsStore.allGearItems)) return;
 
       const previousItem = this.gearSlots[itemSlot];
       if (previousItem?.id === id && previousItem.quality === itemQuality)
@@ -301,7 +301,7 @@ export const useGearStore = defineStore("gearStore", {
         }
 
         // Skip if item doesn't exist in allItems
-        if (!(item.id in itemsStore.allItems)) {
+        if (!(item.id in itemsStore.allGearItems)) {
           finalGearSlots[slot] = null;
           continue;
         }

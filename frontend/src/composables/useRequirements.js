@@ -319,7 +319,7 @@ export function useRequirements(ctx) {
         }
       } else if (type === "itemAnywhere" || type === "itemAnywhereWithYou") {
         const { item: itemID } = requirement;
-        const item = itemsStore.allItems[itemID];
+        const item = itemsStore.allGearItems[itemID];
         if (item) {
           out = {
             prefix: `Own a`,
@@ -344,7 +344,7 @@ export function useRequirements(ctx) {
         }
       } else if (type === "itemEquipped") {
         const { item } = requirement;
-        const itemObj = ctx.allItems.value[item];
+        const itemObj = ctx.allGearItems.value[item];
         const { name, icon } = itemObj;
 
         out = {
