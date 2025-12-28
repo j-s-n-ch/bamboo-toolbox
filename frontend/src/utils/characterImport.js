@@ -234,7 +234,7 @@ function processItems(parsedData, itemsStore) {
     }
 
     // Only process items that exist in the items store
-    if (!(baseId in itemsStore.allItems)) {
+    if (!(baseId in itemsStore.allGearItems)) {
       // console.warn(`Skipping unknown item: ${baseId} (from ${itemId})`);
       continue;
     }
@@ -265,7 +265,7 @@ function processItems(parsedData, itemsStore) {
   });
 
   for (const [baseId, { qualities }] of Object.entries(itemGroups)) {
-    const itemData = itemsStore.allItems[baseId];
+    const itemData = itemsStore.allGearItems[baseId];
     const existingOwned = itemsStore.ownedItems[baseId];
 
     if (!itemData) {
