@@ -49,6 +49,7 @@ const sections = computed(() => {
 
   const inputs =
     options
+      ?.filter(Boolean)
       ?.filter(({ type }) => type === "inputActivity")
       .flatMap(({ inputs }) => inputs)
       .map(({ item, quantity }) => {

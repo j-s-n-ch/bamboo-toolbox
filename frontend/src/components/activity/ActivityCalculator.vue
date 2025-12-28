@@ -62,8 +62,8 @@ const resultHasCO = computed(() => {
   if (recipeSelected.value) {
     const [itemId] = Object.keys(recipe.value.itemRewards);
     return (
-      itemId in itemsStore.allItems &&
-      itemsStore.allItems[itemId].type === "crafted"
+      itemId in itemsStore.allGearItems &&
+      itemsStore.allGearItems[itemId].type === "crafted"
     );
   }
   return false;
