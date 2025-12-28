@@ -1,78 +1,22 @@
 <script setup>
-import { computed, ref, watchEffect } from "vue";
+import { computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useDataStore } from "@/store/data";
-import { useGearStore } from "@/store/gear";
 import { useItemsStore } from "@/store/items";
 import { usePlayerStore } from "@/store/player";
 import { useSettingsStore } from "@/store/settings";
 import useBaseContext from "@/composables/useBaseContext";
-import { useRequirements } from "@/composables/useRequirements";
-import { usedAttrs } from "@/utils/qualityAttrs";
-import { stripHtmlTags } from "@/utils/stripHtmlTags";
+import { useLootTables } from "@/composables/useLootTables";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
 
-const dataStore = useDataStore();
-const gearStore = useGearStore();
 const itemsStore = useItemsStore();
 const playerStore = usePlayerStore();
 const settingsStore = useSettingsStore();
 const { activitySettings } = storeToRefs(settingsStore);
 const ctx = useBaseContext();
-const { checkRequirements } = useRequirements(ctx);
-const resolvedLootTables = ref([]);
 
-watchEffect(async () => {
-  const gearLootTables = gearStore.filledGearSlots.flatMap(([slot, item]) => {
-    const attrs = usedAttrs(item, item.quality)
-      .filter(
-        (item) =>
-          Array.isArray(item.tables) &&
-          item.tables.length > 0 &&
-          checkRequirements(item.requirements)
-      )
-      .flatMap((item) => {
-        const { tables, stats, customText } = item;
-        return tables.map((table) => {
-          return {
-            ...table,
-            tableSource: stripHtmlTags(item.customText) || item.name,
-            slot,
-            stat: customText,
-            rollChance: stats?.[0]?.value || 1,
-          };
-        });
-      });
-    return attrs;
-  });
-
-  const source = ctx.source.value;
-  const { tables: activityTables, name } = source;
-  let activityLootTables = [];
-  if (activityTables) {
-    activityLootTables = activityTables.map((table) => {
-      return {
-        ...table,
-        tableSource: `activity-${name}`,
-      };
-    });
-  }
-
-  const tables = [...activityLootTables, ...gearLootTables];
-  const tableIds = tables.flatMap(({ tables }) => tables);
-  await dataStore.fetchDetailedLootTables(tableIds);
-
-  const resolvedTables = tables.flatMap((table) => {
-    return {
-      ...table,
-      rollChance: table.rollChance || 1,
-      tables: table.tables.map(dataStore.getDetailedLootTable),
-    };
-  });
-
-  resolvedLootTables.value = resolvedTables;
-});
+const { detailedLootTables } = useLootTables(ctx);
+const resolvedLootTables = computed(() => detailedLootTables.value);
 
 const resolveLootTableWeights = (params) => {
   const { tables } = params;
