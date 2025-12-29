@@ -3,6 +3,7 @@ import { computed } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
 import useBaseContext from "@/composables/useBaseContext";
 import { useLootTables } from "@/composables/useLootTables";
+import { icons } from "@/constants/iconPaths";
 import { n } from "@/utils/number";
 
 const props = defineProps({
@@ -31,16 +32,10 @@ const item = computed(() => dropItemInfoMap.value[props.itemId]);
         <span>{{ n(item.itemsPerStep, 0) }}</span>
         /
         <span>1k</span>
-        <ws-icon
-          iconPath="assets/icons/text/general_icons/steps.png"
-          size="xs"
-        />
+        <ws-icon :iconPath="icons.steps" size="xs" />
       </div>
       <div v-else class="steps-line border-common">
-        <ws-icon
-          iconPath="assets/icons/text/general_icons/steps.png"
-          size="xs"
-        />
+        <ws-icon :iconPath="icons.steps" size="xs" />
         <span>{{
           item.stepsPerItem < 100
             ? n(item.stepsPerItem, 1)
@@ -48,10 +43,7 @@ const item = computed(() => dropItemInfoMap.value[props.itemId]);
         }}</span>
       </div>
       <div v-if="item.stepsPerFine > 0" class="steps-line border-fine">
-        <ws-icon
-          iconPath="assets/icons/text/general_icons/steps.png"
-          size="xs"
-        />
+        <ws-icon :iconPath="icons.steps" size="xs" />
         <span>{{ n(item.stepsPerFine, 0) }}</span>
       </div>
     </div>
