@@ -6,6 +6,7 @@ import {
   getLootTables,
   getMultipleAbilities,
   getMultipleLootTables,
+  getItemValueMap,
 } from "@/utils/axios/api_routes";
 
 export const useDataStore = defineStore("dataStore", {
@@ -22,6 +23,7 @@ export const useDataStore = defineStore("dataStore", {
     loadingData: {},
     detailedAbilitiesMap: {},
     detailedLootTablesMap: {},
+    itemValues: {},
     selectedStat: "none",
   }),
   getters: {
@@ -46,11 +48,13 @@ export const useDataStore = defineStore("dataStore", {
         { data: keywords },
         { data: statList },
         { data: lootTables },
+        { data: itemValues },
       ] = await Promise.all([
         getAbilities(),
         getKeywords(),
         getStats(),
         getLootTables(),
+        getItemValueMap(),
       ]);
 
       this.abilities = abilities;
@@ -79,6 +83,7 @@ export const useDataStore = defineStore("dataStore", {
       );
 
       this.lootTables = lootTables;
+      this.itemValues = itemValues;
 
       this.isLoaded = true;
     },
