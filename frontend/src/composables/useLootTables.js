@@ -29,7 +29,7 @@ export function useLootTables(ctx) {
 
   const lootTables = computed(() => getCtxLootTables(ctx));
   const lootTableIds = computed(() =>
-    lootTables.value.map(({ tables }) => tables)
+    lootTables.value.flatMap(({ tables }) => tables)
   );
 
   watch(
