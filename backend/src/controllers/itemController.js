@@ -35,6 +35,16 @@ export async function getUrlMapping(req, res) {
   }
 }
 
+export async function getItemValueMapping(req, res) {
+  try {
+    const urlMapping = await itemService.getItemValueMapping();
+    res.json(urlMapping);
+  } catch (error) {
+    console.error("Error fetching Item value mapping:", error);
+    res.status(500).json({ error: "Failed to fetch Item value mapping" });
+  }
+}
+
 export async function getFineMaterials(req, res) {
   try {
     const fineMaterials = await itemService.getFineMaterials();
