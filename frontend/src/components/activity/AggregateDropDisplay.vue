@@ -52,7 +52,7 @@ const goldTotal = computed(() => {
     return total;
   }, 0);
 
-  return n(sum, 2);
+  return sum;
 });
 
 const tokenTotal = computed(() => {
@@ -61,12 +61,12 @@ const tokenTotal = computed(() => {
     .filter(([id]) => id in tokenValues)
     .map(([id, info]) => materialValue(id, info, tokenValues))
     .reduce((a, b) => a + b, 0);
-  return n(out, 2);
+  return out;
 });
 
 const displayValue = computed(() => {
-  if (props.type === "money") return goldTotal.value;
-  if (props.type === "token") return tokenTotal.value;
+  if (props.type === "money") return n(goldTotal.value, 2);
+  if (props.type === "token") return n(tokenTotal.value, 2);
   return "";
 });
 
@@ -77,8 +77,9 @@ const icon = computed(() => {
 });
 
 const tooltip = computed(() => {
-  if (props.type === "money") return `${goldTotal.value} per 1k steps`;
-  if (props.type === "token") return `${tokenTotal.value} per 1k steps`;
+  if (props.type === "money") return `${displayValue.value} money per 1k steps`;
+  if (props.type === "token")
+    return `${displayValue.value} adventurer's guild tokens per 1k steps`;
   return "";
 });
 </script>
