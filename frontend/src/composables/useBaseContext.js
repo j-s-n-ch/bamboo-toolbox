@@ -43,6 +43,7 @@ function useBaseContext() {
 
     gearSlots: computed(() => gearStore.gearSlots),
     equippedGear: computed(() => gearStore.equippedGear),
+    filledGearSlots: computed(() => gearStore.filledGearSlots),
 
     segments: computed(() => routeStore.segments),
   };
