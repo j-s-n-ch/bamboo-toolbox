@@ -5,6 +5,7 @@ import useBaseContext from "@/composables/useBaseContext";
 import { useLootTables } from "@/composables/useLootTables";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
+import AggregateDropDisplay from "./AggregateDropDisplay.vue";
 
 const ctx = useBaseContext();
 
@@ -36,6 +37,9 @@ const { groupedLootTables, dropItemInfoMap } = useLootTables(ctx);
           Hide owned collectibles
         </label>
       </div>
+      <section class="aggregate-drops">
+        <aggregate-drop-display />
+      </section>
       <section class="drops-info">
         <template v-if="activitySettings.showCombined.value">
           <drop-item-display

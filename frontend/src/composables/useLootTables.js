@@ -292,9 +292,14 @@ export function useLootTables(ctx) {
       const statGroupedSources = groupSourcesByStat(sources);
       const stepsPerItem = getStepsPerItem(statGroupedSources);
       // todo add info for rare pets
+
       const stepsPerFine = canDropFine(sources[0])
         ? stepsPerItem / fineMaterialFind.value
         : 0;
+
+      const stepsPerNormal = canDropFine(sources[0])
+        ? stepsPerItem / (1 - fineMaterialFind.value)
+        : stepsPerItem;
 
       const info = {
         id,
@@ -303,6 +308,7 @@ export function useLootTables(ctx) {
         totalDropChance: getTotalDropChance(statGroupedSources),
         stepsPerItem,
         itemsPerStep: 1000 / stepsPerItem,
+        stepsPerNormal,
         stepsPerFine,
         dropCounts: getDropCounts(statGroupedSources),
         variableRequirement: getVariableRequirement(sources[0]),
