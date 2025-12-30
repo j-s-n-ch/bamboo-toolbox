@@ -6,6 +6,7 @@ import { fetchItemRewards } from "../controllers/rewardsController.js";
 import {
   fetchActivityItems,
   fetchChestItems,
+  fetchChestTables,
 } from "../controllers/lootTableController.js";
 import { fetchSoldShopItems } from "../controllers/shopController.js";
 import {
@@ -19,6 +20,7 @@ import {
   locationService,
   petService,
 } from "./index.js";
+import { createItemValueMap } from "../utils/ItemValueMap.js";
 
 class ItemService extends BaseService {
   constructor() {
@@ -39,6 +41,9 @@ class ItemService extends BaseService {
   }
   async fetchConsumables() {
     return this.search({ type: "consumable", detailed: true });
+  }
+  async fetchMaterials() {
+    return this.search({ type: "material", detailed: true });
   }
 
   async getCategorizedItems() {
@@ -107,6 +112,27 @@ class ItemService extends BaseService {
       recipes,
       locations,
       pets
+    );
+  }
+
+  async getItemValueMapping() {
+    const [crafted, loot, consumables, materials, containers, chestTables] =
+      await Promise.all([
+        this.fetchCrafted(),
+        this.fetchLoot(),
+        this.fetchConsumables(),
+        this.fetchMaterials(),
+        this.fetchContainers(),
+        fetchChestTables(),
+      ]);
+
+    return createItemValueMap(
+      crafted,
+      loot,
+      consumables,
+      materials,
+      containers,
+      chestTables
     );
   }
 

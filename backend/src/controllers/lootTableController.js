@@ -16,6 +16,9 @@ export const fetchActivityItems = async () => {
   }));
 };
 
+export const fetchChestTables = () =>
+  lootTableService.search({ category: "chest", detailed: true });
+
 export const fetchChestItems = () =>
   lootTableService.search({ category: "chest", detailed: true }).then((arr) =>
     arr.map(({ id, name, category, tableRows, subTables }) => {
