@@ -104,26 +104,23 @@ const canUseFineMaterials = computed(() => {
 });
 
 const materials = computed(() => {
-  return recipe.value.materials
-    .map(
-      ({ options }) =>
-        options.map(({ item, amount }) => {
-          if (!(item in itemsStore.allGearItems || item in itemsStore.materials))
-            return;
+  return recipe.value.materials.map(({ options }) =>
+    options
+      .map(({ item, amount }) => {
+        if (!(item in itemsStore.allGearItems || item in itemsStore.materials))
+          return;
 
-          const fullItem =
-            itemsStore.allGearItems[item] || itemsStore.materials[item];
-          const { name, icon } = fullItem;
-          return {
-            name,
-            icon,
-            amount,
-          };
-        })[0]
-    )
-    .filter(({ name }) => {
-      return name;
-    });
+        const fullItem =
+          itemsStore.allGearItems[item] || itemsStore.materials[item];
+        const { name, icon } = fullItem;
+        return {
+          name,
+          icon,
+          amount,
+        };
+      })
+      .filter(({ name }) => name)
+  );
 });
 
 const wikiLink = computed(() => {
@@ -147,14 +144,24 @@ const wikiLink = computed(() => {
         </div>
         <div class="info-row">
           <p>Materials:</p>
-          <info-bubble
-            v-for="{ name, icon, amount } in materials"
-            :key="name"
-            :text="`${amount}`"
-            :tooltip="`${amount}x ${name}`"
-            :iconPath="icon"
-            :border-class="useFineMaterials ? 'border-fine' : ''"
-          />
+          <div
+            v-for="(materialGroup, gi) in materials"
+            :key="`material-${gi}`"
+            class="material-group"
+          >
+            <template
+              v-for="({ name, icon, amount }, index) in materialGroup"
+              :key="name"
+            >
+              <p v-if="index > 0">or</p>
+              <info-bubble
+                :text="`${amount}`"
+                :tooltip="`${amount}x ${name}`"
+                :iconPath="icon"
+                :border-class="useFineMaterials ? 'border-fine' : ''"
+              />
+            </template>
+          </div>
         </div>
         <div class="info-row">
           <info-bubble
@@ -271,11 +278,12 @@ const wikiLink = computed(() => {
   gap: $sm;
   align-items: flex-start;
 
-  .info-row {
+  .info-row, .material-group {
     align-items: center;
     display: flex;
     flex-wrap: wrap;
     gap: $md;
   }
+
 }
 </style>
