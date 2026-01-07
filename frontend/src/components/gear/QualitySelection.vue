@@ -1,0 +1,58 @@
+<script setup>
+import {
+  craftingQualityOptions,
+  consumableQualityOptions,
+} from "@/constants/quality";
+import { computed } from "vue";
+
+const props = defineProps({
+  type: String,
+});
+
+defineEmits(["select-quality"]);
+
+const usedQualities = computed(() => {
+  if (props.type === "crafted") {
+    return craftingQualityOptions;
+  } else if (props.type === "consumable") {
+    return consumableQualityOptions;
+  }
+  return [];
+});
+</script>
+
+<template>
+  <div v-if="usedQualities.length" class="qualities">
+    <button
+      v-for="{ name, value } in usedQualities"
+      :key="value"
+      :class="[`color-${value}`, `border-${value}`, 'quality-bubble']"
+      @click="$emit('select-quality', value)"
+    >
+      <p>{{ name }}</p>
+    </button>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.qualities {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  gap: $xs;
+  margin-bottom: $sm;
+}
+
+.quality-bubble {
+  cursor: pointer;
+  gap: $xs;
+  border-radius: $sm;
+  padding: $xxxxs $xxxs;
+
+  &:hover,
+  &:focus {
+    background-color: $boxTransparentDarkOutline;
+  }
+}
+</style>
