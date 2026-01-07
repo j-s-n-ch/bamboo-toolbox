@@ -104,7 +104,7 @@ const filteredItems = computed(() => {
 
   return slotItems
     .map((item) => {
-      const { id, type, gearType, egg, quality: baseQuality } = item;
+      const { id, type, gearType, egg } = item;
       const isCrafted = type === "crafted";
       const isConsumable = type === "consumable";
       const isPet = Boolean(egg);
@@ -132,10 +132,6 @@ const filteredItems = computed(() => {
         }
       } else if (isRing) {
         quality2 = owned ? ctx.ownedItems.value[id].quality2 : item.quality2;
-      }
-
-      if (!showOwned) {
-        quality = baseQuality;
       }
 
       const attrs =
