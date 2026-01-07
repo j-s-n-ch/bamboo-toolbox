@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { useGearStore } from "@/store/gear";
 import WsIcon from "@/components/common/WsIcon.vue";
 import StatsDisplay from "../common/StatsDisplay.vue";
+import QualitySelection from "./QualitySelection.vue";
 import { getPetIcon } from "@/utils/pets";
 
 const props = defineProps({
@@ -26,6 +27,10 @@ const icon = computed(() => {
     ? getPetIcon(item.value, item.value.quality)
     : item.value.icon;
 });
+
+const changeQuality = (quality) => {
+  gearStore.gearSlots[props.slotName].quality = quality;
+};
 </script>
 
 <template>
@@ -33,12 +38,13 @@ const icon = computed(() => {
     <div class="header">
       <div class="base-info">
         <ws-icon :icon-path="icon" />
-        <p>
+        <p :class="[`color-${item.quality}`]">
           {{ item.name }}
         </p>
       </div>
       <button class="unequip" @click="$emit('unequip')">Unequip</button>
     </div>
+    <quality-selection :type="item.type" @select-quality="changeQuality" />
     <stats-display :item="item" :quality="item.quality" showActiveColors />
   </div>
   <div v-else>
