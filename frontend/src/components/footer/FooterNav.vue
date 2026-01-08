@@ -14,8 +14,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["selectTab"]);
-
-const tabNames = Object.keys(props.tabs);
+const tabNames = props.tabs.map(({ name }) => name);
 const activeTabIndex = computed(() => tabNames.indexOf(props.activeTab));
 
 const changeTab = (index) => {
@@ -26,10 +25,11 @@ const changeTab = (index) => {
 <template>
   <div class="footer">
     <tab
-      v-for="(name, index) in tabNames"
+      v-for="({ name, icon }, index) in props.tabs"
       :key="name"
       :active="activeTabIndex === index"
       :name="name"
+      :icon="icon"
       @click="changeTab(index)"
     ></tab>
   </div>
@@ -40,7 +40,7 @@ const changeTab = (index) => {
   width: 100%;
   display: flex;
   justify-content: space-around;
-  border-top: 1px solid $chipOutline;
+  border-top: 1px solid $boxDarkOutline;
   padding: 0;
 
   flex-shrink: 0;
