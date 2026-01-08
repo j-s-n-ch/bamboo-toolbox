@@ -43,9 +43,9 @@ const postFactionReputation = () => {
 
 const updateFactionReputation = debounce(postFactionReputation, 1000);
 
-const handleCharacterImport = (data) => {
+const handleCharacterImport = (data, reset) => {
   try {
-    const result = processCharacterImport(data, playerStore, itemsStore);
+    const result = processCharacterImport(data, reset, playerStore, itemsStore);
 
     // Update skills if processed
     if (result.skills?.hasUpdates) {
@@ -89,7 +89,8 @@ const handleCharacterImport = (data) => {
     } else {
       notificationStore.success(`Valid import data, but nothing to update`);
     }
-  } catch {
+  } catch (e) {
+    console.error(e);
     notificationStore.error(
       "Failed to import character data. Please check the file format."
     );

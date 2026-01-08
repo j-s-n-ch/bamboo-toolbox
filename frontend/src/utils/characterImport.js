@@ -213,7 +213,7 @@ function determineQualities(qualities, isRing) {
  * @param {Object} itemsStore - Items store for validation and updates
  * @returns {Object} - Updated owned items for the store
  */
-function processItems(parsedData, itemsStore) {
+function processItems(parsedData, reset, itemsStore) {
   if (!parsedData || !itemsStore) {
     console.warn("Missing data or items store for item processing");
     return null;
@@ -266,14 +266,21 @@ function processItems(parsedData, itemsStore) {
 
   // Build updated owned items
   const updatedOwnedItems = { ...itemsStore.ownedItems };
-  Object.entries(updatedOwnedItems).forEach(([id, item]) => {
-    updatedOwnedItems[id] = {
-      ...item,
-      owned: false,
-      quality: "common",
-      quality2: null,
-    };
-  });
+  const processedItems = Object.fromEntries(
+    Object.keys(updatedOwnedItems).map((id) => [id, false])
+  );
+  if (reset)
+    Object.entries(updatedOwnedItems).forEach(([id, item]) => {
+      const isPet = id in itemsStore.petsMap;
+      const quality = isPet ? "0" : "common";
+      const quality2 = isPet ? "common" : null;
+      updatedOwnedItems[id] = {
+        ...item,
+        owned: false,
+        quality,
+        quality2,
+      };
+    });
 
   let hasUpdates = false;
   for (const [baseId, { qualities }] of Object.entries(itemGroups)) {
@@ -327,8 +334,17 @@ function processItems(parsedData, itemsStore) {
       updatedOwnedItems[baseId] = data;
       if (!isEqual(itemsStore.ownedItems[baseId], data)) hasUpdates = true;
     }
+    processedItems[baseId] = true;
   }
-  return { hasUpdates, updatedOwnedItems };
+
+  const unprocessedItems = Object.entries(processedItems).filter(
+    ([, val]) => !val
+  );
+
+  return {
+    hasUpdates: hasUpdates || (reset && Boolean(unprocessedItems.length)),
+    data: updatedOwnedItems,
+  };
 }
 
 /**
@@ -338,7 +354,7 @@ function processItems(parsedData, itemsStore) {
  * @param {Object} itemsStore - Items store for validation and item processing
  * @returns {Object} - Processed data with skills, achievementPoints, reputation, and items
  */
-export function processCharacterImport(data, playerStore, itemsStore) {
+export function processCharacterImport(data, reset, playerStore, itemsStore) {
   if (!data) {
     throw new Error("No data provided");
   }
@@ -352,6 +368,6 @@ export function processCharacterImport(data, playerStore, itemsStore) {
       playerStore
     ),
     reputation: processReputation(parsedData.reputation, playerStore),
-    items: processItems(parsedData, itemsStore),
+    items: processItems(parsedData, reset, itemsStore),
   };
 }
