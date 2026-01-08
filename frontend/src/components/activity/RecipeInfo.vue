@@ -169,6 +169,10 @@ const rewardCount = computed(() => {
             </template>
           </div>
         </div>
+        <div v-if="rewardCount > 1" class="info-row">
+          <p>Output: {{ rewardCount }}</p>
+        </div>
+
         <div class="info-row">
           <info-bubble
             label="item"
