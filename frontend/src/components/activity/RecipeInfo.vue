@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import WsLabel from "@/components/common/WsLabel.vue";
 import InfoBubble from "@/components/common/InfoBubble.vue";
@@ -127,6 +127,11 @@ const wikiLink = computed(() => {
   if (name.toLowerCase() === "upcycle trash") return "Upcycle_Trash";
   return `${Object.keys(itemRewards || {})[0]}#Recipes`;
 });
+
+const rewardCount = computed(() => {
+  const { itemRewards } = recipe.value;
+  return Object.values(itemRewards)[0];
+});
 </script>
 
 <template>
@@ -167,8 +172,11 @@ const wikiLink = computed(() => {
         <div class="info-row">
           <info-bubble
             label="item"
-            :text="`${n(stats.stepsPerRewardRoll, 2)}`"
-            :tooltip="`${n(stats.stepsPerRewardRoll, 2)} steps per item`"
+            :text="`${n(stats.stepsPerRewardRoll / rewardCount, 2)}`"
+            :tooltip="`${n(
+              stats.stepsPerRewardRoll / rewardCount,
+              2
+            )} steps per item`"
             iconPath="assets/icons/text/general_icons/steps.png"
           />
           <info-bubble
