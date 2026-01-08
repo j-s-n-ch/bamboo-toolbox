@@ -18,6 +18,7 @@ import debounce from "@/utils/debounce";
 import { capitalize } from "@/utils/string";
 import { argbToRgba } from "@/utils/argbToRgba";
 import { processCharacterImport } from "@/utils/characterImport";
+import { camelCaseToWords } from "@/utils/string";
 
 const playerStore = usePlayerStore();
 const itemsStore = useItemsStore();
@@ -42,59 +43,54 @@ const postFactionReputation = () => {
 
 const updateFactionReputation = debounce(postFactionReputation, 1000);
 
-const handleCharacterImport = (data) => {
+const handleCharacterImport = (data, reset) => {
   try {
-    const result = processCharacterImport(data, playerStore, itemsStore);
-
-    let updatedSkills = false;
-    let updatedAchievementPoints = false;
-    let updatedItems = false;
-    let updatedReputation = false;
+    const result = processCharacterImport(data, reset, playerStore, itemsStore);
 
     // Update skills if processed
-    if (result.skills) {
-      playerStore.setSkillLevels(result.skills);
-      updatedSkills = true;
+    if (result.skills?.hasUpdates) {
+      playerStore.setSkillLevels(result.skills.data);
     }
 
     // Update achievement points if processed
-    if (result.achievementPoints !== null) {
-      playerStore.setAchievementPoints(result.achievementPoints);
-      updatedAchievementPoints = true;
+    if (result.achievementPoints?.hasUpdates) {
+      playerStore.setAchievementPoints(result.achievementPoints.data);
     }
 
-    if (updatedSkills || updatedAchievementPoints) {
+    if (result.skills?.hasUpdates || result.achievementPoints?.hasUpdates) {
       postPlayerStats();
     }
 
     // Update reputation if processed
-    if (result.reputation) {
-      playerStore.setFactionReputations(result.reputation);
+    if (result.reputation?.hasUpdates) {
+      playerStore.setFactionReputations(result.reputation.data);
       postFactionReputation();
-      updatedReputation = true;
     }
 
     // Update items if processed
-    if (result.items) {
-      itemsStore.batchUpdateOwnedItems(result.items);
-      updatedItems = true;
+    if (result.items?.hasUpdates) {
+      itemsStore.batchUpdateOwnedItems(result.items.data);
     }
 
-    // Show success notification
-    const updatedSections = [];
-    if (updatedSkills) updatedSections.push("skills");
-    if (updatedAchievementPoints) updatedSections.push("achievement points");
-    if (updatedReputation) updatedSections.push("faction reputation");
-    if (updatedItems) updatedSections.push("items");
+    const dataValid = Object.values(result).every((obj) => Boolean(obj));
+    if (!dataValid) {
+      notificationStore.error("No valid data found to import");
+      return;
+    }
+
+    const updatedSections = Object.entries(result)
+      .filter(([, values]) => values.hasUpdates)
+      .map(([key]) => camelCaseToWords(key));
 
     if (updatedSections.length > 0) {
       notificationStore.success(
-        `Successfully imported: ${updatedSections.join(", ")}`
+        `Successfully updated: ${updatedSections.join(", ")}`
       );
     } else {
-      notificationStore.error("No valid data found to import");
+      notificationStore.success(`Valid import data, but nothing to update`);
     }
-  } catch {
+  } catch (e) {
+    console.error(e);
     notificationStore.error(
       "Failed to import character data. Please check the file format."
     );
@@ -198,7 +194,7 @@ const playerSkills = computed(() => {
 
 <style lang="scss" scoped>
 details[open] summary {
-  margin-bottom: $md; 
+  margin-bottom: $md;
 }
 
 .sections {

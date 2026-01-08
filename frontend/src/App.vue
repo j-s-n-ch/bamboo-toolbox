@@ -35,8 +35,11 @@ const checkScreenSize = () => {
   isMobile.value = window.innerWidth <= 768;
 };
 
-const contentTabs = { Hub, Gear, Activity };
-const tabs = { About, ...contentTabs };
+const contentTabs = [
+  { component: Hub, name: "Hub", icon: icons.character },
+  { component: Gear, name: "Gear", icon: icons.gear2 },
+  { component: Activity, name: "Activity", icon: icons.activity },
+];
 const tabRefs = reactive({});
 
 function scrollToTab(tabName) {
@@ -152,14 +155,14 @@ onUnmounted(() => {
     </div>
 
     <div
-      v-for="tabName in Object.keys(contentTabs)"
-      :key="tabName"
-      :ref="(el) => (tabRefs[tabName] = el)"
-      :class="['tab-panel', { active: activeTab === tabName }]"
+      v-for="{ name, component } in contentTabs"
+      :key="name"
+      :ref="(el) => (tabRefs[name] = el)"
+      :class="['tab-panel', { active: activeTab === name }]"
       :tabindex="isMobile ? 0 : undefined"
-      v-show="shouldShowTab(tabName)"
+      v-show="shouldShowTab(name)"
     >
-      <component :is="tabs[tabName]" />
+      <component :is="component" />
     </div>
     <Footer
       v-if="isMobile"

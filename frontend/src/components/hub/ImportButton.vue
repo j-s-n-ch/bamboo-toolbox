@@ -11,8 +11,8 @@ function openModal() {
   showModal.value = true;
 }
 
-function handleImportData(data) {
-  emit("import-data", data);
+function handleImportData(data, reset) {
+  emit("import-data", data, reset);
 }
 </script>
 

@@ -11,6 +11,7 @@ const emit = defineEmits(["update:modelValue", "import-data"]);
 
 const importData = ref("");
 const textareaRef = ref(null);
+const resetItems = ref(true);
 
 const jsonValidation = computed(() => {
   const data = importData.value.trim();
@@ -64,7 +65,7 @@ function handleSave() {
     return; // Don't save if validation fails or empty data
   }
 
-  emit("import-data", data);
+  emit("import-data", data, resetItems.value);
   emit("update:modelValue", false);
   importData.value = ""; // Clear the field
 }
@@ -102,6 +103,10 @@ async function handlePasteClick() {
         Find your data in the game under settings -> character -> export
         character data to clipboard.
       </p>
+      <label>
+        <input type="checkbox" v-model="resetItems" />
+        Reset items not found in imported data
+      </label>
 
       <div class="form-group">
         <div class="textarea-header">

@@ -1,6 +1,9 @@
 <script setup lang="ts">
-defineProps({
+import WsIcon from "../common/WsIcon.vue";
+
+const props = defineProps({
   name: String,
+  icon: String,
   active: Boolean,
 });
 
@@ -9,21 +12,26 @@ defineEmits(["click"]);
 
 <template>
   <button :class="['tab', { active }]" @click="$emit('click')">
-    {{ name }}
+    <ws-icon v-if="props.icon" :icon-path="props.icon" size="sm" />
+    {{ props.name }}
   </button>
 </template>
 
 <style lang="scss" scoped>
 .tab {
   width: 100%;
+  display: flex;
   padding: $lg;
+  gap: $sm;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     background-color: $boxPrimaryBackground;
   }
 
   &.active {
-    background-color: $chipBackground;
+    background-color: $boxDarkBackground;
   }
 }
 </style>
