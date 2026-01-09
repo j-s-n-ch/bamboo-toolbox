@@ -405,7 +405,7 @@ export function useRequirements(ctx) {
         );
       },
       merge(a, b) {
-        return a;
+        return a || b;
       },
     },
     skillLevel: {
