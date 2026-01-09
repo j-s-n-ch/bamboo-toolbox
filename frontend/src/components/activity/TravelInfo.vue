@@ -1,22 +1,26 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
+import WsIcon from "@/components/common/WsIcon.vue";
 import WsLabel from "@/components/common/WsLabel.vue";
 import InfoBubble from "@/components/common/InfoBubble.vue";
 import NestedDropdown from "@/components/common/dropdowns/NestedDropdown.vue";
-import WsIcon from "../common/WsIcon.vue";
+import TravelRequirementsList from "./TravelRequirementsList.vue";
 import { usePlayerStore } from "@/store/player";
 import { useRouteStore } from "@/store/route";
 import { useRoutes } from "@/composables/useRoutes";
 import useBaseContext from "@/composables/useBaseContext";
 import { useRequirements } from "@/composables/useRequirements";
+import { icons } from "@/constants/iconPaths";
 import { n } from "@/utils/number";
 
 const playerStore = usePlayerStore();
 const routeStore = useRouteStore();
 const ctx = useBaseContext();
-const { getRoute, getFastestRoute, averageStepsPerRoute, stepsPerNode } =
-  useRoutes(ctx);
-const { checkRequirements, mapRequirementsText } = useRequirements(ctx);
+const { getRoute, averageStepsPerRoute, stepsPerNode } = useRoutes(ctx);
+const { checkRequirements, mapRequirementsText, mergeRequirements } =
+  useRequirements(ctx);
+
+const route = ref(null);
 
 const start = computed({
   get: () => routeStore.start,
@@ -57,27 +61,23 @@ const locationsByFaction = [
     .filter(({ items }) => items.length > 0),
 ];
 
-const selected = computed(() => {
-  return Boolean(start.value && end.value);
-});
-
-const routeRef = computed(() => {
-  if (!selected.value) return [];
-  return getRoute(start.value.id, end.value.id);
-});
-
-const fastestRouteRef = computed(() => {
-  if (!selected.value) return [];
-  return getFastestRoute(start.value.id, end.value.id, true);
-});
+watch(
+  [start, end, ctx.equippedGear],
+  ([s, e]) => {
+    if (!s || !e) return;
+    const result = getRoute(s.id, e.id);
+    route.value = result;
+  },
+  { flush: "post" }
+);
 
 const noPath = computed(() => {
-  return selected.value && !routeRef.value;
+  return route.value?.bestValid ? false : true;
 });
 
 const segments = computed(() => {
-  if (!selected.value || noPath.value) return [];
-  return routeRef.value.segments;
+  if (!route.value?.bestValid) return [];
+  return route.value?.bestValid.segments;
 });
 
 const totalAverageSteps = computed(() => {
@@ -114,13 +114,15 @@ const stats = (segment) => {
     items: [
       {
         text: `~${averageStepsPerRoute(segment.distance, segment.stats)}`,
-        tooltip: "",
-        iconPath: "assets/icons/text/general_icons/steps.png",
+        tooltip: `Average steps for\n${segment.from.name} to ${
+          segment.to.name
+        }: ${averageStepsPerRoute(segment.distance, segment.stats)}`,
+        iconPath: icons.steps,
       },
       {
         text: `${n(uncappedWorkEfficiency * 100)}%`,
-        tooltip: "",
-        iconPath: "assets/icons/text/stats/skilling/work_efficiency.png",
+        tooltip: `Work Efficiency: ${n(uncappedWorkEfficiency * 100)}%`,
+        iconPath: icons.WE,
         borderClass:
           workEfficiency >= effectiveMaxWorkEfficiency - 1
             ? "border-green"
@@ -128,8 +130,8 @@ const stats = (segment) => {
       },
       {
         text: `${n(doubleAction * 100)}%`,
-        tooltip: "",
-        iconPath: "assets/icons/text/stats/skilling/double_action.png",
+        tooltip: `Double Action: ${n(doubleAction * 100)}%`,
+        iconPath: icons.DA,
       },
     ],
   };
@@ -143,14 +145,22 @@ const statsRow = computed(() => {
   const segmentsDA = segmentStats.map(({ doubleAction }) => doubleAction);
   const daRange = [Math.min(...segmentsDA), Math.max(...segmentsDA)];
 
+  const getRangeText = (range, isPercent = true) => {
+    const multi = isPercent ? 100 : 1;
+    return range[0] !== range[1]
+      ? `${n(range[0] * multi)} - ${n(range[1] * multi)}${isPercent ? "%" : ""}`
+      : `${n(range[0] * multi)}${isPercent ? "%" : ""}`;
+  };
+
   return {
     label: "Total steps (min - max steps, ~average)",
     component: InfoBubble,
     items: [
       {
-        text: `${Math.round(totalMinSteps.value)} - ${
-          totalMaxSteps.value
-        } (~${Math.round(totalAverageSteps.value)})`,
+        text: `${getRangeText(
+          [totalMinSteps.value, totalMaxSteps.value],
+          false
+        )} (~${n(totalAverageSteps.value, 0)})`,
         tooltip: `Min steps: ${Math.round(
           totalMinSteps.value
         )} (best case with double action)\nMax steps: ${
@@ -158,17 +168,17 @@ const statsRow = computed(() => {
         } (worst case, no double action)\nAverage steps: ${Math.round(
           totalAverageSteps.value
         )}`,
-        iconPath: "assets/icons/text/general_icons/steps.png",
+        iconPath: icons.steps,
       },
       {
-        text: `${n(weRange[0] * 100)} - ${Math.round(weRange[1] * 100)}%`,
-        tooltip: `${n(weRange[0] * 100)} - ${Math.round(weRange[1] * 100)}%`,
-        iconPath: "assets/icons/text/stats/skilling/work_efficiency.png",
+        text: getRangeText(weRange),
+        tooltip: getRangeText(weRange),
+        iconPath: icons.WE,
       },
       {
-        text: `${n(daRange[0] * 100)} - ${Math.round(daRange[1] * 100)}%`,
-        tooltip: `${n(daRange[0] * 100)} - ${Math.round(daRange[1] * 100)}%`,
-        iconPath: "assets/icons/text/stats/skilling/double_action.png",
+        text: getRangeText(daRange),
+        tooltip: getRangeText(daRange),
+        iconPath: icons.DA,
       },
     ],
   };
@@ -193,11 +203,10 @@ const reqs = computed(() => {
 });
 
 const missingRequirements = computed(() => {
-  return fastestRouteRef.value.missingRequirements.flatMap(
-    ({ requirements }) => {
-      return mapRequirementsText(requirements, [false]);
-    }
-  );
+  if (!route.value) return [];
+  const mergedReqs = mergeRequirements(route.value?.best.missing) || [];
+
+  return mapRequirementsText(mergedReqs, [false]);
 });
 
 const updateStart = (location) => {
@@ -235,35 +244,20 @@ const updateEnd = (location) => {
       </div>
 
       <div v-if="noPath">
-        <div v-if="missingRequirements.length">
-          <p>Requirements needed for route:</p>
-          <p
-            v-for="({ prefix, text, icon }, idx) in missingRequirements"
-            :key="`${idx}-${text}`"
-            class="requirement"
-          >
-            <template v-if="prefix">{{ prefix }} </template>
-            <ws-icon v-if="icon" :iconPath="icon" size="sm" />
-            <span class="main-text">{{ text }}</span>
-          </p>
-        </div>
+        <travel-requirements-list
+          v-if="missingRequirements"
+          title="Requirements needed for route:"
+          :requirements="missingRequirements"
+        />
         <p v-else>Couldn't find path</p>
       </div>
 
       <!-- Stats Display -->
       <div v-if="segments.length" class="info-section">
-        <div v-if="missingRequirements.length">
-          <p>Faster route available with:</p>
-          <p
-            v-for="({ prefix, text, icon }, idx) in missingRequirements"
-            :key="`${idx}-${text}`"
-            class="requirement"
-          >
-            <template v-if="prefix">{{ prefix }} </template>
-            <ws-icon v-if="icon" :iconPath="icon" size="sm" />
-            <span class="main-text">{{ text }}</span>
-          </p>
-        </div>
+        <travel-requirements-list
+          title="Faster route available with:"
+          :requirements="missingRequirements"
+        />
         <ws-label :label="statsRow.label" />
         <div class="info-row">
           <component
@@ -296,17 +290,7 @@ const updateEnd = (location) => {
               {{ route.to.name }}</span
             >
           </p>
-          <div v-if="reqs[idx]">
-            <p
-              v-for="({ prefix, text, icon }, idx) in reqs[idx]"
-              :key="`${idx}-${text}`"
-              class="requirement"
-            >
-              <template v-if="prefix">{{ prefix }} </template>
-              <ws-icon v-if="icon" :iconPath="icon" size="sm" />
-              <span class="main-text">{{ text }}</span>
-            </p>
-          </div>
+          <travel-requirements-list :requirements="reqs[idx]" />
           <div class="components">
             <component
               v-for="(item, idx) in stats(route).items"
@@ -442,30 +426,6 @@ const updateEnd = (location) => {
     display: flex;
     flex-wrap: wrap;
     gap: $md;
-  }
-}
-
-.requirement {
-  display: block;
-  text-align: left;
-  padding: $xxxxs $xs;
-  border-radius: $lg;
-  color: $txLighter;
-
-  background-color: $boxDarkBackground;
-  border: 1px solid $boxDarkOutline;
-
-  :deep(.ws-icon) {
-    margin-left: $xxxxs;
-    vertical-align: middle;
-  }
-
-  .main-text {
-    margin-left: $xxxxs;
-  }
-
-  &.disabled {
-    color: $txDarker;
   }
 }
 </style>

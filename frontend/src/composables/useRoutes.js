@@ -9,7 +9,7 @@ import { argbToRgba } from "@/utils/argbToRgba";
 export function useRoutes(baseContext) {
   const routeStore = useRouteStore();
   const playerStore = usePlayerStore();
-  const { checkRequirements } = useRequirements(baseContext);
+  const { checkRequirement } = useRequirements(baseContext);
   const { totalsByStatWithContext } = useEffectiveAttrs(baseContext);
 
   const graph = ref(new Map());
@@ -101,7 +101,13 @@ export function useRoutes(baseContext) {
     addRoute(to, from, dist, getTerrainModifier(to, options || []));
   });
 
-  const pathfind = (start, goal, ignoreRequirements = false) => {
+  function isBetter(a, b) {
+    if (a.missing.length !== b.missing.length)
+      return a.missing.length < b.missing.length;
+    return a.distance < b.distance;
+  }
+
+  const pathfind = (start, goal) => {
     if (!graph.value.has(start)) {
       console.warn(`${start} not in map`);
       return;
@@ -111,82 +117,92 @@ export function useRoutes(baseContext) {
       return;
     }
 
-    const distances = new Map();
-    const prev = new Map();
     const queue = new Set();
-    const segmentMap = new Map();
+    const bestValid = new Map();
+    const best = new Map();
 
-    for (const id of graph.value.keys()) {
-      distances.set(id, Infinity);
-      prev.set(id, null);
-      queue.add(id);
-    }
-    distances.set(start, 0);
+    const startCandidate = {
+      location: start,
+      distance: 0,
+      missing: [],
+      prev: null,
+      segments: null,
+    };
+    bestValid.set(start, startCandidate);
+    best.set(start, startCandidate);
+    queue.add(startCandidate);
 
     while (queue.size) {
       // find node with smallest distance
       const current = [...queue].reduce((a, b) =>
-        distances.get(a) < distances.get(b) ? a : b
+        a.distance < b.distance ? a : b
       );
 
       queue.delete(current);
       if (current === goal) break;
 
-      for (const edge of graph.value.get(current) || []) {
-        const segment = getSegment(current, edge);
-        if (
-          !ignoreRequirements &&
-          !checkRequirements(segment.requirements, segment.context)
-        )
-          continue;
+      for (const edge of graph.value.get(current.location) || []) {
+        const segment = getSegment(current.location, edge);
+        const unmetReqs = segment.requirements.filter(
+          (req) => !checkRequirement(req, segment.context)
+        );
 
-        const alt =
-          distances.get(current) +
-          averageStepsPerRoute(edge.distance, segment.stats);
-        if (alt < distances.get(edge.to)) {
-          distances.set(edge.to, alt);
-          prev.set(edge.to, current);
-          segmentMap.set(edge.to, segment);
+        const candidate = {
+          location: edge.to,
+          distance:
+            current.distance +
+            averageStepsPerRoute(edge.distance, segment.stats),
+          missing: [...current.missing, ...unmetReqs],
+          prev: current.location,
+          segment,
+        };
+
+        if (
+          !best.get(edge.to) ||
+          candidate.distance < best.get(edge.to).distance
+        ) {
+          best.set(edge.to, candidate);
+          queue.add(candidate);
+        }
+        if (
+          !candidate.missing.length &&
+          (!bestValid.get(edge.to) ||
+            isBetter(candidate, bestValid.get(edge.to)))
+        ) {
+          bestValid.set(edge.to, candidate);
+          queue.add(candidate);
         }
       }
     }
 
-    if (distances.get(goal) === Infinity) return null;
+    const constructPath = (map) => {
+      const segments = [];
+      const path = [];
+      const missing = [];
+      let u = map.get(goal);
+      while (u) {
+        if (u.segment) segments.unshift(u.segment);
+        if (u.missing) missing.push(...u.missing);
+        path.unshift(u.location);
+        u = map.get(u.prev);
+      }
+      return { path, segments, missing };
+    };
 
-    // reconstruct path
-    const segments = [];
-    const path = [];
-    let u = goal;
-    while (u) {
-      const temp = u;
-      u = prev.get(u);
-      const segment = segmentMap.get(temp);
-      if (segment) segments.unshift(segment);
-      path.unshift(temp);
-    }
-    return { path, segments };
+    const bestRoute = constructPath(best);
+    const bestValidRoute = bestValid.get(goal)
+      ? constructPath(bestValid)
+      : null;
+    return { best: bestRoute, bestValid: bestValidRoute };
   };
 
   const getRoute = (start, goal) => {
     const route = pathfind(start, goal);
-    if (route) routeStore.setSegments(route.segments);
+    const segments = route.bestValid
+      ? route.bestValid.segments
+      : route.best.segments;
+    routeStore.setSegments(segments);
     return route;
-  };
-
-  const getFastestRoute = (start, goal, setSegments = false) => {
-    const { path, segments } = pathfind(start, goal, true);
-    const missingRequirements = segments
-      .flatMap(({ requirements, context }) =>
-        requirements.map((req) => ({
-          requirements: [req],
-          context,
-        }))
-      )
-      .filter(
-        ({ requirements, context }) => !checkRequirements(requirements, context)
-      );
-    if (setSegments && segments) routeStore.setSegments(segments);
-    return { path, segments, missingRequirements };
   };
 
   const stepsPerNode = (distance, stats) => {
@@ -211,7 +227,6 @@ export function useRoutes(baseContext) {
 
   return {
     getRoute,
-    getFastestRoute,
     stepsPerNode,
     averageStepsPerRoute,
   };
