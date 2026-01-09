@@ -9,10 +9,19 @@ export function useShowItemForActivity(ctx) {
 
   const usefulKeywords = (item, activity, service) => {
     if (!activity || !item.keywords) return false;
+
+    const travelReqs =
+      activity.name === "Travelling"
+        ? ctx.segments.value.flatMap(({ requirements }) => requirements)
+        : [];
     const kwReqs = activity.requirements || [];
     const serviceRequirements = service?.requirements || [];
 
-    const matchingKeywordRequirements = [...kwReqs, ...serviceRequirements]
+    const matchingKeywordRequirements = [
+      ...kwReqs,
+      ...serviceRequirements,
+      ...travelReqs,
+    ]
       .filter(({ type }) => type.toLowerCase().includes("keyword"))
       .map(({ requirement }) => {
         return "keyword" in requirement
