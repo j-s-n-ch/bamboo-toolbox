@@ -389,6 +389,7 @@ export function useRequirements(ctx) {
   };
 
   return {
+    checkRequirement,
     checkRequirements,
     mapRequirementsText,
     getLevelRequirementsMap,

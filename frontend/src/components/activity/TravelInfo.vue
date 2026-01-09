@@ -16,8 +16,7 @@ import { n } from "@/utils/number";
 const playerStore = usePlayerStore();
 const routeStore = useRouteStore();
 const ctx = useBaseContext();
-const { getRoute, getFastestRoute, averageStepsPerRoute, stepsPerNode } =
-  useRoutes(ctx);
+const { getRoute, averageStepsPerRoute, stepsPerNode } = useRoutes(ctx);
 const { checkRequirements, mapRequirementsText } = useRequirements(ctx);
 
 const start = computed({
@@ -63,14 +62,19 @@ const selected = computed(() => {
   return Boolean(start.value && end.value);
 });
 
-const routeRef = computed(() => {
+const routeInfo = computed(() => {
   if (!selected.value) return [];
   return getRoute(start.value.id, end.value.id);
 });
 
+const routeRef = computed(() => {
+  if (!selected.value) return [];
+  return routeInfo.value.bestValid;
+});
+
 const fastestRouteRef = computed(() => {
   if (!selected.value) return [];
-  return getFastestRoute(start.value.id, end.value.id, true);
+  return routeInfo.value.best;
 });
 
 const noPath = computed(() => {
@@ -205,11 +209,7 @@ const reqs = computed(() => {
 });
 
 const missingRequirements = computed(() => {
-  return fastestRouteRef.value.missingRequirements.flatMap(
-    ({ requirements }) => {
-      return mapRequirementsText(requirements, [false]);
-    }
-  );
+  return mapRequirementsText(fastestRouteRef.value?.missing, [false]);
 });
 
 const updateStart = (location) => {
