@@ -45,6 +45,7 @@ export const icons = {
   ...withBase("skilling", {
     WE: "work_efficiency.png",
     DR: "double_result.png",
+    DA: "double_action.png",
   }),
   ...withBase("items", {
     money: "money.png",
