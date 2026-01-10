@@ -1,8 +1,8 @@
 import { ref, computed } from "vue";
+import { MinPriorityQueue } from "@datastructures-js/priority-queue";
 import { useRouteStore } from "@/store/route";
 import { usePlayerStore } from "@/store/player";
 import { useRequirements } from "@/composables/useRequirements";
-import { useEffectiveAttrs } from "@/composables/useEffectiveAttrs";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { argbToRgba } from "@/utils/argbToRgba";
 
@@ -10,7 +10,6 @@ export function useRoutes(baseContext) {
   const routeStore = useRouteStore();
   const playerStore = usePlayerStore();
   const { checkRequirement } = useRequirements(baseContext);
-  const { totalsByStatWithContext } = useEffectiveAttrs(baseContext);
 
   const graph = ref(new Map());
 
@@ -116,7 +115,7 @@ export function useRoutes(baseContext) {
       return;
     }
 
-    const queue = new Set();
+    const pq = new MinPriorityQueue(({ distance }) => distance);
     const bestValid = new Map();
     const best = new Map();
 
@@ -129,16 +128,12 @@ export function useRoutes(baseContext) {
     };
     bestValid.set(start, startCandidate);
     best.set(start, startCandidate);
-    queue.add(startCandidate);
 
-    while (queue.size) {
-      // find node with smallest distance
-      const current = [...queue].reduce((a, b) =>
-        a.distance < b.distance ? a : b
-      );
+    pq.enqueue(startCandidate);
 
-      queue.delete(current);
-      if (current === goal) break;
+    while (!pq.isEmpty()) {
+      const current = pq.dequeue();
+      if (current.location === goal && !current.missing.length) break;
 
       for (const edge of graph.value.get(current.location) || []) {
         const segment = getSegment(current.location, edge);
@@ -161,7 +156,7 @@ export function useRoutes(baseContext) {
           candidate.distance < best.get(edge.to).distance
         ) {
           best.set(edge.to, candidate);
-          queue.add(candidate);
+          pq.enqueue(candidate);
         }
         if (
           !candidate.missing.length &&
@@ -169,7 +164,7 @@ export function useRoutes(baseContext) {
             isBetter(candidate, bestValid.get(edge.to)))
         ) {
           bestValid.set(edge.to, candidate);
-          queue.add(candidate);
+          pq.enqueue(candidate);
         }
       }
     }
