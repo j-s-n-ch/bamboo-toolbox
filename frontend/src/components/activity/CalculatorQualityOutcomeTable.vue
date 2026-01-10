@@ -20,7 +20,6 @@ const { recipe } = storeToRefs(activityStore);
 const ctx = useBaseContext();
 const { getLevelRequirementsMap } = useRequirements(ctx);
 const { qualityOutcome } = useSkillModifiers(ctx);
-const useFineMaterials = ref(false);
 
 const canUseFineMaterials = computed(() => {
   const upgraded = itemsStore.itemsByCategory["upgraded_crafted"].map(
