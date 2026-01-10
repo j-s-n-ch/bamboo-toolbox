@@ -64,8 +64,7 @@ export function useRoutes(baseContext) {
     const to = getLocationInfo(route.to);
     const ctx = getRouteContext(from, route);
 
-    const statTotals = totalsByStatWithContext(ctx);
-    const skillModifiers = useSkillModifiers(ctx, statTotals);
+    const skillModifiers = useSkillModifiers(ctx);
     const stats = {
       maxWorkEfficiency: skillModifiers.maxWorkEfficiency.value,
       workEfficiency: skillModifiers.workEfficiency.value,

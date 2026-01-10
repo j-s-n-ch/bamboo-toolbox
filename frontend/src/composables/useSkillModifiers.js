@@ -1,11 +1,11 @@
 import { computed } from "vue";
 import { useEffectiveAttrs } from "./useEffectiveAttrs";
 
-export function useSkillModifiers(ctx, totals = {}) {
+export function useSkillModifiers(ctx) {
   const { totalsByStat } = useEffectiveAttrs(ctx);
 
   const getStat = (stat, key = "percent") => {
-    const source = { ...totalsByStat.value, ...totals };
+    const source = { ...totalsByStat.value };
     return stat in source
       ? key in source[stat]
         ? source[stat][key]["sum"]
