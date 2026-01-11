@@ -22,6 +22,7 @@ defineEmits(["unequip", "close"]);
 const gearStore = useGearStore();
 
 const item = computed(() => gearStore.gearSlots[props.slotName]);
+const type = computed(() => ("egg" in item.value ? "pet" : item.value.type));
 const icon = computed(() => {
   return "egg" in item.value
     ? getPetIcon(item.value, item.value.quality)
@@ -35,6 +36,15 @@ const changeQuality = (quality) => {
   };
   gearStore.setGearSlot(props.slotName, newItem);
 };
+
+const petLevelOptions = computed(() =>
+  "egg" in item.value
+    ? item.value.levels.map(({ level, stage }) => ({
+        value: `${level}`,
+        name: `lvl ${level}: ${stage}`,
+      }))
+    : null
+);
 </script>
 
 <template>
@@ -48,7 +58,11 @@ const changeQuality = (quality) => {
       </div>
       <button class="unequip" @click="$emit('unequip')">Unequip</button>
     </div>
-    <quality-selection :type="item.type" @select-quality="changeQuality" />
+    <quality-selection
+      :type="type"
+      :qualityOptions="petLevelOptions"
+      @select-quality="changeQuality"
+    />
     <stats-display :item="item" :quality="item.quality" showActiveColors />
   </div>
   <div v-else>
