@@ -58,8 +58,8 @@ const tableRows = computed(() => {
     const v2 = sm2[key].value * multi;
 
     return {
-      c1: `${n(v1)}${isPercent ? "%" : ""}`,
-      c2: `${n(v2)}${isPercent ? "%" : ""}`,
+      c1: `${n(v1, 2)}${isPercent ? "%" : ""}`,
+      c2: `${n(v2, 2)}${isPercent ? "%" : ""}`,
       comp: negative ? v1 - v2 : v2 - v1,
     };
   };
@@ -86,8 +86,8 @@ const tableRows = computed(() => {
 
     return {
       title: `${skill !== "xp" ? skill : "total"} xp`,
-      c1: n(v1),
-      c2: n(v2),
+      c1: n(v1, 2),
+      c2: n(v2, 2),
       comp,
     };
   });
