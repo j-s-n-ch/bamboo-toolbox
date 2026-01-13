@@ -6,6 +6,7 @@ import UndoRedoButtons from "@/components/common/UndoRedoButtons.vue";
 import GearSelection from "./selection/GearSelection.vue";
 import GearButtons from "./export/GearButtons.vue";
 import GearSets from "./gearset/GearSets.vue";
+import GearTabSelection from "./GearTabSelection.vue";
 import { useSettingsStore } from "@/store/settings";
 import { useGearStore } from "@/store/gear";
 import { onMounted } from "vue";
@@ -26,6 +27,7 @@ onMounted(async () => {
 
 <template>
   <tab-content-wrapper>
+    <gear-tab-selection />
     <details open>
       <summary>Gear Set</summary>
       <section class="gear-set">
