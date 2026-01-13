@@ -23,3 +23,14 @@ export function createEmptyGearSet() {
     service: null,
   };
 }
+
+export function createEmptyGearSetSelection() {
+  return {
+    id: null,
+    name: "",
+    tags: [],
+    items: [],
+    isDirty: false,
+    isNew: true,
+  };
+}

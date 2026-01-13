@@ -26,14 +26,14 @@ const getHistoryStore = async () => {
 
 export const useGearStore = defineStore("gearStore", {
   state: () => ({
-    gearSlots: createEmptyGearSet(),
+    gearSlots: [createEmptyGearSet(), createEmptyGearSet()],
     gearSetIndex: 0,
     // Cache for fetched items to avoid refetching
     itemCache: new Map(),
   }),
   getters: {
     selectedGearset(state) {
-      return state.gearSlots;
+      return state.gearSlots[this.gearSetIndex];
     },
     hasGearEquipped() {
       return (
@@ -226,7 +226,7 @@ export const useGearStore = defineStore("gearStore", {
           gearSlots[slot] || null,
         ])
       );
-      this.gearSlots = newGearSlots;
+      this.gearSlots[this.gearSetIndex] = newGearSlots;
     },
 
     async equipMultiple(gearSetData, useQuality = false) {
@@ -252,7 +252,7 @@ export const useGearStore = defineStore("gearStore", {
       // Apply all changes at once to minimize reactive updates
       const completeGearSlots = { ...this.selectedGearset };
       Object.assign(completeGearSlots, gearSetData);
-      this.gearSlots = completeGearSlots;
+      this.gearSlots[this.gearSetIndex] = completeGearSlots;
     },
 
     // Optimized batch update for both gear and cache operations
@@ -268,7 +268,7 @@ export const useGearStore = defineStore("gearStore", {
       // Apply all gear changes at once to minimize reactive updates
       const completeGearSlots = { ...this.selectedGearset };
       Object.assign(completeGearSlots, gearSetData);
-      this.gearSlots = completeGearSlots;
+      this.gearSlots[this.gearSetIndex] = completeGearSlots;
     }, // Helper method to process gear set data (extracted from equipMultiple)
     async _processGearSetData(gearSetData, useQuality = false) {
       const itemsStore = useItemsStore();

@@ -1,10 +1,13 @@
 <script setup>
 import { useGearStore } from "@/store/gear";
+import { useGearSetStore } from "@/store/gearSet";
 
 const gearStore = useGearStore();
+const gearSetStore = useGearSetStore();
 
 const handleClick = (idx) => {
   gearStore.gearSetIndex = idx;
+  gearSetStore.gearSetIndex = idx;
 };
 </script>
 
