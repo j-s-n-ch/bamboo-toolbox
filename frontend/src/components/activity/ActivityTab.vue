@@ -12,6 +12,7 @@ import RecipeInfo from "./Info/RecipeInfo.vue";
 import DropsInfo from "./drops/DropsInfo.vue";
 import ActivityComparison from "./comparison/ActivityComparison.vue";
 import RecipeCalculator from "./calculator/ActivityCalculator.vue";
+import RecipeComparison from "./comparison/RecipeComparison.vue";
 
 const activityStore = useActivityStore();
 const playerStore = usePlayerStore();
@@ -139,7 +140,9 @@ const recipeSelected = computed(
       >Comparison view:<input type="checkbox" v-model="useComparisonView"
     /></label>
     <template v-if="gearStore.bothSetsActive && useComparisonView">
-      <activity-comparison v-if="activitySelected"></activity-comparison>
+      <div v-if="travellingSelected">Travel comparison not supported</div>
+      <activity-comparison v-else-if="activitySelected" />
+      <recipe-comparison v-if="recipeSelected" />
     </template>
     <template v-else>
       <travel-info v-if="travellingSelected" />
