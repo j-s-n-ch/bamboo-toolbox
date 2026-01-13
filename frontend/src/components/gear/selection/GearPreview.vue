@@ -21,7 +21,7 @@ defineEmits(["unequip", "close"]);
 
 const gearStore = useGearStore();
 
-const item = computed(() => gearStore.gearSlots[props.slotName]);
+const item = computed(() => gearStore.selectedGearset[props.slotName]);
 const type = computed(() => ("egg" in item.value ? "pet" : item.value.type));
 const icon = computed(() => {
   if (!("egg" in item.value)) return item.value.icon;
