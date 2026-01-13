@@ -108,7 +108,7 @@ const tableRows = computed(() => {
     },
     {
       title: "Crafts per material",
-      ...getBothValues("craftsPerMaterial"),
+      ...getBothValues("craftsPerMaterial", false, true),
     },
   ];
 
