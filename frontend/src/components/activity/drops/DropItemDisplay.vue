@@ -46,6 +46,10 @@ const item = computed(() => dropItemInfoMap.value[props.itemId]);
         <ws-icon :iconPath="icons.steps" size="xs" />
         <span>{{ n(item.stepsPerFine, 0) }}</span>
       </div>
+      <div v-if="item.stepsPerRare > 0" class="steps-line border-petRare">
+        <ws-icon :iconPath="icons.steps" size="xs" />
+        <span>{{ n(item.stepsPerRare, 0) }}</span>
+      </div>
     </div>
     <div v-else-if="item.variableRequirement" class="requirement-row">
       <span> At </span>
