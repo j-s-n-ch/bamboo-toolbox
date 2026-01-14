@@ -37,9 +37,9 @@ const item = computed(() => dropItemInfoMap.value[props.itemId]);
       <div v-else class="steps-line border-common">
         <ws-icon :iconPath="icons.steps" size="xs" />
         <span>{{
-          item.stepsPerItem < 100
-            ? n(item.stepsPerItem, 1)
-            : n(item.stepsPerItem, 0)
+          item.stepsPerNormal < 100
+            ? n(item.stepsPerNormal, 1)
+            : n(item.stepsPerNormal, 0)
         }}</span>
       </div>
       <div v-if="item.stepsPerFine > 0" class="steps-line border-fine">
