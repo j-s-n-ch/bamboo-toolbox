@@ -305,7 +305,7 @@ export function useLootTables(ctx) {
       if (canDropFine(sources[0]))
         stepsPerNormal = stepsPerItem / (1 - fineMaterialFind.value);
       else if (canDropRare(sources[0]))
-        stepsPerNormal = stepsPerItem * (9 / 10);
+        stepsPerNormal = stepsPerItem / (9 / 10);
 
       const info = {
         id,
