@@ -193,6 +193,7 @@ const editableRows = computed(() => {
 <style lang="scss" scoped>
 .wrapper {
   border-radius: $sm;
+  overflow-x: auto;
 }
 
 .comparison-table {
