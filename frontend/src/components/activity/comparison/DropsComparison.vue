@@ -223,7 +223,7 @@ const dropsMap = computed(() => {
                 :class="[
                   'steps-line',
                   'border-petRare',
-                  { disabled: item.rareComp > 0 },
+                  { disabled: item.rareComp < 0 },
                 ]"
               >
                 <span>{{ n(g2.rare, 0) }}</span>
