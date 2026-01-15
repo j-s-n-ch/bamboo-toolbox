@@ -141,7 +141,7 @@ const editableRows = computed(() => {
 </script>
 
 <template>
-  <details>
+  <details open>
     <summary>Activity Info</summary>
     <div :class="['wrapper', borderClass]">
       <table class="comparison-table">
