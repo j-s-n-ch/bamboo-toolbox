@@ -55,6 +55,13 @@ export const useGearStore = defineStore("gearStore", {
         Boolean(item)
       );
     },
+    gearset: (state) => (index) => state.gearSlots[index],
+    equippedGearByIndex: (state) => (index) =>
+      Object.values(state.gearSlots[index]).filter(Boolean),
+    filledGearSlotsByIndex: (state) => (index) =>
+      Object.entries(state.gearSlots[index]).filter(([, item]) =>
+        Boolean(item)
+      ),
   },
   actions: {
     get(slot) {

@@ -1,51 +1,26 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useActivityStore } from "@/store/activity";
-import { useGearStore } from "@/store/gear";
+import ComparisonTableShell from "./table/ComparisonTableShell.vue";
 import EmitLocationBubble from "@/components/common/EmitLocationBubble.vue";
-import useBaseContext from "@/composables/useBaseContext";
+import { useGearContext } from "@/composables/context/useGearContext";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { n } from "@/utils/number";
+import ComparisonValueRow from "./table/ComparisonValueRow.vue";
+import EditableComparisonRow from "./table/EditableComparisonRow.vue";
 
 const activityStore = useActivityStore();
-const gearStore = useGearStore();
 
 const gs1Location = ref(null);
 const gs2Location = ref(null);
 const gs1LocationIdx = ref(0);
 const gs2LocationIdx = ref(0);
 
-const ctx = useBaseContext();
-const gs1Ctx = {
-  ...ctx,
-  location: computed(() =>
-    gs1Location.value ? gs1Location.value : ctx.location.value
-  ),
-  gearSlots: computed(() => gearStore.gearSlots[0]),
-  equippedGear: computed(
-    () => Object.values(gearStore.gearSlots[0]).filter(Boolean) || []
-  ),
-  filledGearSlots: computed(() =>
-    Object.entries(gearStore.gearSlots[0]).filter(([, item]) => Boolean(item))
-  ),
-};
-
-const gs2Ctx = {
-  ...ctx,
-  location: computed(() =>
-    gs2Location.value ? gs2Location.value : ctx.location.value
-  ),
-  gearSlots: computed(() => gearStore.gearSlots[1]),
-  equippedGear: computed(
-    () => Object.values(gearStore.gearSlots[1]).filter(Boolean) || []
-  ),
-  filledGearSlots: computed(() =>
-    Object.entries(gearStore.gearSlots[1]).filter(([, item]) => Boolean(item))
-  ),
-};
+const gs1Ctx = useGearContext(0, { location: gs1Location });
+const gs2Ctx = useGearContext(1, { location: gs2Location });
 
 const borderClass = computed(
-  () => `border-${ctx.activity.value?.relatedSkillsList[0]}`
+  () => `border-${gs1Ctx.activity.value?.relatedSkillsList[0]}`
 );
 
 const sm1 = useSkillModifiers(gs1Ctx);
@@ -58,8 +33,8 @@ const tableRows = computed(() => {
     const v2 = sm2[key].value * multi;
 
     return {
-      c1: `${n(v1, 2)}${isPercent ? "%" : ""}`,
-      c2: `${n(v2, 2)}${isPercent ? "%" : ""}`,
+      left: `${n(v1, 2)}${isPercent ? "%" : ""}`,
+      right: `${n(v2, 2)}${isPercent ? "%" : ""}`,
       comp: negative ? v1 - v2 : v2 - v1,
     };
   };
@@ -86,8 +61,8 @@ const tableRows = computed(() => {
 
     return {
       title: `${skill !== "xp" ? skill : "total"} xp`,
-      c1: n(v1, 2),
-      c2: n(v2, 2),
+      left: n(v1, 2),
+      right: n(v2, 2),
       comp,
     };
   });
@@ -111,132 +86,51 @@ const onRowChange = (info) => {
 };
 
 const editableRows = computed(() => {
-  const { id } = ctx.activity.value;
+  const { id } = gs1Ctx.activity.value;
   const isTravel = id === "travelling";
-  const locationsRow = [
-    {
-      title: "Location",
-      component: EmitLocationBubble,
-      items: !isTravel ? activityStore.locations : [],
-      itemProps: (item, index) => ({
-        location: item,
-        index,
-        selected: index === gs1LocationIdx.value,
-      }),
-    },
-    {
-      title: "Location",
-      component: EmitLocationBubble,
-      items: !isTravel ? activityStore.locations : [],
-      itemProps: (item, index) => ({
-        location: item,
-        index,
-        selected: index === gs2LocationIdx.value,
-      }),
-    },
-  ];
+  const locationsRow = {
+    title: "Location",
+    component: EmitLocationBubble,
+    columns: [
+      {
+        items: !isTravel ? activityStore.locations : [],
+        itemProps: (item, index) => ({
+          location: item,
+          index,
+          selected: gs1LocationIdx.value === index,
+        }),
+      },
+      {
+        items: !isTravel ? activityStore.locations : [],
+        itemProps: (item, index) => ({
+          location: item,
+          index,
+          selected: gs2LocationIdx.value === index,
+        }),
+      },
+    ],
+  };
 
   return [locationsRow];
 });
 </script>
 
 <template>
-  <details open>
-    <summary>Activity Info</summary>
-    <div :class="['wrapper', borderClass]">
-      <table class="comparison-table">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Gear set 1</th>
-            <th>Gear set 2</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="({ title, c1, c2, comp }, index) in tableRows"
-            :key="`row-${index}`"
-          >
-            <td>{{ title }}</td>
-            <td :class="{ positive: comp > 0, negative: comp < 0 }">
-              {{ c1 }}
-            </td>
-            <td :class="{ positive: comp < 0, negative: comp > 0 }">
-              {{ c2 }}
-            </td>
-          </tr>
-
-          <tr v-for="(info, index) in editableRows" :key="`row-${index}`">
-            <td>{{ info[0].title }}</td>
-            <td
-              v-for="({ items, component, itemProps }, cInd) in info"
-              :key="`td-${index}-${cInd}`"
-            >
-              <div class="info-row">
-                <component
-                  v-for="(item, idx) in items"
-                  :is="component"
-                  v-bind="itemProps(item, idx)"
-                  :gear-set-index="cInd"
-                  :key="idx"
-                  @change="onRowChange"
-                />
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </details>
+  <comparison-table-shell
+    title="Activity Info"
+    wrapped
+    :border-class="borderClass"
+  >
+    <comparison-value-row
+      v-for="row in tableRows"
+      :key="row.title"
+      v-bind="row"
+    />
+    <editable-comparison-row
+      v-for="row in editableRows"
+      :key="row.title"
+      v-bind="row"
+      @change="onRowChange"
+    />
+  </comparison-table-shell>
 </template>
-
-<style lang="scss" scoped>
-.wrapper {
-  border-radius: $sm;
-  overflow-x: auto;
-}
-
-.comparison-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-
-  tr {
-    &:hover {
-      background-color: $boxTransparentDarkOutline;
-    }
-  }
-
-  th,
-  td {
-    padding: $xxs $sm;
-    border-bottom: 1px solid $chipOutline;
-    text-align: center;
-
-    &.negative {
-      color: $txNegative;
-    }
-
-    &.positive {
-      color: $txPositive;
-    }
-  }
-  th {
-    background: $boxPrimaryBackground;
-  }
-
-  tr:first-child th:first-child {
-    border-top-left-radius: $sm;
-  }
-  tr:first-child th:last-child {
-    border-top-right-radius: $sm;
-  }
-
-  tr:last-child td:first-child {
-    border-bottom-left-radius: $sm;
-  }
-  tr:last-child td:last-child {
-    border-bottom-right-radius: $sm;
-  }
-}
-</style>

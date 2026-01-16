@@ -1,5 +1,5 @@
 <script setup>
-import useBaseContext from "@/composables/useBaseContext";
+import useBaseContext from "@/composables/context/useBaseContext";
 import { computed } from "vue";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { n } from "@/utils/number";
@@ -119,13 +119,5 @@ const xpBubbles = computed(() => {
   display: flex;
   flex-wrap: wrap;
   gap: $lg;
-}
-
-.bubble-wrapper.negative {
-  color: $txNegative;
-}
-
-.bubble-wrapper.positive {
-  color: $txPositive;
 }
 </style>

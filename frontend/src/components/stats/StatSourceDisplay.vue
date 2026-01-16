@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import useBaseContext from "@/composables/useBaseContext";
+import useBaseContext from "@/composables/context/useBaseContext";
 import { useEffectiveAttrs } from "@/composables/useEffectiveAttrs";
 import WsIcon from "@/components/common/WsIcon.vue";
 import { n } from "@/utils/number";
@@ -67,13 +67,5 @@ const statList = computed(() => {
   display: flex;
   padding: $sm;
   gap: $xxs;
-}
-
-.negative {
-  color: $txNegative;
-}
-
-.positive {
-  color: $txPositive;
 }
 </style>
