@@ -18,9 +18,10 @@ const props = defineProps({
     type: String,
     validator: (value) => ["money", "token"].includes(value),
   },
+  context: { type: Object, default: null },
 });
 
-const ctx = useBaseContext();
+const ctx = props.context || useBaseContext();
 const { dropItemInfoMap } = useLootTables(ctx);
 
 const dataStore = useDataStore();

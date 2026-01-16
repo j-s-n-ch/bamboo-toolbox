@@ -9,6 +9,7 @@ import { useLootTables } from "@/composables/useLootTables";
 import { icons } from "@/constants/iconPaths";
 import { snakeToTitle } from "@/utils/string";
 import { n } from "@/utils/number";
+import AggregateDrops from "../drops/AggregateDrops.vue";
 
 const settingsStore = useSettingsStore();
 const { activitySettings } = storeToRefs(settingsStore);
@@ -134,6 +135,16 @@ const dropsMap = computed(() => {
         </tr>
       </thead>
       <tbody>
+        <tr>
+          <td>
+            <div class="item-line">
+              <p>Totals /1k</p>
+              <ws-icon :icon-path="icons.steps" size="sm" />
+            </div>
+          </td>
+          <td><aggregate-drops :context="gs1Ctx" :compact="true" /></td>
+          <td><aggregate-drops :context="gs2Ctx" :compact="true" /></td>
+        </tr>
         <tr v-for="{ item, g1, g2 } in dropsMap" :key="item.name">
           <td>
             <div class="item-line">
