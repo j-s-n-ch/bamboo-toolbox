@@ -2,9 +2,8 @@
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useSettingsStore } from "@/store/settings";
-import { useGearStore } from "@/store/gear";
 import WsIcon from "@/components/common/WsIcon.vue";
-import useBaseContext from "@/composables/context/useBaseContext";
+import { useGearContext } from "@/composables/context/useGearContext";
 import { useLootTables } from "@/composables/useLootTables";
 import { icons } from "@/constants/iconPaths";
 import { snakeToTitle } from "@/utils/string";
@@ -14,30 +13,8 @@ import AggregateDrops from "../drops/AggregateDrops.vue";
 const settingsStore = useSettingsStore();
 const { activitySettings } = storeToRefs(settingsStore);
 
-const gearStore = useGearStore();
-const ctx = useBaseContext();
-
-const gs1Ctx = {
-  ...ctx,
-  gearSlots: computed(() => gearStore.gearSlots[0]),
-  equippedGear: computed(
-    () => Object.values(gearStore.gearSlots[0]).filter(Boolean) || []
-  ),
-  filledGearSlots: computed(() =>
-    Object.entries(gearStore.gearSlots[0]).filter(([, item]) => Boolean(item))
-  ),
-};
-
-const gs2Ctx = {
-  ...ctx,
-  gearSlots: computed(() => gearStore.gearSlots[1]),
-  equippedGear: computed(
-    () => Object.values(gearStore.gearSlots[1]).filter(Boolean) || []
-  ),
-  filledGearSlots: computed(() =>
-    Object.entries(gearStore.gearSlots[1]).filter(([, item]) => Boolean(item))
-  ),
-};
+const gs1Ctx = useGearContext(0);
+const gs2Ctx = useGearContext(1);
 
 const { dropItemInfoMap: drops1 } = useLootTables(gs1Ctx);
 const { dropItemInfoMap: drops2 } = useLootTables(gs2Ctx);

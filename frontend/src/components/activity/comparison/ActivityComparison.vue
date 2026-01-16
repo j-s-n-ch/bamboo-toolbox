@@ -1,51 +1,23 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useActivityStore } from "@/store/activity";
-import { useGearStore } from "@/store/gear";
 import EmitLocationBubble from "@/components/common/EmitLocationBubble.vue";
-import useBaseContext from "@/composables/context/useBaseContext";
+import { useGearContext } from "@/composables/context/useGearContext";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { n } from "@/utils/number";
 
 const activityStore = useActivityStore();
-const gearStore = useGearStore();
 
 const gs1Location = ref(null);
 const gs2Location = ref(null);
 const gs1LocationIdx = ref(0);
 const gs2LocationIdx = ref(0);
 
-const ctx = useBaseContext();
-const gs1Ctx = {
-  ...ctx,
-  location: computed(() =>
-    gs1Location.value ? gs1Location.value : ctx.location.value
-  ),
-  gearSlots: computed(() => gearStore.gearSlots[0]),
-  equippedGear: computed(
-    () => Object.values(gearStore.gearSlots[0]).filter(Boolean) || []
-  ),
-  filledGearSlots: computed(() =>
-    Object.entries(gearStore.gearSlots[0]).filter(([, item]) => Boolean(item))
-  ),
-};
-
-const gs2Ctx = {
-  ...ctx,
-  location: computed(() =>
-    gs2Location.value ? gs2Location.value : ctx.location.value
-  ),
-  gearSlots: computed(() => gearStore.gearSlots[1]),
-  equippedGear: computed(
-    () => Object.values(gearStore.gearSlots[1]).filter(Boolean) || []
-  ),
-  filledGearSlots: computed(() =>
-    Object.entries(gearStore.gearSlots[1]).filter(([, item]) => Boolean(item))
-  ),
-};
+const gs1Ctx = useGearContext(0, { location: gs1Location });
+const gs2Ctx = useGearContext(1, { location: gs2Location });
 
 const borderClass = computed(
-  () => `border-${ctx.activity.value?.relatedSkillsList[0]}`
+  () => `border-${gs1Ctx.activity.value?.relatedSkillsList[0]}`
 );
 
 const sm1 = useSkillModifiers(gs1Ctx);
@@ -111,7 +83,7 @@ const onRowChange = (info) => {
 };
 
 const editableRows = computed(() => {
-  const { id } = ctx.activity.value;
+  const { id } = gs1Ctx.activity.value;
   const isTravel = id === "travelling";
   const locationsRow = [
     {

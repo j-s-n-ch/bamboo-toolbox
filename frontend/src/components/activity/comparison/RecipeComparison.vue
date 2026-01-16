@@ -1,15 +1,13 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useActivityStore } from "@/store/activity";
-import { useGearStore } from "@/store/gear";
 import EmitLocationBubble from "@/components/common/EmitLocationBubble.vue";
-import useBaseContext from "@/composables/context/useBaseContext";
+import { useGearContext } from "@/composables/context/useGearContext";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { n } from "@/utils/number";
 import EmitServiceBubble from "@/components/common/EmitServiceBubble.vue";
 
 const activityStore = useActivityStore();
-const gearStore = useGearStore();
 
 const gs1Location = ref(null);
 const gs2Location = ref(null);
@@ -23,47 +21,21 @@ const gs2Service = ref(null);
 const gs1ServiceIdx = ref(0);
 const gs2ServiceIdx = ref(0);
 
-const ctx = useBaseContext();
-const gs1Ctx = {
-  ...ctx,
-  location: computed(() =>
-    gs1Location.value ? gs1Location.value : ctx.location.value
-  ),
-  service: computed(() =>
-    gs1Service.value ? gs1Service.value : ctx.service.value
-  ),
-  gearSlots: computed(() => gearStore.gearSlots[0]),
-  equippedGear: computed(
-    () => Object.values(gearStore.gearSlots[0]).filter(Boolean) || []
-  ),
-  filledGearSlots: computed(() =>
-    Object.entries(gearStore.gearSlots[0]).filter(([, item]) => Boolean(item))
-  ),
-};
-
-const gs2Ctx = {
-  ...ctx,
-  location: computed(() =>
-    gs2Location.value ? gs2Location.value : ctx.location.value
-  ),
-  service: computed(() =>
-    gs2Service.value ? gs2Service.value : ctx.service.value
-  ),
-  gearSlots: computed(() => gearStore.gearSlots[1]),
-  equippedGear: computed(
-    () => Object.values(gearStore.gearSlots[1]).filter(Boolean) || []
-  ),
-  filledGearSlots: computed(() =>
-    Object.entries(gearStore.gearSlots[1]).filter(([, item]) => Boolean(item))
-  ),
-};
+const gs1Ctx = useGearContext(0, {
+  location: gs1Location,
+  service: gs1Service,
+});
+const gs2Ctx = useGearContext(1, {
+  location: gs2Location,
+  service: gs2Service,
+});
 
 const borderClass = computed(
-  () => `border-${ctx.recipe.value?.relatedSkills[0]}`
+  () => `border-${gs1Ctx.recipe.value?.relatedSkills[0]}`
 );
 
 const rewardCount = computed(() => {
-  const { itemRewards } = ctx.recipe.value;
+  const { itemRewards } = gs1Ctx.recipe.value;
   return Object.values(itemRewards)[0];
 });
 
