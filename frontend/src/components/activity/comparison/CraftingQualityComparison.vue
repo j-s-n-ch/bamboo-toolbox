@@ -61,7 +61,7 @@ const craftingOdds = computed(() => {
 
 <template>
   <comparison-table-shell
-    title="Crafting Comparison"
+    title="Quality Comparison"
     wrapped
     :border-class="borderClass"
   >
