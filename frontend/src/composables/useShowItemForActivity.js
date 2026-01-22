@@ -59,7 +59,7 @@ export function useShowItemForActivity(ctx) {
       const benefitsCO = Object.keys(activity.itemRewards).some(
         (itemId) =>
           itemId in ctx.allGearItems.value &&
-          ctx.allGearItems.value[itemId].type === "crafted"
+          ctx.allGearItems.value[itemId].type === "crafted",
       );
 
       return statIsCO && benefitsCO;
@@ -83,7 +83,7 @@ export function useShowItemForActivity(ctx) {
     const usefulAttr = baseAttrs.filter((attr) => {
       const usedRequirements =
         attr?.requirements?.filter(
-          (req) => !unfilteredRequirementTypes.includes(req.type)
+          (req) => !unfilteredRequirementTypes.includes(req.type),
         ) || [];
 
       return (
@@ -108,7 +108,7 @@ export function useShowItemForActivity(ctx) {
     activity = null,
     service = null,
     quality = null,
-    isRecipe = null
+    isRecipe = null,
   ) => {
     // Use store state if parameters are not provided
     const currentActivity = activity || ctx.source.value;
@@ -134,10 +134,11 @@ export function useShowItemForActivity(ctx) {
       item,
       currentActivity,
       currentQuality,
-      currentIsRecipe
+      currentIsRecipe,
     );
     const hasUsefulAttrs = usefulAttributes.length > 0;
     const hasTables = itemTables(item).length > 0;
+
     return hasUsefulKeywords || hasUsefulAttrs || hasTables;
   };
 
