@@ -181,11 +181,10 @@ export function useOptimiser() {
     if (prio === "xpPerStep") return -Infinity;
   };
 
-  const compareScore = (prev, best) => {
+  const compareScore = (value, best) => {
     const prio = selectedPriority();
-    console.log(prio, prev, best);
-    if (prio === "stepsPerRewardRoll") return prev < best;
-    if (prio === "xpPerStep") return prev > best;
+    if (prio === "stepsPerRewardRoll") return best - value;
+    if (prio === "xpPerStep") return value - best;
   };
 
   function greedyOptimize(gearSlots, gearOptions) {
@@ -245,7 +244,7 @@ export function useOptimiser() {
 
         const score = getGearSetStats({ ...gearSet });
 
-        if (compareScore(score, bestScore)) {
+        if (compareScore(score, bestScore) > 0) {
           bestScore = score;
           bestItem = item;
         }
