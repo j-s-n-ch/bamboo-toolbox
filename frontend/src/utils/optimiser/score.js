@@ -8,6 +8,8 @@ const lowStats = [
 ];
 const highStats = ["xpPerStep", "craftsPerMaterial"];
 
+export const isHighStat = () => highStats.includes(selectedPriority());
+
 export const startScore = () => {
   const prio = selectedPriority();
   if (lowStats.includes(prio)) return Infinity;
