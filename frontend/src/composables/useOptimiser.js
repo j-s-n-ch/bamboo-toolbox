@@ -12,9 +12,11 @@ import {
 import { getGearSetStats } from "@/utils/optimiser/stats";
 import { startScore, compareScore } from "@/utils/optimiser/score";
 import {
+  handledReqTypes,
   getReq,
   filterItemsForReq,
   getRequirementCandidates,
+  contributesToReq,
 } from "@/utils/optimiser/requirements";
 
 export function useOptimiser() {
@@ -26,13 +28,6 @@ export function useOptimiser() {
     const reqs = baseCtx.source.value.requirements;
     let candidates = [{ gearSet: {}, score: startScore(), slotCounts: {} }];
     const requiredOptions = getItemOptions(gearOptions, "required");
-
-    const handledReqTypes = [
-      "distinctKeywordItemsEquipped",
-      "keywordEquipped",
-      "keywordWithLevelEquipped",
-      "abilityAvailable",
-    ];
 
     reqs.forEach((requirement) => {
       if (!handledReqTypes.includes(requirement.type)) return;
@@ -60,8 +55,17 @@ export function useOptimiser() {
   function reqsBeamSearch(baseCandidate, gearOptions, req) {
     const BEAM_WIDTH = 3;
     const { gearSet, slotCounts } = baseCandidate;
+    const startingFulfilled = Object.entries(gearSet).filter(([, item]) =>
+      contributesToReq(item, req),
+    ).length;
+
     let candidates = [
-      { gearSet, score: startScore(), slotCounts, fulfilled: 0 },
+      {
+        gearSet,
+        score: startScore(),
+        slotCounts,
+        fulfilled: startingFulfilled,
+      },
     ];
 
     const candidatesPool = getRequirementCandidates(gearOptions, req);
@@ -202,8 +206,6 @@ export function useOptimiser() {
 
     const reqSets = requirementsFill(options);
     const primarySets = gearFill(gearSlots, reqSets, options, "primary");
-
-    console.log(primarySets);
 
     const [usedSet] = primarySets;
 

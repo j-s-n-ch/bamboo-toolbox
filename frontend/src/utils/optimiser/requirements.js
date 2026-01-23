@@ -3,6 +3,13 @@ import { useRequirements } from "@/composables/useRequirements";
 import { compareScore } from "./score";
 import { slotMax } from "./gear";
 
+export const handledReqTypes = [
+  "distinctKeywordItemsEquipped",
+  "keywordEquipped",
+  "keywordWithLevelEquipped",
+  "abilityAvailable",
+];
+
 export const getReq = ({ type, requirement }) => {
   if (type === "keywordEquipped") {
     return {
@@ -31,7 +38,7 @@ export const getReq = ({ type, requirement }) => {
   }
 };
 
-function contributesToReq(item, req) {
+export function contributesToReq(item, req) {
   if (!item) return 0;
 
   if ("keyword" in req) {
