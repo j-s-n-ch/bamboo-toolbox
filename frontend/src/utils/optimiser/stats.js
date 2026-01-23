@@ -5,9 +5,13 @@ import useBaseContext from "@/composables/context/useBaseContext";
 
 export const getGearSetStats = (set) => {
   const baseCtx = useBaseContext();
+
+  const { location, ...items } = set;
+
   const gearCtx = {
     ...baseCtx,
-    equippedGear: computed(() => [...Object.values(set).filter(Boolean)]),
+    location: computed(() => (location ? location : baseCtx.location.value)),
+    equippedGear: computed(() => [...Object.values(items).filter(Boolean)]),
   };
 
   const stats = useSkillModifiers(gearCtx);

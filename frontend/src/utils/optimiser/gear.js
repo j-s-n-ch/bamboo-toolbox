@@ -1,3 +1,4 @@
+import { useActivityStore } from "@/store/activity";
 import useBaseContext from "@/composables/context/useBaseContext";
 import { useShowItemForActivity } from "@/composables/useShowItemForActivity";
 import { useRequirements } from "@/composables/useRequirements";
@@ -117,6 +118,7 @@ export const filterMultislot = (gearSet, opts, slotKey, slotName) => {
 };
 
 export const getGearOptions = () => {
+  const activityStore = useActivityStore();
   const baseCtx = useBaseContext();
   const { showItemForActivity, usefulKeywords, usefulAbilities } =
     useShowItemForActivity(baseCtx);
@@ -131,6 +133,10 @@ export const getGearOptions = () => {
 
   const itemsBySlot = Object.fromEntries(
     gearTypes.map((slot) => {
+      if (slot === "location" && baseCtx.activitySelected.value) {
+        return [slot, { required: [], primary: activityStore.locations }];
+      }
+
       const items = Object.values(baseCtx.allGearItems.value).filter(
         ({ gearType, type, egg }) =>
           gearType === slot || type === slot || (slot === "pet" && egg),

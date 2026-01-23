@@ -13,6 +13,7 @@ export const gearTypes = [
   "tool",
   "pet",
   "consumable",
+  "location",
 ];
 
 export const gearSlots = [

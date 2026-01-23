@@ -1,4 +1,5 @@
 import { useGearStore } from "@/store/gear";
+import { useActivityStore } from "@/store/activity";
 import useBaseContext from "@/composables/context/useBaseContext";
 import { gearSlots } from "@/utils/createEmptyGearSet";
 
@@ -19,6 +20,7 @@ import {
 export function useOptimiser() {
   const baseCtx = useBaseContext();
   const gearStore = useGearStore();
+  const activityStore = useActivityStore();
 
   function requirementsFill(gearOptions) {
     const reqs = baseCtx.source.value.requirements;
@@ -128,22 +130,25 @@ export function useOptimiser() {
 
       const next = [];
 
-      for (const candidate of candidates) {
+      for (const { gearSet, slotCounts } of candidates) {
         const filteredOptions = ["ring", "tool"].includes(slotKey)
-          ? filterMultislot(candidate.gearSet, options, slotKey, slotName)
+          ? filterMultislot(gearSet, options, slotKey, slotName)
           : options;
 
         for (const item of filteredOptions) {
           const newSet = {
-            ...candidate.gearSet,
+            ...gearSet,
             [slotName]: item,
           };
 
           const score = getGearSetStats(newSet);
+          const prevCount = slotKey in slotCounts ? slotCounts[slotKey] : 0;
+          const newSlotCount = { ...slotCounts, [slotName]: prevCount + 1 };
 
           next.push({
             gearSet: newSet,
             score,
+            slotCounts: newSlotCount,
           });
         }
       }
@@ -162,23 +167,29 @@ export function useOptimiser() {
       ? baseCandidates
       : [{ gearSet: {}, score: startScore(), slotCounts: {} }];
 
-    candidates.forEach((candidate) => {
-      const remainingGearOptions = Object.fromEntries(
-        Object.entries(getItemOptions(gearOptions, gearKey)).filter(
-          ([slot]) =>
-            !(
-              slot in candidate.slotCounts &&
-              candidate.slotCounts[slot] >= slotMax(slot)
-            ),
-        ),
-      );
+    gearOptions.location.primary.forEach((location) => {
+      candidates.forEach((candidate) => {
+        const remainingGearOptions = Object.fromEntries(
+          Object.entries(getItemOptions(gearOptions, gearKey)).filter(
+            ([slot]) =>
+              !(
+                slot in candidate.slotCounts &&
+                candidate.slotCounts[slot] >= slotMax(slot)
+              ),
+          ),
+        );
 
-      const searchResult = beamSearch(
-        candidate,
-        gearSlots,
-        remainingGearOptions,
-      );
-      candidates = candidates.concat(searchResult);
+        const usedCandidate = {
+          ...candidate,
+          gearSet: { ...candidate.gearSet, location: location },
+        };
+        const searchResult = beamSearch(
+          usedCandidate,
+          gearSlots,
+          remainingGearOptions,
+        );
+        candidates = candidates.concat(searchResult);
+      });
     });
 
     return candidates
@@ -192,9 +203,12 @@ export function useOptimiser() {
     const reqSets = requirementsFill(options);
     const primarySets = gearFill(gearSlots, reqSets, options, "primary");
 
+    console.log(primarySets);
+
     const [usedSet] = primarySets;
 
     await gearStore.unequipAll();
+    await activityStore.setLocation(usedSet.gearSet.location);
     await gearStore.equipMultiple(usedSet.gearSet, true);
   };
 
