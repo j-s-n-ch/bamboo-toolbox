@@ -1,0 +1,46 @@
+import { computed } from "vue";
+import selectedPriority from "./priority";
+import { useSkillModifiers } from "@/composables/useSkillModifiers";
+import useBaseContext from "@/composables/useBaseContext";
+
+export const getGearSetStats = (set) => {
+  const baseCtx = useBaseContext();
+  const gearCtx = {
+    ...baseCtx,
+    equippedGear: computed(() => [...Object.values(set).filter(Boolean)]),
+  };
+
+  const stats = useSkillModifiers(gearCtx);
+  const prio = selectedPriority(baseCtx);
+  if (prio === "stepsPerRewardRoll") return stats.stepsPerRewardRoll.value;
+  else if (prio === "xpPerStep") {
+    const xp = stats.xpPerStep.value;
+    return xp[xp.length - 1].value;
+  } else if (prio === "craftsPerMaterial") {
+    return stats.craftsPerMaterial.value;
+  }
+
+  // fallback
+  return stats.stepsPerRewardRoll.value;
+};
+
+export const filterUsefulStats = (items, target = "stepsPerRewardRoll") => {
+  const baseStats = ["work_efficiency", "double_action", "steps_required"];
+  const usefulStatsByTarget = {
+    stepsPerRewardRoll: [...baseStats, "double_rewards"],
+    xpPerStep: [...baseStats, "bonus_experience"],
+    craftsPerMaterial: [
+      ...baseStats,
+      "double_rewards",
+      "no_materials_consumed",
+    ],
+  };
+
+  const targetStats = usefulStatsByTarget[target];
+  return items.filter(
+    ({ usefulStats }) =>
+      usefulStats.filter(
+        ({ stat, isNegative }) => !isNegative && targetStats.includes(stat),
+      ).length > 0,
+  );
+};
