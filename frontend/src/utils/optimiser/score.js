@@ -1,7 +1,11 @@
 import { getGearSetStats } from "./stats";
 import { selectedPriority } from "./priority";
 
-const lowStats = ["stepsPerRewardRoll"];
+const lowStats = [
+  "stepsPerRewardRoll",
+  "stepsPerFineRoll",
+  "stepsPerCollectibleRoll",
+];
 const highStats = ["xpPerStep", "craftsPerMaterial"];
 
 export const startScore = () => {

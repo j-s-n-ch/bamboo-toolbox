@@ -18,8 +18,11 @@ export const getGearSetStats = (set) => {
     return xp[xp.length - 1].value;
   } else if (prio === "craftsPerMaterial") {
     return stats.craftsPerMaterial.value;
+  } else if (prio === "stepsPerFineRoll") {
+    return stats.stepsPerFineRoll.value;
+  } else if (prio === "stepsPerCollectibleRoll") {
+    return stats.stepsPerCollectibleRoll.value;
   }
-
   // fallback
   return stats.stepsPerRewardRoll.value;
 };
@@ -29,12 +32,23 @@ export const filterUsefulStats = (items, target = "stepsPerRewardRoll") => {
   const usefulStatsByTarget = {
     stepsPerRewardRoll: [...baseStats, "double_rewards"],
     xpPerStep: [...baseStats, "bonus_experience"],
+    stepsPerFineRoll: [...baseStats, "double_rewards", "fine_material_finding"],
+    stepsPerCollectibleRoll: [
+      ...baseStats,
+      "double_rewards",
+      "find_collectibles",
+    ],
     craftsPerMaterial: [
       ...baseStats,
       "double_rewards",
       "no_materials_consumed",
     ],
   };
+
+  if (!(target in usefulStatsByTarget)) {
+    console.warn(`${target} not set in usefulStatsByTarget`);
+    return items;
+  }
 
   const targetStats = usefulStatsByTarget[target];
   return items.filter(
