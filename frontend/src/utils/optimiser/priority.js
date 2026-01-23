@@ -4,7 +4,7 @@ import {
   recipeOptimiserPriorities,
 } from "@/constants/optimiserPriorities";
 import { useSettingsStore } from "@/store/settings";
-import useBaseContext from "./composables/useBaseContext";
+import useBaseContext from "@/composables/context/useBaseContext";
 
 export const selectedPriority = () => {
   const baseCtx = useBaseContext();

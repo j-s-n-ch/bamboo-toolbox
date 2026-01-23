@@ -1,7 +1,7 @@
 import { computed } from "vue";
-import selectedPriority from "./priority";
+import { selectedPriority } from "./priority";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
-import useBaseContext from "@/composables/useBaseContext";
+import useBaseContext from "@/composables/context/useBaseContext";
 
 export const getGearSetStats = (set) => {
   const baseCtx = useBaseContext();

@@ -1,5 +1,5 @@
-import useBaseContext from "@/composables/useBaseContext";
-import { useRequirements } from "./useRequirements";
+import useBaseContext from "@/composables/context/useBaseContext";
+import { useRequirements } from "@/composables/useRequirements";
 import { compareScore } from "./score";
 import { slotMax } from "./gear";
 

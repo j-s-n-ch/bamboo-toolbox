@@ -1,4 +1,4 @@
-import useBaseContext from "@/composables/useBaseContext";
+import useBaseContext from "@/composables/context/useBaseContext";
 import { useShowItemForActivity } from "@/composables/useShowItemForActivity";
 import { useRequirements } from "@/composables/useRequirements";
 import { useDataStore } from "@/store/data";
