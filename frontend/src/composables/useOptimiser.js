@@ -12,6 +12,7 @@ import {
 import { getGearSetStats } from "@/utils/optimiser/stats";
 import { startScore, compareScore } from "@/utils/optimiser/score";
 import {
+  handledReqTypes,
   getReq,
   filterItemsForReq,
   getRequirementCandidates,
@@ -26,13 +27,6 @@ export function useOptimiser() {
     const reqs = baseCtx.source.value.requirements;
     let candidates = [{ gearSet: {}, score: startScore(), slotCounts: {} }];
     const requiredOptions = getItemOptions(gearOptions, "required");
-
-    const handledReqTypes = [
-      "distinctKeywordItemsEquipped",
-      "keywordEquipped",
-      "keywordWithLevelEquipped",
-      "abilityAvailable",
-    ];
 
     reqs.forEach((requirement) => {
       if (!handledReqTypes.includes(requirement.type)) return;

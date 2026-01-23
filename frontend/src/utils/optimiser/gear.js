@@ -7,6 +7,7 @@ import { gearTypes } from "@/utils/createEmptyGearSet";
 import { usedAttrs } from "@/utils/qualityAttrs";
 import { intersect } from "@/utils/intersect";
 
+import { getReq, handledReqTypes, contributesToReq } from "./requirements";
 import { getGearSetStats, filterUsefulStats } from "./stats";
 import { getItemScores } from "./score";
 import { selectedPriority } from "./priority";
@@ -41,7 +42,7 @@ const mapItemToStats = (item, ctx) => {
   }
 };
 
-const filterDirectUpgrades = (items) => {
+const filterDirectUpgrades = (items, source = null) => {
   function normalizeStats(stats) {
     const map = new Map();
     for (const s of stats) {
@@ -53,6 +54,10 @@ const filterDirectUpgrades = (items) => {
   function dominates(aStats, bStats) {
     let strictlyBetter = false;
 
+    if (bStats.size === 0) {
+      return aStats.size > 0;
+    }
+
     for (const [type, bValue] of bStats) {
       const aValue = aStats.get(type);
 
@@ -62,10 +67,32 @@ const filterDirectUpgrades = (items) => {
       // Must be at least as good
       if (Math.abs(aValue) < Math.abs(bValue)) return false;
 
-      if (Math.abs(aValue) > Math.abs(bValue)) strictlyBetter = true;
+      // Better in a shared stat
+      if (Math.abs(aValue) > Math.abs(bValue)) {
+        strictlyBetter = true;
+      }
+    }
+
+    // Extra stats in A count as strictly better
+    if (aStats.size > bStats.size) {
+      strictlyBetter = true;
     }
 
     return strictlyBetter;
+  }
+
+  function sameKeywords(a, b) {
+    const reqs = source.requirements
+      .filter(({ type }) => handledReqTypes.includes(type))
+      .map(({ type, requirement }) => getReq({ type, requirement }));
+    reqs.every((req) => {
+      if (contributesToReq(b, req)) {
+        return contributesToReq(a, req);
+      }
+      return true;
+    });
+
+    return true;
   }
 
   const normalized = items.map((item) => ({
@@ -78,7 +105,10 @@ const filterDirectUpgrades = (items) => {
       .filter(
         (item, i) =>
           !normalized.some(
-            (other, j) => i !== j && dominates(other._stats, item._stats),
+            (other, j) =>
+              i !== j &&
+              dominates(other._stats, item._stats) &&
+              (!source || (!!source && sameKeywords(other, item))),
           ),
       )
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -171,7 +201,7 @@ export const getGearOptions = () => {
         (item) => usefulAbilities(item, baseCtx.activity.value).length > 0,
       );
 
-      const upgradeFiltered = ["tool", "ring"].includes(slot)
+      const upgradeFiltered = ["ring"].includes(slot)
         ? scoredItems
         : filterDirectUpgrades(scoredItems);
       const statFiltered = filterUsefulStats(
@@ -182,7 +212,10 @@ export const getGearOptions = () => {
       return [
         slot,
         {
-          required: keywordItems.concat(abilityItems) || [],
+          required:
+            filterDirectUpgrades(keywordItems, baseCtx.source.value).concat(
+              abilityItems,
+            ) || [],
           primary: statFiltered || [],
         },
       ];
