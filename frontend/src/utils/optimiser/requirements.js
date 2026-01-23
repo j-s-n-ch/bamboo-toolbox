@@ -1,6 +1,6 @@
 import useBaseContext from "@/composables/context/useBaseContext";
 import { useRequirements } from "@/composables/useRequirements";
-import { compareScore } from "./score";
+import { compareScore, isHighStat } from "./score";
 import { slotMax } from "./gear";
 
 export const handledReqTypes = [
@@ -94,5 +94,9 @@ export function getRequirementCandidates(gearOptions, req) {
     }
   }
 
-  return result.sort((a, b) => compareScore(a.item.score, b.item.score));
+  return result.sort((a, b) =>
+    isHighStat()
+      ? compareScore(b.item.score, a.item.score)
+      : compareScore(a.item.score, b.item.score),
+  );
 }

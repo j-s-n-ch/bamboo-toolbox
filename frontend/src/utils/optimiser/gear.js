@@ -206,7 +206,7 @@ export const getGearOptions = () => {
         : filterDirectUpgrades(scoredItems);
       const statFiltered = filterUsefulStats(
         upgradeFiltered,
-        selectedPriority(baseCtx),
+        selectedPriority(),
       );
 
       return [
