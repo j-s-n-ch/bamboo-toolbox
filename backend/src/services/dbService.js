@@ -36,7 +36,8 @@ const ALLOWED_SETTINGS = new Set([
   "shownDropRate",
   "thousandSeparator",
   "decimalSeparator",
-  "optimiserPriority",
+  "activityOptimiserPriority",
+  "recipeOptimiserPriority",
 ]);
 
 async function markUserActiveThrottled(userUuid) {

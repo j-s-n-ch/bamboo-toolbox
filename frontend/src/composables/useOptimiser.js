@@ -7,7 +7,10 @@ import useBaseContext from "@/composables/context/useBaseContext";
 import { useShowItemForActivity } from "@/composables/useShowItemForActivity";
 import { useSkillModifiers } from "./useSkillModifiers";
 import { useRequirements } from "./useRequirements";
-import { optimiserPriorities } from "@/constants/optimiserPriorities";
+import {
+  activityOptimiserPriorities,
+  recipeOptimiserPriorities,
+} from "@/constants/optimiserPriorities";
 import { gearTypes, gearSlots } from "@/utils/createEmptyGearSet";
 import { intersect } from "@/utils/intersect";
 import { usedAttrs } from "@/utils/qualityAttrs";
@@ -26,8 +29,13 @@ export function useOptimiser() {
     useRequirements(baseCtx);
 
   const selectedPriority = () => {
-    return optimiserPriorities[gearSettings.value.optimiserPriority.display]
-      .value;
+    return baseCtx.activitySelected.value
+      ? activityOptimiserPriorities[
+          gearSettings.value.activityOptimiserPriority.display
+        ].value
+      : recipeOptimiserPriorities[
+          gearSettings.value.recipeOptimiserPriority.display
+        ].value;
   };
 
   const getGearSetStats = (set) => {
@@ -43,7 +51,12 @@ export function useOptimiser() {
     else if (prio === "xpPerStep") {
       const xp = stats.xpPerStep.value;
       return xp[xp.length - 1].value;
+    } else if (prio === "craftsPerMaterial") {
+      return stats.craftsPerMaterial.value;
     }
+
+    // fallback
+    return stats.stepsPerRewardRoll.value;
   };
 
   const mapItemToStats = (item) => {
@@ -133,6 +146,11 @@ export function useOptimiser() {
     const usefulStatsByTarget = {
       stepsPerRewardRoll: [...baseStats, "double_rewards"],
       xpPerStep: [...baseStats, "bonus_experience"],
+      craftsPerMaterial: [
+        ...baseStats,
+        "double_rewards",
+        "no_materials_consumed",
+      ],
     };
 
     const targetStats = usefulStatsByTarget[target];
@@ -247,14 +265,14 @@ export function useOptimiser() {
 
   const startScore = () => {
     const prio = selectedPriority();
-    if (prio === "stepsPerRewardRoll") return Infinity;
-    if (prio === "xpPerStep") return -Infinity;
+    if (["stepsPerRewardRoll"].includes(prio)) return Infinity;
+    if (["xpPerStep", "craftsPerMaterial"].includes(prio)) return -Infinity;
   };
 
   const compareScore = (value, best) => {
     const prio = selectedPriority();
-    if (prio === "stepsPerRewardRoll") return best - value;
-    if (prio === "xpPerStep") return value - best;
+    if (["stepsPerRewardRoll"].includes(prio)) return best - value;
+    if (["xpPerStep", "craftsPerMaterial"].includes(prio)) return value - best;
   };
 
   const getReq = ({ type, requirement }) => {
@@ -391,7 +409,6 @@ export function useOptimiser() {
     ];
 
     const candidatesPool = getRequirementCandidates(gearOptions, req);
-    console.log("candidatesPool", candidatesPool);
 
     for (const { slotName, slotKey, item } of candidatesPool) {
       const next = [];
@@ -420,9 +437,6 @@ export function useOptimiser() {
           slotCounts: newSlotCount,
         });
       }
-
-      // console.log(req);
-      // console.log(next);
 
       candidates = candidates
         .concat(next)
