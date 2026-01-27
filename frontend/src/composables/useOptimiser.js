@@ -235,7 +235,7 @@ export function useOptimiser() {
       notificationStore.debug("Changed location", usedSet.gearSet.location);
 
       await gearStore.equipMultiple(usedSet.gearSet, true);
-      notificationStore.debug("equipped gear set", usedSet);
+      notificationStore.debug("Equipped gear set", usedSet);
     } catch (e) {
       notificationStore.error("Error duing gear set creation");
       console.error(e);
