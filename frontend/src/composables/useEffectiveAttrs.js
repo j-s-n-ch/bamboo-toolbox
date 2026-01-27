@@ -4,26 +4,16 @@ import { useLevelBonus } from "./useLevelBonus";
 import { usedAttrs } from "../utils/qualityAttrs";
 import { toDeepRaw } from "../utils/rawData";
 import { stripHtmlTags } from "../utils/stripHtmlTags";
+import { makePseudoStat } from "@/utils/domain/rollSpecialTable";
 
 export function useEffectiveAttrs(ctx) {
   const { checkRequirements } = useRequirements(ctx);
   const { workEfficiencyBonus, qualityOutcomeBonus } = useLevelBonus(ctx);
 
-  const collectibleIds = computed(() => {
-    return Object.entries(ctx.itemsByCategory.value)
-      .filter(([category]) => {
-        return category.endsWith("collectibles");
-      })
-      .flatMap(([, items]) => items);
-  });
-
   const allEquippedItems = computed(() => {
-    const owned = ctx.ownedItems.value;
     const gearSet = ctx.equippedGear.value;
 
-    const ownedCollectibles = collectibleIds.value.filter(
-      ({ id }) => id in owned
-    );
+    const ownedCollectibles = ctx.ownedItemsByCategory("collectibles");
 
     return [...ownedCollectibles, ...gearSet]
       .map((item) => {
@@ -92,7 +82,7 @@ export function useEffectiveAttrs(ctx) {
 
   const effectiveAttrsWithContext = (context) => {
     return allAttrs.value.filter(({ requirements }) =>
-      checkRequirements(requirements, context)
+      checkRequirements(requirements, context),
     );
   };
 
