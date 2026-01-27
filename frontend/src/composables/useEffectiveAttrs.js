@@ -3,7 +3,6 @@ import { useRequirements } from "./useRequirements";
 import { useLevelBonus } from "./useLevelBonus";
 import { usedAttrs } from "../utils/qualityAttrs";
 import { toDeepRaw } from "../utils/rawData";
-import { stripHtmlTags } from "../utils/stripHtmlTags";
 import { makePseudoStat } from "@/utils/domain/rollSpecialTable";
 
 export function useEffectiveAttrs(ctx) {
@@ -25,39 +24,14 @@ export function useEffectiveAttrs(ctx) {
       .filter(({ attrs }) => attrs.length);
   });
 
-  const equippedKeywords = computed(() => {
-    const gearSet = ctx.equippedGear.value;
-    return gearSet
-      .flatMap(({ keywords }) => keywords)
-      .reduce((acc, val) => {
-        acc[val] = (acc[val] || 0) + 1;
-        return acc;
-      }, {});
-  });
-
   const allAttrs = computed(() => {
     const mappedAttrs = allEquippedItems.value.flatMap((item) => {
       return item.attrs.map((attr) => {
-        if (attr?.stats?.[0]?.type !== "rollSpecialTable") {
-          return { ...attr, item };
-        } else {
-          const text = stripHtmlTags(attr.customText);
-          const split = attr.customTextLocalizationKey.split(".");
-          const pseudoStat = split[split.length - 2];
-          return {
-            ...attr,
-            statText: text,
-            stats: [
-              {
-                ...attr.stats[0],
-                name: text,
-                stat: pseudoStat,
-                type: pseudoStat,
-              },
-            ],
-            item,
-          };
-        }
+        const stat =
+          attr?.stats?.[0]?.type !== "rollSpecialTable"
+            ? attr
+            : makePseudoStat(attr);
+        return { ...stat, item };
       });
     });
     if (workEfficiencyBonus.value) {
@@ -120,12 +94,8 @@ export function useEffectiveAttrs(ctx) {
   const totalsByStat = computed(() => totalsByStatWithContext(ctx));
 
   return {
-    allEquippedItems,
     allAttrs,
     effectiveAttrs,
-    effectiveAttrsWithContext,
-    totalsByStatWithContext,
-    equippedKeywords,
     totalsByStat,
   };
 }
