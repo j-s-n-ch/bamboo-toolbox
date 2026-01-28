@@ -2,7 +2,6 @@
 import { ref, watch } from "vue";
 import WsIcon from "@/components/common/WsIcon.vue";
 import WsLabel from "@/components/common/WsLabel.vue";
-import { n } from "@/utils/number";
 
 const emit = defineEmits(["input"]);
 
@@ -53,6 +52,13 @@ function onBlur() {
   props.setValue(props.id, clamped);
   emit("input", clamped);
 }
+
+function widthClass() {
+  const len = props.max.toString().length;
+  if (len < 3) return "thin";
+  if (len < 5) return "mid";
+  return "wide";
+}
 </script>
 
 <template>
@@ -67,10 +73,11 @@ function onBlur() {
         :value="Math.ceil(localValue)"
         @input="onInput"
         @blur="onBlur"
-        class="input"
+        :class="['input', widthClass()]"
         type="text"
         inputmode="numeric"
         pattern="[0-9]*"
+        :maxlength="max.toString().length"
         :min="min"
         :max="max"
       />
@@ -91,6 +98,18 @@ function onBlur() {
 .input {
   color: $txLighter;
   background: $boxPrimaryBackground;
+}
+
+.thin {
+  width: 2ch;
+}
+
+.mid {
+  width: 4ch;
+}
+
+.wide {
+  width: 8ch;
 }
 
 input::-webkit-outer-spin-button,
