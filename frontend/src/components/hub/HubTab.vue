@@ -59,7 +59,11 @@ const handleCharacterImport = (data, reset) => {
       playerStore.setAchievementPoints(result.achievementPoints.data);
     }
 
-    if (result.skills?.hasUpdates || result.achievementPoints?.hasUpdates) {
+    if (
+      result.skills?.hasUpdates ||
+      result.achievementPoints?.hasUpdates ||
+      result.level.hasUpdates
+    ) {
       postPlayerStats();
     }
 
