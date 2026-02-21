@@ -11,7 +11,7 @@ import { useFineMaterials } from "@/composables/useFineMaterialsCalculations";
 import getOutcomeOdds from "@/utils/qualityOutcomeOdds";
 import { n } from "@/utils/number";
 import { icons } from "@/constants/iconPaths.ts";
-import { tokenValues } from "@/constants/tokenValues";
+import { tokenValues } from "@/domain/constants/tokenValues.ts";
 
 const props = defineProps({
   type: {

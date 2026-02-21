@@ -1,6 +1,6 @@
 /**
  * Purpose:
- * Stores the token values for various items in the game, 
+ * Stores the token values for various items in the game,
  * allowing the tool to compute the total token value of an activity
  * with the equipped items.
  *
@@ -12,7 +12,14 @@
  * - Mutate global state
  */
 
-export const tokenValues = {
+export type TokenValue = {
+  common: number;
+  fine?: number;
+};
+
+export type TokenValuesMap = Record<string, TokenValue>;
+
+export const tokenValues: TokenValuesMap = {
   adventurers_guild_token: {
     common: 1,
   },
@@ -29,3 +36,5 @@ export const tokenValues = {
     fine: 100,
   },
 };
+
+export default tokenValues;
