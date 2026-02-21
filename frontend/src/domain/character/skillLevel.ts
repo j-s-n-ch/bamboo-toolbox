@@ -17,7 +17,7 @@ import { levelEquate } from "./levelUtils";
 // Calculates the experience needed to level up a skill to a given level
 export function xpToSkillLevel(level: number): number {
   let xp = 0;
-  for (let i = 1; i <= level; i++) {
+  for (let i = 1; i < level; i++) {
     xp += levelEquate(i);
   }
   return Math.floor(xp / 4);
@@ -27,7 +27,7 @@ export function xpToSkillLevel(level: number): number {
 export const XP_TABLE: number[] = (() => {
   const table: number[] = [];
   for (let level = 1; level <= 99; level++) {
-    table[level] = xpToSkillLevel(level - 1);
+    table[level] = xpToSkillLevel(level);
   }
   return table;
 })();

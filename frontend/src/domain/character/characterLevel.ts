@@ -30,19 +30,19 @@ export function getToolbeltSize(level: number): number {
 }
 
 // Calculate the total steps required to reach a given level
-const stepsToCharacterLevel = (level: number): number => {
+export const stepsToCharacterLevel = (level: number): number => {
   let steps = 0;
-  for (let i = 1; i <= level; i++) {
+  for (let i = 1; i < level; i++) {
     steps += levelEquate(i);
   }
   return Math.floor(steps / 4) * 4.6;
 };
 
 // Pre-calculate steps lookup table for levels 1-99
-const STEPS_TABLE: number[] = (() => {
+export const STEPS_TABLE: number[] = (() => {
   const table: number[] = [];
   for (let level = 1; level <= 99; level++) {
-    table[level] = stepsToCharacterLevel(level - 1);
+    table[level] = stepsToCharacterLevel(level);
   }
   return table;
 })();
@@ -64,4 +64,6 @@ export function characterLevelFromSteps(steps: number): number {
 export default {
   getToolbeltSize,
   characterLevelFromSteps,
+  stepsToCharacterLevel,
+  STEPS_TABLE,
 };

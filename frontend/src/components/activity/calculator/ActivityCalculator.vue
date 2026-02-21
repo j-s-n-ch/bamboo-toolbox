@@ -108,10 +108,10 @@ watchEffect(() => {
       },
     });
 
-    skillXpStartRefs[s] = xpToSkillLevel(skillLevels.value[s] - 1);
+    skillXpStartRefs[s] = xpToSkillLevel(skillLevels.value[s]);
     skillLevelStartRefs[s] = computed({
       get: () => skillLevelFromXp(skillXpStartRefs[s]),
-      set: (val) => (skillXpStartRefs[s] = xpToSkillLevel(val - 1)),
+      set: (val) => (skillXpStartRefs[s] = xpToSkillLevel(val)),
     });
 
     skillXpEndRefs[s] = computed({
@@ -124,7 +124,7 @@ watchEffect(() => {
     });
     skillLevelEndRefs[s] = computed({
       get: () => skillLevelFromXp(skillXpEndRefs[s]),
-      set: (val) => (skillXpEndRefs[s] = xpToSkillLevel(val - 1)),
+      set: (val) => (skillXpEndRefs[s] = xpToSkillLevel(val)),
     });
   }
 });
