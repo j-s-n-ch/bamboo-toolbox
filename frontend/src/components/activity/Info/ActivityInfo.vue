@@ -50,7 +50,6 @@ const sections = computed(() => {
   const isTravel = id === "travelling";
   const showRewards = rewards && rewards.length > 0;
 
-  console.log(options);
   const inputs =
     options
       ?.filter(Boolean)
