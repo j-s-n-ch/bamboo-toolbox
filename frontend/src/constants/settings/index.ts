@@ -12,6 +12,8 @@
 export * from "./types";
 export * from "./separators";
 export * from "./optimiserPriorities";
+export * from "./settingOptions";
 
 export { default as separators } from "./separators";
 export { default as optimiserPriorities } from "./optimiserPriorities";
+export { default as settingOptions } from "./settingOptions";

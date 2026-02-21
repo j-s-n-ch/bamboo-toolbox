@@ -1,3 +1,12 @@
+/**
+ * Purpose:
+ * Lists of optimiser priority options used by settings UI.
+ *
+ * Responsibilities:
+ * - Provide typed lists for activity and recipe optimiser dropdowns
+ * - Keep labels and values centralized for settings and store logic
+ */
+
 import { SettingOption } from "./types";
 
 export const activityOptimiserPriorities: SettingOption[] = [

@@ -6,6 +6,8 @@ import {
   recipeOptimiserPriorities,
   thousandSeparators,
   decimalSeparators,
+  undoRedoOptions,
+  shownDropRateOptions,
 } from "@/constants/settings";
 
 /**
@@ -228,21 +230,21 @@ export const useSettingsStore = defineStore("settingsStore", {
           undoRedo: {
             label: "Show undo/redo buttons",
             display: 2,
-            displayOptions: ["Hidden", "Gear Tab", "Static buttons"],
+            displayOptions: undoRedoOptions,
             value: true,
             showEnable: false,
           },
           activityOptimiserPriority: {
             label: "Activity optimiser priority",
             display: 0,
-            displayOptions: activityOptimiserPriorities.map(({ name }) => name),
+            displayOptions: activityOptimiserPriorities,
             value: true,
             showEnable: false,
           },
           recipeOptimiserPriority: {
             label: "Recipe optimiser priority",
             display: 0,
-            displayOptions: recipeOptimiserPriorities.map(({ name }) => name),
+            displayOptions: recipeOptimiserPriorities,
             value: true,
             showEnable: false,
           },
@@ -261,21 +263,21 @@ export const useSettingsStore = defineStore("settingsStore", {
           shownDropRate: {
             label: "Shown Drop Rate",
             display: 0,
-            displayOptions: ["Steps per Item", "Steps per Normal"],
+            displayOptions: shownDropRateOptions,
             value: false,
             showEnable: false,
           },
           thousandSeparator: {
             label: "Thousand separator",
             display: 0,
-            displayOptions: thousandSeparators.map(({ name }) => name),
+            displayOptions: thousandSeparators,
             value: false,
             showEnable: false,
           },
           decimalSeparator: {
             label: "Decimal separator",
             display: 0,
-            displayOptions: decimalSeparators.map(({ name }) => name),
+            displayOptions: decimalSeparators,
             value: false,
             showEnable: false,
           },

@@ -59,10 +59,10 @@ function updateSettingDisplay(key, display) {
               >
                 <option
                   v-for="(option, idx) in setting.displayOptions"
-                  :key="option"
+                  :key="option.value || option.name || idx"
                   :value="idx"
                 >
-                  {{ option }}
+                  {{ option.name || option }}
                 </option>
               </select>
             </td>
@@ -90,10 +90,10 @@ function updateSettingDisplay(key, display) {
               >
                 <option
                   v-for="(option, idx) in setting.displayOptions"
-                  :key="option"
+                  :key="option.value || option.name || idx"
                   :value="idx"
                 >
-                  {{ option }}
+                  {{ option.name || option }}
                 </option>
               </select>
             </td>
