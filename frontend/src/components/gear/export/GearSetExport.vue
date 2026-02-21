@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import useBaseContext from "@/composables/context/useBaseContext";
 import { useGearSetExport } from "@/composables/useGearSetExport";
-import { icons } from "@/constants/iconPaths";
+import { icons } from "@/constants/iconPaths.ts";
 import { useNotificationStore } from "@/store/notifications";
 import WsButton from "@/components/common/WsButton.vue";
 import ExportCodeModal from "./ExportCodeModal.vue";

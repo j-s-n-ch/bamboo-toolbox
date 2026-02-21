@@ -1,4 +1,28 @@
-const BASE_PATHS = {
+/**
+ * Purpose:
+ * Stores the file paths for hard-coded
+ * icons used in the application,
+ * organized by path in game files.
+ *
+ * Responsibilities:
+ * - Provide a centralized location for icon paths
+ * - Facilitate easy updates and maintenance of icon assets
+ * - Ensure consistent usage of icons across the application
+ *
+ * Does NOT:
+ * - Mutate global state
+ */
+
+export type IconMap = Record<string, string>;
+export type BasePathKey =
+  | "general"
+  | "button"
+  | "devtools"
+  | "items"
+  | "currencies"
+  | "skilling";
+
+export const BASE_PATHS: Record<BasePathKey, string> = {
   general: "assets/icons/text/general_icons/",
   button: "assets/icons/text/button_icons/",
   devtools: "assets/devtools/icons/",
@@ -7,13 +31,14 @@ const BASE_PATHS = {
   skilling: "assets/icons/text/stats/skilling/",
 };
 
-const withBase = (base, files) =>
-  Object.fromEntries(
-    Object.entries(files).map(([key, file]) => [
-      key,
-      `${BASE_PATHS[base]}${file}`,
-    ])
-  );
+export function withBase<T extends Record<string, string>>(
+  base: BasePathKey,
+  files: T
+): { [K in keyof T]: string } {
+  return Object.fromEntries(
+    Object.entries(files).map(([key, file]) => [key, `${BASE_PATHS[base]}${file}`])
+  ) as { [K in keyof T]: string };
+}
 
 export const abilityTypeIconPaths = withBase("general", {
   passive: "ability_passive.png",
@@ -25,7 +50,7 @@ export const abilityTypeIconPaths = withBase("general", {
   emergency: "ability_emergency.png",
 });
 
-export const icons = {
+export const icons: IconMap = {
   ...abilityTypeIconPaths,
   ...withBase("general", {
     actions: "actions.png",
@@ -57,3 +82,5 @@ export const icons = {
   }),
   cooldowns: `${BASE_PATHS.devtools}cooldowns.png`,
 };
+
+export default icons;

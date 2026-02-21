@@ -1,5 +1,5 @@
 <script setup>
-import { icons } from "@/constants/iconPaths";
+import { icons } from "@/constants/iconPaths.ts";
 import WsIcon from "@/components/common/WsIcon.vue";
 import AggregateDropDisplay from "./AggregateDropDisplay.vue";
 

@@ -10,7 +10,7 @@ import { useRouteStore } from "@/store/route";
 import { useRoutes } from "@/composables/useRoutes";
 import useBaseContext from "@/composables/context/useBaseContext";
 import { useRequirements } from "@/composables/useRequirements";
-import { icons } from "@/constants/iconPaths";
+import { icons } from "@/constants/iconPaths.ts";
 import { n } from "@/utils/number";
 
 const playerStore = usePlayerStore();

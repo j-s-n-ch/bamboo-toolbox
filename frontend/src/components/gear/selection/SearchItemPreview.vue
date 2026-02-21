@@ -6,7 +6,7 @@ import { n } from "@/utils/number";
 import WsLabel from "@/components/common/WsLabel.vue";
 import SkillBubble from "@/components/common/SkillBubble.vue";
 import InfoBubble from "@/components/common/InfoBubble.vue";
-import { icons } from "@/constants/iconPaths";
+import { icons } from "@/constants/iconPaths.ts";
 
 const props = defineProps({ item: Object, slotName: String });
 

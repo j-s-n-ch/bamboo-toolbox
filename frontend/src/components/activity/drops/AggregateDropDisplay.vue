@@ -10,7 +10,7 @@ import { useSkillModifiers } from "@/composables/useSkillModifiers";
 import { useFineMaterials } from "@/composables/useFineMaterialsCalculations";
 import getOutcomeOdds from "@/utils/qualityOutcomeOdds";
 import { n } from "@/utils/number";
-import { icons } from "@/constants/iconPaths";
+import { icons } from "@/constants/iconPaths.ts";
 import { tokenValues } from "@/constants/tokenValues";
 
 const props = defineProps({
