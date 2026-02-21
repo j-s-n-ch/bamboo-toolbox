@@ -4,8 +4,25 @@ import { useNotificationStore } from "./notifications";
 import {
   activityOptimiserPriorities,
   recipeOptimiserPriorities,
-} from "@/domain/constants/optimiserPriorities.ts";
-import { thousandSeparators, decimalSeparators } from "@/constants/separators";
+  thousandSeparators,
+  decimalSeparators,
+} from "@/constants/settings";
+
+/**
+ * Purpose:
+ * Store for user settings that are saved to
+ * the backend and persist across sessions.
+ * This includes both gear display settings
+ * and activity/recipe display settings.
+ *
+ * Responsibilities:
+ * - Fetch settings from backend on load and merge with defaults
+ * - Provide default settings for all options
+ * - Track changes to settings and only save changed settings to backend
+ *
+ * Does NOT:
+ * - Store settings that are only relevant for the current session (e.g. temporary UI state)
+ */
 
 export const useSettingsStore = defineStore("settingsStore", {
   state: () => ({

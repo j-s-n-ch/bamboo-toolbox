@@ -1,5 +1,5 @@
 import { useSettingsStore } from "@/store/settings";
-import { thousandSeparators, decimalSeparators } from "@/constants/separators";
+import { thousandSeparators, decimalSeparators } from "@/constants/settings";
 
 export function n(val, decimals = 3) {
   if (val == null || isNaN(val)) return "";
