@@ -4,7 +4,7 @@ import type {
   ActivityDetail,
   ActivitySummary,
   ApInfo,
-  CategorizedItem,
+  ItemDetail,
   Faction,
   IconBatchResponse,
   ItemCategoryGroup,
@@ -24,7 +24,7 @@ import type {
   StatDefinition,
   TerrainModifier,
   UrlMap,
-} from "@/domain/types/api";
+} from "@/domain/types";
 import { createProxyInstance, type ProxyRequest } from "./proxy";
 
 const rawProxy = createProxyInstance("/api");
@@ -154,8 +154,8 @@ export function getItem({
   id,
 }: {
   id: string;
-}): Promise<AxiosResponse<CategorizedItem>> {
-  return proxy<CategorizedItem>({
+}): Promise<AxiosResponse<ItemDetail>> {
+  return proxy<ItemDetail>({
     url: `items/${id}`,
   });
 }

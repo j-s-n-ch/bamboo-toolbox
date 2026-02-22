@@ -7,6 +7,8 @@
  * - Contain any logic.
  */
 
+import type { Requirement } from "./common";
+
 // ---------------------------------------------------------------------------
 // Attribute / stat types
 // ---------------------------------------------------------------------------
@@ -31,7 +33,7 @@ export type Attribute = {
   statText: string;
   skillText: string;
   tables: unknown | null;
-  requirements: unknown[];
+  requirements: Requirement[];
   stats: Stat[];
 };
 
@@ -113,3 +115,64 @@ export type PetItem = {
 // ---------------------------------------------------------------------------
 
 export type Item = GearItem | PetItem;
+
+// ---------------------------------------------------------------------------
+// Item API types
+// ---------------------------------------------------------------------------
+
+export type ItemSummary = {
+  id: string;
+  name: string;
+  icon: string;
+};
+
+export type ItemDetail = {
+  id: string;
+  name: string;
+  keywords: string[];
+  type: string;
+  quality: string;
+  consumableType: string | null;
+  gearType: string | null;
+  requirements: Requirement[];
+  itemAttrs: Attribute[];
+  itemQualityAttrs: QualityAttr[];
+  itemValue: string;
+  itemValueModifier: number;
+  buffs: Buff[];
+  tables: unknown[];
+  canBeFine: boolean;
+  icon: string;
+};
+
+export type ItemCategory = {
+  title: string;
+  key: string;
+  items: ItemDetail[];
+};
+
+export type ItemCategoryGroup = {
+  title: string;
+  categories: ItemCategory[];
+};
+
+// ---------------------------------------------------------------------------
+// Item value mapping
+// ---------------------------------------------------------------------------
+
+export type QualityValues = {
+  common: number;
+  uncommon: number;
+  rare: number;
+  epic: number;
+  legendary: number;
+  ethereal: number;
+};
+
+export type ItemValueMap = Record<string, QualityValues>;
+
+// ---------------------------------------------------------------------------
+// Item URL mapping
+// ---------------------------------------------------------------------------
+
+export type UrlMap = Record<string, (string | null)[]>;

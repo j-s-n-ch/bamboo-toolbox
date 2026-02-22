@@ -26,10 +26,6 @@ import type {
   Item,
   PetItem,
   QualityAttr,
-  Stat,
-  BuffObj,
-  BuffData,
-  PetLevel,
 } from "@/domain/types/item";
 
 export type {
