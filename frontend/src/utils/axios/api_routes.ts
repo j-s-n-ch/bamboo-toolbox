@@ -1,5 +1,6 @@
 import type { AxiosResponse } from "axios";
 import type {
+  AbilityDetail,
   AbilitySummary,
   ActivityDetail,
   ActivitySummary,
@@ -92,8 +93,8 @@ export function getAbilities(): Promise<AxiosResponse<AbilitySummary[]>> {
 
 export function getMultipleAbilities(
   ids: string[],
-): Promise<AxiosResponse<AbilitySummary[]>> {
-  return proxy<AbilitySummary[]>({
+): Promise<AxiosResponse<AbilityDetail[]>> {
+  return proxy<AbilityDetail[]>({
     method: "POST",
     url: "abilities/multiple",
     options: {
