@@ -1,6 +1,7 @@
 import type { AxiosResponse } from "axios";
 import type {
   AbilitySummary,
+  ActivityDetail,
   ActivitySummary,
   ApInfo,
   CategorizedItem,
@@ -11,12 +12,14 @@ import type {
   ItemValueMap,
   Keyword,
   LocationSummary,
+  LocationDetail,
   LootTableSummary,
   PetDetail,
   PetSummary,
-  RealmDefaultLocation,
+  RecipeDetail,
   RecipeSummary,
   RouteSummary,
+  ServiceDetail,
   Skill,
   StatDefinition,
   TerrainModifier,
@@ -237,8 +240,8 @@ export function searchLocations({
 }: {
   activityList: string;
   serviceList: string;
-}): Promise<AxiosResponse<RealmDefaultLocation[]>> {
-  return proxy<RealmDefaultLocation[]>({
+}): Promise<AxiosResponse<LocationDetail[]>> {
+  return proxy<LocationDetail[]>({
     url: "locations/search",
     options: {
       params: { activityList, serviceList, detailed: true },
@@ -247,9 +250,9 @@ export function searchLocations({
 }
 
 export function getRealmDefaultLocations(): Promise<
-  AxiosResponse<RealmDefaultLocation[]>
+  AxiosResponse<LocationDetail[]>
 > {
-  return proxy<RealmDefaultLocation[]>({
+  return proxy<LocationDetail[]>({
     url: "locations/realm_default_locations",
   });
 }
@@ -268,8 +271,8 @@ export function getActivity({
   id,
 }: {
   id: string;
-}): Promise<AxiosResponse<ActivitySummary>> {
-  return proxy<ActivitySummary>({
+}): Promise<AxiosResponse<ActivityDetail>> {
+  return proxy<ActivityDetail>({
     url: `activities/${id}`,
   });
 }
@@ -288,8 +291,8 @@ export function getRecipe({
   id,
 }: {
   id: string;
-}): Promise<AxiosResponse<RecipeSummary>> {
-  return proxy<RecipeSummary>({
+}): Promise<AxiosResponse<RecipeDetail>> {
+  return proxy<RecipeDetail>({
     url: `recipes/${id}`,
   });
 }
@@ -302,8 +305,8 @@ export function searchServices({
   skill,
 }: {
   skill: string;
-}): Promise<AxiosResponse<RealmDefaultLocation[]>> {
-  return proxy<RealmDefaultLocation[]>({
+}): Promise<AxiosResponse<ServiceDetail[]>> {
+  return proxy<ServiceDetail[]>({
     url: "services/search",
     options: {
       params: { relatedSkills: skill, detailed: true },
