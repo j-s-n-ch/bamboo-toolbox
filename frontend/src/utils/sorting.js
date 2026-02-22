@@ -1,4 +1,4 @@
-import { qualityOptions } from "@/domain/constants/quality.ts";
+import { qualityOptions } from "@/domain/constants/quality";
 
 const qualityRank = Object.fromEntries(
   qualityOptions.map(({ value }, index) => [value, index])

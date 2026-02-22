@@ -4,7 +4,7 @@ import ComparisonTableShell from "./table/ComparisonTableShell.vue";
 import WsIcon from "@/components/common/WsIcon.vue";
 import { useGearContext } from "@/composables/context/useGearContext";
 import { useLootTables } from "@/composables/useLootTables";
-import { icons } from "@/constants/iconPaths.ts";
+import { icons } from "@/constants/iconPaths";
 import { snakeToTitle } from "@/utils/string";
 import AggregateDrops from "../drops/AggregateDrops.vue";
 import DropStepColumn from "./table/DropStepColumn.vue";

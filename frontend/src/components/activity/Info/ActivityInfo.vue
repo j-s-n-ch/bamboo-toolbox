@@ -13,10 +13,10 @@ import { useSkillModifiers } from "@/composables/useSkillModifiers";
 
 import useBaseContext from "@/composables/context/useBaseContext";
 import { useRequirements } from "@/composables/useRequirements";
-import { isEmpty } from "@/utils/isEmpty.ts";
-import { n } from "@/utils/number.ts";
+import { isEmpty } from "@/utils/isEmpty";
+import { n } from "@/utils/number";
 import AbilitiesDisplay from "../../common/abilities/AbilitiesDisplay.vue";
-import { icons } from "@/constants/iconPaths.ts";
+import { icons } from "@/constants/iconPaths";
 
 const activityStore = useActivityStore();
 const playerStore = usePlayerStore();

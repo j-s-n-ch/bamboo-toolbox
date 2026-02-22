@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import { useNotificationStore } from "@/store/notifications";
-import { icons } from "@/constants/iconPaths.ts";
+import { icons } from "@/constants/iconPaths";
 import BaseModal from "@/components/common/BaseModal.vue";
 import WsButton from "@/components/common/WsButton.vue";
 

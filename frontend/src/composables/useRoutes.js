@@ -4,7 +4,7 @@ import { useRouteStore } from "@/store/route";
 import { usePlayerStore } from "@/store/player";
 import { useRequirements } from "@/composables/useRequirements";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
-import { argbToRgba } from "@/utils/argbToRgba.ts";
+import { argbToRgba } from "@/utils/argbToRgba";
 
 export function useRoutes(baseContext) {
   const routeStore = useRouteStore();

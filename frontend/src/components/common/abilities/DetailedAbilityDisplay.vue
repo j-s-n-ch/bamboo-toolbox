@@ -3,7 +3,7 @@ import { ref } from "vue";
 import WsText from "@/components/common/text/WsText.vue";
 import WsIcon from "../WsIcon.vue";
 import RequirementDisplay from "@/components/activity/Info/RequirementDisplay.vue";
-import { icons } from "@/constants/iconPaths.ts";
+import { icons } from "@/constants/iconPaths";
 
 const props = defineProps({
   ability: Object,

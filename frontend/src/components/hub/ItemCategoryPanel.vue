@@ -5,7 +5,7 @@ import ItemEntry from "./ItemEntry.vue";
 import ConsumableEntry from "./ConsumableEntry.vue";
 import PetEntry from "./PetEntry.vue";
 import { itemQualityNameSort, levelReqNameSort } from "@/utils/sorting";
-import { consumableQualityOptions } from "@/domain/constants/quality.ts";
+import { consumableQualityOptions } from "@/domain/constants/quality";
 import useBaseContext from "@/composables/context/useBaseContext";
 
 const props = defineProps({

@@ -3,7 +3,7 @@ import WsButton from "@/components/common/WsButton.vue";
 import { useGearStore } from "@/store/gear";
 import { useGearSetStore } from "@/store/gearSet";
 import { useNotificationStore } from "@/store/notifications";
-import { icons } from "@/constants/iconPaths.ts";
+import { icons } from "@/constants/iconPaths";
 
 const gearStore = useGearStore();
 const gearSetStore = useGearSetStore();

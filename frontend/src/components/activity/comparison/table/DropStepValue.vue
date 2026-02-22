@@ -1,7 +1,7 @@
 <script setup>
 import WsIcon from "@/components/common/WsIcon.vue";
-import { icons } from "@/constants/iconPaths.ts";
-import { n } from "@/utils/number.ts";
+import { icons } from "@/constants/iconPaths";
+import { n } from "@/utils/number";
 
 defineProps({
   data: Number,

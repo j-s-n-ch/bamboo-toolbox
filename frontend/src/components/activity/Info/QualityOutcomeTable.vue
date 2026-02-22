@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import WsLabel from "../../common/WsLabel.vue";
 import getOutcomeOdds from "@/utils/qualityOutcomeOdds";
-import { n } from "@/utils/number.ts";
+import { n } from "@/utils/number";
 
 const props = defineProps({
   levelRequirement: Object,

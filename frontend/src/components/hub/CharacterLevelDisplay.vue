@@ -1,7 +1,7 @@
 <script setup>
 import IconInputBubble from "@/components/common/IconInputBubble.vue";
 import { usePlayerStore } from "@/store/player";
-import { icons } from "@/constants/iconPaths.ts";
+import { icons } from "@/constants/iconPaths";
 
 const emit = defineEmits(["input"]);
 const store = usePlayerStore();

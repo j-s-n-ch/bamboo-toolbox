@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useGearSetStore } from "@/store/gearSet";
-import { icons } from "@/constants/iconPaths.ts";
+import { icons } from "@/constants/iconPaths";
 import WsIcon from "@/components/common/WsIcon.vue";
 import WsButton from "@/components/common/WsButton.vue";
 import TagSelection from "./TagSelection.vue";

@@ -1,4 +1,4 @@
-import { craftingQualityOptions } from "@/domain/constants/quality.ts";
+import { craftingQualityOptions } from "@/domain/constants/quality";
 
 const getOutcomeOdds = (levelReq, qualityOutcome, useFineMaterials) => {
   const weights = [

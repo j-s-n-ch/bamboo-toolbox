@@ -10,7 +10,7 @@ import { useGearSetStore } from "@/store/gearSet";
 import { useRouteStore } from "@/store/route";
 import { useSettingsStore } from "@/store/settings";
 import { getOrCreateUserUuid } from "@/utils/user";
-import { icons } from "@/constants/iconPaths.ts";
+import { icons } from "@/constants/iconPaths";
 import Hub from "@/components/hub/HubTab.vue";
 import Activity from "@/components/activity/ActivityTab.vue";
 import Gear from "@/components/gear/GearTab.vue";
