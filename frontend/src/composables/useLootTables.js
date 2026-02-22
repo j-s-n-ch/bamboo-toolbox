@@ -5,11 +5,58 @@ import { useSettingsStore } from "@/store/settings";
 import { useItemsStore } from "@/store/items";
 import { usePlayerStore } from "@/store/player";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
+import { usedAttrs } from "@/domain/quality/qualityAttrs";
+import { stripHtmlTags } from "@/utils/stripHtmlTags";
+import { useRequirements } from "@/composables/useRequirements";
 import {
-  getCtxLootTables,
-  normalizeLootTable,
+  resolveLootTableWeights,
   mapTableToItems,
-} from "@/utils/lootTables";
+  groupSourcesByStat,
+  getTotalDropChance,
+  getStepsPerItem,
+  getDropCounts,
+} from "@/domain/lootTables/lootTables";
+
+const getGearLootTables = (ctx) => {
+  const { checkRequirements } = useRequirements(ctx);
+  return ctx.filledGearSlots.value.flatMap(([slot, item]) =>
+    usedAttrs(item, item.quality)
+      .filter(
+        (attr) =>
+          Array.isArray(attr.tables) &&
+          attr.tables.length > 0 &&
+          checkRequirements(attr.requirements),
+      )
+      .flatMap((attr) => {
+        const { stats, customText } = attr;
+        return attr.tables.map((table) => ({
+          ...table,
+          tableSource: stripHtmlTags(attr.customText) || attr.name || attr.text,
+          slot,
+          stat: customText,
+          rollChance: stats?.[0]?.value || 1,
+        }));
+      }),
+  );
+};
+
+const getSourceLootTables = (ctx) => {
+  const source = ctx.source.value;
+  if (!source) return [];
+  const { tables: activityTables, name } = source;
+  return (
+    activityTables?.map((table) => ({
+      ...table,
+      tableSource: `activity-${name}`,
+      rollChance: 1,
+    })) ?? []
+  );
+};
+
+const getCtxLootTables = (ctx) => [
+  ...getSourceLootTables(ctx),
+  ...getGearLootTables(ctx),
+];
 
 export function useLootTables(ctx) {
   const dataStore = useDataStore();
@@ -44,8 +91,9 @@ export function useLootTables(ctx) {
     return lootTables.value.flatMap((table) => ({
       ...table,
       rollChance: table.rollChance || 1,
-      tables: normalizeLootTable(
+      tables: resolveLootTableWeights(
         table.tables.map(dataStore.getDetailedLootTable).filter(Boolean),
+        (skill) => playerStore.skillLevels[skill] ?? 1,
       ),
     }));
   });
@@ -150,126 +198,6 @@ export function useLootTables(ctx) {
     return multiplier;
   };
 
-  const groupSourcesByStat = (sources) => {
-    return sources.reduce((groups, source) => {
-      const statKey = source.stat || "default";
-      if (!groups[statKey]) {
-        groups[statKey] = [];
-      }
-      groups[statKey].push(source);
-      return groups;
-    }, {});
-  };
-
-  const getCombinedRollChance = (sourcesInGroup) => {
-    return sourcesInGroup.reduce((sum, source) => {
-      return sum + (source.rollChance || 1);
-    }, 0);
-  };
-
-  const rollChance = (source, combinedRollChance = null) => {
-    const { rowWeight, tableWeight, noDropChance, rollChance, type } = source;
-    const effectiveRollChance = Math.min(
-      1,
-      combinedRollChance ?? (rollChance || 1),
-    );
-    return (
-      (1 - noDropChance) *
-      effectiveRollChance *
-      (rowWeight / tableWeight) *
-      dropChanceMultipliers(type)
-    );
-  };
-
-  const sourceDropChance = (source, combinedRollChance = null) => {
-    const baseOdds = rollChance(source, combinedRollChance);
-    const { rollAmount } = source;
-    return 1 - (1 - baseOdds) ** rollAmount;
-  };
-
-  const getTotalDropChance = (groupedSources) => {
-    // Calculate probability for each stat group
-    const statGroupProbabilities = Object.values(groupedSources).map(
-      (sourcesInGroup) => {
-        if (sourcesInGroup.length === 1) {
-          // Single source, use normal calculation
-          return sourceDropChance(sourcesInGroup[0]);
-        } else {
-          // Multiple sources with same stat, sum their rollChance values
-          const combinedRollChance = getCombinedRollChance(sourcesInGroup);
-
-          // Use the first source as template but with combined rollChance
-          return sourceDropChance(sourcesInGroup[0], combinedRollChance);
-        }
-      },
-    );
-
-    // Calculate overall probability (1 - probability that none of the stat groups proc)
-    const probabilityNone = statGroupProbabilities.reduce(
-      (acc, prob) => acc * (1 - prob),
-      1,
-    );
-    const totalChance = 100 * (1 - probabilityNone);
-    const rounded = Math.round(totalChance * 10000) / 10000;
-    return rounded;
-  };
-
-  const getStepsPerItem = (groupedSources) => {
-    // Calculate steps per source for each stat group
-    const stepsPerStatGroup = Object.values(groupedSources).map(
-      (sourcesInGroup) => {
-        if (sourcesInGroup.length === 1) {
-          // Single source, use normal calculation
-          const source = sourcesInGroup[0];
-          const { rowMinimumAmount, rowMaximumAmount, rollAmount } = source;
-          const avgAmount = (rowMaximumAmount + rowMinimumAmount) / 2;
-          const dropChance = rollChance(source);
-          const expectedItemsPerAction = rollAmount * dropChance * avgAmount;
-
-          return stepsPerRewardRoll.value / expectedItemsPerAction;
-        } else {
-          // Multiple sources with same stat, sum their rollChance values
-          const combinedRollChance = getCombinedRollChance(sourcesInGroup);
-
-          // Use the first source as template but with combined rollChance
-          const templateSource = sourcesInGroup[0];
-          const { rowMinimumAmount, rowMaximumAmount, rollAmount } =
-            templateSource;
-          const avgAmount = (rowMaximumAmount + rowMinimumAmount) / 2;
-
-          const dropChance = rollChance(templateSource, combinedRollChance);
-
-          // Expected items per action = rolls * individual chance * avg amount
-          const expectedItemsPerAction = rollAmount * dropChance * avgAmount;
-
-          return stepsPerRewardRoll.value / expectedItemsPerAction;
-        }
-      },
-    );
-
-    return (
-      1 / stepsPerStatGroup.map((steps) => 1 / steps).reduce((a, b) => a + b, 0)
-    );
-  };
-
-  const getDropCounts = (groupedSources) => {
-    // Calculate counts for each stat group
-    const statGroupCounts = Object.values(groupedSources).map(
-      (sourcesInGroup) => {
-        // For sources with the same stat, they should have the same drop amounts
-        // (just with higher chance due to combined rollChance)
-        // So we just show the drop count from the first source in the group
-        const { rowMinimumAmount, rowMaximumAmount } = sourcesInGroup[0];
-        if (rowMinimumAmount === rowMaximumAmount) {
-          return `${rowMinimumAmount}`;
-        }
-        return `${rowMinimumAmount}-${rowMaximumAmount}`;
-      },
-    );
-
-    return statGroupCounts.join(", ");
-  };
-
   const getVariableRequirement = (item) => {
     if (!item || !item.requirementsBonuses) return null;
 
@@ -292,7 +220,7 @@ export function useLootTables(ctx) {
       const id = getId(sources);
       const icon = sources[0].icon;
       const statGroupedSources = groupSourcesByStat(sources);
-      const stepsPerItem = getStepsPerItem(statGroupedSources);
+      const stepsPerItem = getStepsPerItem(statGroupedSources, stepsPerRewardRoll.value, dropChanceMultipliers);
       // todo add info for rare pets
 
       const stepsPerFine = canDropFine(sources[0])
@@ -311,7 +239,7 @@ export function useLootTables(ctx) {
         id,
         icon,
         sources,
-        totalDropChance: getTotalDropChance(statGroupedSources),
+        totalDropChance: getTotalDropChance(statGroupedSources, dropChanceMultipliers),
         stepsPerItem,
         itemsPerStep: 1000 / stepsPerItem,
         stepsPerNormal,
