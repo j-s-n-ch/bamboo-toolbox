@@ -9,6 +9,8 @@ Rules:
 - Export all necessary types.
 - Preserve file structure and naming.
 - Keep code idiomatic and clean.
+- Remove old .js file
+- Update imports of the file
 
 Output:
 - Fully typed .ts file.
