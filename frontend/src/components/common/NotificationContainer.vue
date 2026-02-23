@@ -1,12 +1,28 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import { useNotificationStore } from "@/store/notifications";
+
+/**
+ * NotificationContainer.vue
+ * A component that displays notifications using a teleport to the body element.
+ * Notifications are displayed in a stack at the bottom right of the screen (or bottom left on mobile).
+ * Each notification can be clicked to remove it from the stack.
+ * 
+ * The component uses a transition group for smooth animations when notifications are added or removed.
+ * The notification store is accessed to retrieve the current notifications and to remove them when clicked.
+ * The styles are scoped to ensure they do not affect other parts of the application, and media queries are used for responsive design.
+ * 
+ * Does NOT:
+ * - Handle the logic for adding notifications (this is done in the notification store).
+ * - Display different content based on notification type (all notifications display the message, but have different border colors).
+ * - Automatically remove notifications after a certain time (this should be handled in the notification store).
+ */
 
 const notificationStore = useNotificationStore();
 
 const notifications = computed(() => notificationStore.notifications);
 
-function handleNotificationClick(id) {
+function handleNotificationClick(id: number): void {
   notificationStore.removeNotification(id);
 }
 </script>
