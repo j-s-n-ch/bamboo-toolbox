@@ -1,29 +1,31 @@
 import type { AxiosResponse } from "axios";
-import type {
+import { createProxyInstance, type ProxyRequest } from "./proxy";
+import {
   AbilitySummary,
   ActivitySummary,
   ApInfo,
-  CategorizedItem,
   Faction,
   IconBatchResponse,
   ItemCategoryGroup,
   ItemSummary,
   ItemValueMap,
   Keyword,
-  LocationSummary,
   LootTableSummary,
   PetDetail,
   PetSummary,
-  RealmDefaultLocation,
   RecipeSummary,
   RouteSummary,
   Skill,
   StatDefinition,
   TerrainModifier,
+  AbilityDetail,
+  LocationDetail,
+  LootTableDetail,
+  ServiceDetail,
+  LocationSummary,
+  ItemDetail,
   UrlMap,
-} from "@/domain/types/api";
-import { createProxyInstance, type ProxyRequest } from "./proxy";
-import { AbilityDetail, LootTableDetail } from "@/domain/types";
+} from "@/domain/types";
 
 const rawProxy = createProxyInstance("/api");
 
@@ -152,8 +154,8 @@ export function getItem({
   id,
 }: {
   id: string;
-}): Promise<AxiosResponse<CategorizedItem>> {
-  return proxy<CategorizedItem>({
+}): Promise<AxiosResponse<ItemDetail>> {
+  return proxy<ItemDetail>({
     url: `items/${id}`,
   });
 }
@@ -238,8 +240,8 @@ export function searchLocations({
 }: {
   activityList: string;
   serviceList: string;
-}): Promise<AxiosResponse<RealmDefaultLocation[]>> {
-  return proxy<RealmDefaultLocation[]>({
+}): Promise<AxiosResponse<LocationDetail[]>> {
+  return proxy<LocationDetail[]>({
     url: "locations/search",
     options: {
       params: { activityList, serviceList, detailed: true },
@@ -248,9 +250,9 @@ export function searchLocations({
 }
 
 export function getRealmDefaultLocations(): Promise<
-  AxiosResponse<RealmDefaultLocation[]>
+  AxiosResponse<LocationDetail[]>
 > {
-  return proxy<RealmDefaultLocation[]>({
+  return proxy<LocationDetail[]>({
     url: "locations/realm_default_locations",
   });
 }
@@ -303,8 +305,8 @@ export function searchServices({
   skill,
 }: {
   skill: string;
-}): Promise<AxiosResponse<RealmDefaultLocation[]>> {
-  return proxy<RealmDefaultLocation[]>({
+}): Promise<AxiosResponse<ServiceDetail[]>> {
+  return proxy<ServiceDetail[]>({
     url: "services/search",
     options: {
       params: { relatedSkills: skill, detailed: true },
