@@ -4,18 +4,16 @@ import { useHistoryStore } from "@/store/history";
 export function useUndoRedoShortcuts() {
   const historyStore = useHistoryStore();
 
-  const handleKeydown = (event) => {
+  const handleKeydown = (event: KeyboardEvent): void => {
     // Only handle shortcuts if we're not in an input/textarea/contenteditable
     const activeElement = document.activeElement;
     const isInInput =
       activeElement &&
       (activeElement.tagName === "INPUT" ||
         activeElement.tagName === "TEXTAREA" ||
-        activeElement.contentEditable === "true");
+        (activeElement as HTMLElement).contentEditable === "true");
 
-    if (isInInput) {
-      return;
-    }
+    if (isInInput) return;
 
     // Check for Ctrl key (Windows/Linux) or Cmd key (Mac)
     const isCtrlOrCmd = event.ctrlKey || event.metaKey;
@@ -26,7 +24,7 @@ export function useUndoRedoShortcuts() {
       if (key === "z" && event.shiftKey) {
         event.preventDefault();
         event.stopPropagation();
-        historyStore.redo();
+        void historyStore.redo();
         return;
       }
 
@@ -34,7 +32,7 @@ export function useUndoRedoShortcuts() {
       if (key === "z" && !event.shiftKey) {
         event.preventDefault();
         event.stopPropagation();
-        historyStore.undo();
+        void historyStore.undo();
         return;
       }
 
@@ -42,7 +40,7 @@ export function useUndoRedoShortcuts() {
       if (key === "y") {
         event.preventDefault();
         event.stopPropagation();
-        historyStore.redo();
+        void historyStore.redo();
         return;
       }
     }
@@ -57,9 +55,9 @@ export function useUndoRedoShortcuts() {
   });
 
   return {
-    undo: () => historyStore.undo(),
-    redo: () => historyStore.redo(),
-    canUndo: () => historyStore.canUndo,
-    canRedo: () => historyStore.canRedo,
+    undo: (): Promise<boolean> => historyStore.undo(),
+    redo: (): Promise<boolean> => historyStore.redo(),
+    canUndo: (): boolean => historyStore.canUndo,
+    canRedo: (): boolean => historyStore.canRedo,
   };
 }
