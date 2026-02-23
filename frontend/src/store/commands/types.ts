@@ -14,7 +14,7 @@
 
 import type { ActivityDetail } from "@/domain/types/activity";
 import type { RecipeDetail } from "@/domain/types/recipe";
-import type { LocationSummary } from "@/domain/types/location";
+import type { LocationDetail, LocationSummary } from "@/domain/types/location";
 import type { ServiceSummary } from "@/domain/types/service";
 
 // ---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ export interface IActivityStore {
   _batchUpdateActivityState(updates: ActivityStateUpdate): void;
   loadActivityLocations(id: string): Promise<void>;
   loadRecipeServices(skill: string | null, requirements: Record<string, unknown>[]): Promise<void>;
-  loadServiceLocations(id: string): Promise<void>;
+  loadServiceLocations(id: string): Promise<LocationDetail[]>;
 }
 
 /** Loose type for a gear slot map (slot name → item data). */
