@@ -23,6 +23,7 @@ import type {
   UrlMap,
 } from "@/domain/types/api";
 import { createProxyInstance, type ProxyRequest } from "./proxy";
+import { AbilityDetail, LootTableDetail } from "@/domain/types";
 
 const rawProxy = createProxyInstance("/api");
 
@@ -89,8 +90,8 @@ export function getAbilities(): Promise<AxiosResponse<AbilitySummary[]>> {
 
 export function getMultipleAbilities(
   ids: string[],
-): Promise<AxiosResponse<AbilitySummary[]>> {
-  return proxy<AbilitySummary[]>({
+): Promise<AxiosResponse<AbilityDetail[]>> {
+  return proxy<AbilityDetail[]>({
     method: "POST",
     url: "abilities/multiple",
     options: {
@@ -333,8 +334,8 @@ export function getLootTables(): Promise<AxiosResponse<LootTableSummary[]>> {
 
 export function getMultipleLootTables(
   ids: string[],
-): Promise<AxiosResponse<LootTableSummary[]>> {
-  return proxy<LootTableSummary[]>({
+): Promise<AxiosResponse<LootTableDetail[]>> {
+  return proxy<LootTableDetail[]>({
     method: "POST",
     url: "lootTables/multiple",
     options: {

@@ -5,6 +5,14 @@ export type LootTableSummary = {
   name: string;
 };
 
+export type LootTableDetail = {
+  id: string;
+  category: string;
+  noDropChance: number;
+  subTables: LootTableRef[];
+  tableRows: LootTableRow[];
+}
+
 // ---------------------------------------------------------------------------
 // Loot table row detail
 // ---------------------------------------------------------------------------
@@ -17,6 +25,7 @@ export type RequirementBonus = {
 
 export type LootTableRow = {
   rowItemID: string | null;
+  name?: string;
   rowWeight: number;
   minWeightScale: number;
   rowMinimumAmount: number;
