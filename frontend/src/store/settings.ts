@@ -77,20 +77,34 @@ export const useSettingsStore = defineStore("settingsStore", {
     },
 
     async fetchSettingsData(): Promise<void> {
+      const notificationStore = useNotificationStore();
       try {
         const defaultSettings = this.defaultSettingsData();
         this.settingsGroups.forEach((group) => {
           this._group(group);
           Object.assign(this[group], { ...defaultSettings[group] });
         });
+        void notificationStore.debug("Settings: defaults applied", [
+          this.settingsGroups.map((g) => ({
+            group: g,
+            keys: Object.keys(this._group(g) ?? {}).join(", ") || "(none)",
+          })),
+        ]);
 
         const backendSettings = await getSettings();
+        void notificationStore.debug("Settings: fetched from backend", [
+          typeof backendSettings === "object" && backendSettings !== null
+            ? Object.keys(backendSettings).length + " entries"
+            : "(empty response)",
+        ]);
         this.mergeBackendSettings(backendSettings);
         this.changedSettings.clear();
         this.isLoaded = true;
       } catch (error) {
-        const notificationStore = useNotificationStore();
         notificationStore.error("Failed to fetch settings from backend");
+        void notificationStore.debug("Settings: fetch error - falling back to defaults", [
+          error instanceof Error ? error.message : String(error),
+        ]);
         console.error("Failed to fetch settings from backend:", error);
         const defaultSettings = this.defaultSettingsData();
         this.gearSettings = defaultSettings.gearSettings;
@@ -101,25 +115,59 @@ export const useSettingsStore = defineStore("settingsStore", {
     },
 
     mergeBackendSettings(backendSettings: DbUserSettings): void {
+      const notificationStore = useNotificationStore();
+      const merged: string[] = [];
+      const skipped: string[] = [];
+
       Object.entries(backendSettings).forEach(([settingKey, settingData]) => {
+        let wasMatched = false;
         this.settingsGroups.forEach((group) => {
           const record = this._group(group);
           if (record[settingKey]) {
             record[settingKey].display = settingData.display;
             record[settingKey].value = settingData.value;
+            wasMatched = true;
           }
         });
+        if (wasMatched) {
+          merged.push(settingKey);
+        } else {
+          skipped.push(settingKey);
+        }
       });
+
+      void notificationStore.debug(
+        `Settings: merged ${merged.length} backend settings` +
+          (skipped.length ? `, ${skipped.length} unrecognised` : ""),
+        [
+          merged.length ? `Merged: ${merged.join(", ")}` : null,
+          skipped.length ? `Unrecognised: ${skipped.join(", ")}` : null,
+        ].filter(Boolean),
+      );
     },
 
     async saveSettings(): Promise<void> {
+      const notificationStore = useNotificationStore();
       try {
         const changedSettingsArray = this.convertChangedSettingsToBackendFormat();
-        if (changedSettingsArray.length === 0) return;
+        if (changedSettingsArray.length === 0) {
+          void notificationStore.debug("Settings: save triggered but no changes detected");
+          return;
+        }
+
+        void notificationStore.debug(
+          `Settings: saving ${changedSettingsArray.length} changed setting${changedSettingsArray.length > 1 ? "s" : ""}`,
+          [
+            changedSettingsArray.map((s) => ({
+              key: String(s?.setting ?? "?"),
+              display: s?.display,
+              value: s?.value,
+            })),
+          ],
+        );
 
         await upsertSettings(changedSettingsArray);
 
-        const notificationStore = useNotificationStore();
         notificationStore.success(
           `${changedSettingsArray.length} setting${
             changedSettingsArray.length > 1 ? "s" : ""
@@ -128,8 +176,10 @@ export const useSettingsStore = defineStore("settingsStore", {
 
         this.changedSettings.clear();
       } catch (error) {
-        const notificationStore = useNotificationStore();
         notificationStore.error("Failed to save settings");
+        void notificationStore.debug("Settings: save error", [
+          error instanceof Error ? error.message : String(error),
+        ]);
         console.error("Failed to save settings:", error);
         throw error;
       }
@@ -151,6 +201,7 @@ export const useSettingsStore = defineStore("settingsStore", {
       newValue?: boolean,
       newDisplay?: number,
     ): void {
+      const notificationStore = useNotificationStore();
       let current: Setting | undefined;
       let settingGroup: SettingsGroupName | undefined;
 
@@ -162,7 +213,12 @@ export const useSettingsStore = defineStore("settingsStore", {
         }
       });
 
-      if (!current || !settingGroup) return;
+      if (!current || !settingGroup) {
+        void notificationStore.debug(
+          `Settings: unrecognised setting key "${String(settingKey)}" - change ignored`,
+        );
+        return;
+      }
 
       if (!this.changedSettings.has(settingKey)) {
         this.changedSettings.set(settingKey, {
@@ -186,6 +242,18 @@ export const useSettingsStore = defineStore("settingsStore", {
         updated.value === tracked.value
       ) {
         this.changedSettings.delete(settingKey);
+        void notificationStore.debug(
+          `Settings: "${String(settingKey)}" reverted to original value - removed from pending saves`,
+        );
+      } else {
+        void notificationStore.debug(
+          `Settings: "${String(settingKey)}" changed`,
+          [{
+            group: String(settingGroup),
+            display: updated.display,
+            value: updated.value,
+          }],
+        );
       }
 
       this.debouncedSaveSettings();
