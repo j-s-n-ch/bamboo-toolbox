@@ -78,6 +78,7 @@ export const DEBUG_SETTING_KEYS = [
   "debugRoute",
   "debugSettings",
   "debugURL",
+  "debugOptimiser",
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -385,6 +386,7 @@ export const useSettingsStore = defineStore("settingsStore", {
             ["debugRoute",    "Route calculation"],
             ["debugSettings", "Settings state changes"],
             ["debugURL",      "URL encoding & decoding"],
+            ["debugOptimiser", "Optimiser operations"],
           ] as [string, string][])
             .map(([key, label]) => [key, makeDebugSetting(label)])
         ),

@@ -39,6 +39,7 @@ const DEBUG_SETTINGS = new Set([
   "debugRoute",
   "debugSettings",
   "debugURL",
+  "debugOptimiser",
 ]);
 
 const ALLOWED_SETTINGS = new Set([
