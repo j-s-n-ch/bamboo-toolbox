@@ -302,6 +302,25 @@ export async function deleteGearSet(userUuid, gearSetId) {
   }
 }
 
+export async function deleteUserData(userUuid) {
+  // Resolve gear set IDs first (no cascade in schema)
+  const gearSetIds = (await prisma.gearSet.findMany({
+    where: { userUuid },
+    select: { id: true },
+  })).map((g) => g.id);
+
+  await prisma.$transaction([
+    prisma.gearSetItem.deleteMany({ where: { gearSetId: { in: gearSetIds } } }),
+    prisma.gearSetTag.deleteMany({ where: { gearSetId: { in: gearSetIds } } }),
+    prisma.gearSet.deleteMany({ where: { userUuid } }),
+    prisma.playerStat.deleteMany({ where: { userUuid } }),
+    prisma.ownedItem.deleteMany({ where: { userUuid } }),
+    prisma.factionReputation.deleteMany({ where: { userUuid } }),
+    prisma.userSetting.deleteMany({ where: { userUuid } }),
+    prisma.user.deleteMany({ where: { userUuid } }),
+  ]);
+}
+
 export async function getUserSettings(userUuid) {
   const settings = await prisma.userSetting.findMany({
     where: { userUuid },
