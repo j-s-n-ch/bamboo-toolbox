@@ -359,7 +359,7 @@ export const useSettingsStore = defineStore("settingsStore", {
         gearSettings: Object.fromEntries([
           ["showOwned",                 makeBoolSetting("Show only owned items",                 true,  1)],
           ["showUseful",                makeBoolSetting("Show items with applicable stats",      true,  1)],
-          ["openStatRequirements",      makeBoolSetting("Open stat requirements by default",     false, 0)],
+          ["openStatRequirements",      makeDebugSetting("Open stat requirements by default")],
           ["undoRedo",                  makeDisplaySetting("Show undo/redo buttons",             undoRedoOptions,             2, true)],
           ["activityOptimiserPriority", makeDisplaySetting("Activity optimiser priority",        activityOptimiserPriorities, 0, true)],
           ["recipeOptimiserPriority",   makeDisplaySetting("Recipe optimiser priority",          recipeOptimiserPriorities,   0, true)],
