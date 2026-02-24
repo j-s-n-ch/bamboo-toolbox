@@ -6,6 +6,7 @@ import { useGearStore } from "./gear";
 import type { UrlMap } from "@/domain/types/item";
 import { buildReverseMapping, type ReverseMapping, type SlotOrder, type DecodedLoadout } from "@/utils/urlEncoding";
 import { parseGearSetId } from "@/store/utils/urlUtils";
+import { useNotificationStore } from "@/store/notifications";
 
 // ---------------------------------------------------------------------------
 // Store
@@ -50,6 +51,8 @@ export const useUrlStore = defineStore("url", {
       this.mapping = response;
       this.reverseMapping = buildReverseMapping(response);
       this.isLoaded = true;
+      const notificationStore = useNotificationStore();
+      void notificationStore.debug(`URL: loaded mapping with ${Object.keys(response).length} entries`);
     },
 
     encodeAndPushToUrl(): void {
@@ -125,6 +128,16 @@ export const useUrlStore = defineStore("url", {
         }
       });
 
+      const gearSlotCount = Object.keys(gearData).length;
+      const hasActivity = decodedLoadout["activity"] != null;
+      const hasRecipe = decodedLoadout["recipe"] != null;
+      const notificationStore = useNotificationStore();
+      void notificationStore.debug(
+        `URL: applying encoded loadout  ${gearSlotCount} gear slot(s)` +
+        (hasActivity ? ", activity" : "") +
+        (hasRecipe ? ", recipe" : ""),
+      );
+
       const promises: Promise<unknown>[] = [];
 
       if (Object.keys(gearData).length > 0) {
@@ -149,6 +162,8 @@ export const useUrlStore = defineStore("url", {
       );
 
       if (gearSetExists) {
+        const notificationStore = useNotificationStore();
+        void notificationStore.debug(`URL: applying gear set ${gearSetId} from URL`);
         await gearSetStore.selectAndEquipSet(gearSetId);
       } else {
         console.warn(`Gear set ${gearSetId} not found, removing from URL`);

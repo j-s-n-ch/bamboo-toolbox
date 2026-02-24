@@ -33,7 +33,7 @@ export type MappedGearSet = Omit<DbGearSet, "tags"> & {
   items?: GearSetItemSlot[];
 };
 
-/** A gear set item payload slot — what the DB returns and what we save. */
+/** A gear set item payload slot - what the DB returns and what we save. */
 export type GearSetItemSlot = Pick<DbGearSetItem, "slotType" | "slotIndex" | "itemId" | "quality">;
 
 /** The current set selection tracked in the store with resolved tags and items. */
@@ -155,7 +155,7 @@ export const useGearSetStore = defineStore("gearSetStore", {
       const command = new LoadGearSetCommand(
         gearStore,
         this,
-        null, // setId — null means create new set
+        null, // setId - null means create new set
         null, // gearSetData
         {}, // gearSetMapping (empty)
         previousGearSetId,

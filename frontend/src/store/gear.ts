@@ -13,12 +13,13 @@ import type { PetDetail } from "@/domain/types/pet";
 import type { GearSlot } from "@/domain/constants/gear";
 import type { Command } from "./commands/types";
 import { executeCommand, initializeHistoryTracking } from "@/store/utils/historyUtils";
+import { useNotificationStore } from "@/store/notifications";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-/** An item as it lives in a gear slot — enriched with quality and a resolved icon. */
+/** An item as it lives in a gear slot - enriched with quality and a resolved icon. */
 export type EquippedItem = (ItemDetail | PetDetail) & {
   quality: string | null;
   quality2?: string | null;
@@ -249,6 +250,8 @@ export const useGearStore = defineStore("gearStore", {
         if (data) {
           itemData = { ...data, icon, quality, quality2 } as EquippedItem;
           this._setInCache(id, quality, itemData);
+          const notificationStore = useNotificationStore();
+          void notificationStore.debug(`Gear: fetched "${(data as ItemDetail).name}" (${id}) for slot ${itemSlot}`);
         }
       }
 
@@ -361,6 +364,14 @@ export const useGearStore = defineStore("gearStore", {
         const uniqueRequests = itemsToFetch.filter(
           (item, index, self) =>
             index === self.findIndex((i) => i.id === item.id && i.quality === item.quality)
+        );
+
+        const notificationStore = useNotificationStore();
+        void notificationStore.debug(
+          `Gear: fetching ${uniqueRequests.length} item(s) for batch equip` +
+          (uniqueRequests.length < 5
+            ? ` - ${uniqueRequests.map((r) => r.id).join(", ")}`
+            : ` - ${uniqueRequests.slice(0, 4).map((r) => r.id).join(", ")} +${uniqueRequests.length - 4} more`),
         );
 
         const fetchedItems = await this._fetchMultipleItems(uniqueRequests);
