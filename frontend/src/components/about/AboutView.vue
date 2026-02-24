@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineEmits(["back"]);
+defineEmits(["back", "privacy-policy"]);
 </script>
 
 <template>
@@ -54,14 +54,9 @@ defineEmits(["back"]);
         <ul>
           <li>Pets not in game data import</li>
           <li>Multiple issues with how rings are handled</li>
-          <li>
-            Services shouldn't affect recipes without service requirements
-          </li>
         </ul>
         <h3>Planned features</h3>
         <ul>
-          <li>Gear set optimiser</li>
-          <li>Comparing gear sets</li>
           <li>Steps to full inventory estimation</li>
           <li>Adding custom data (items, activities)</li>
         </ul>
@@ -85,6 +80,10 @@ defineEmits(["back"]);
         </p>
       </section>
     </details>
+
+    <div class="footer-links">
+      <button class="privacy-link" @click="$emit('privacy-policy')">Privacy Policy</button>
+    </div>
   </div>
 </template>
 
@@ -108,6 +107,21 @@ defineEmits(["back"]);
       li {
         text-align: left;
       }
+    }
+  }
+}
+
+.footer-links {
+  margin-top: $sm;
+
+  .privacy-link {
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 0.9em;
+    text-decoration: underline;
+
+    &:hover {
+      opacity: 1;
     }
   }
 }

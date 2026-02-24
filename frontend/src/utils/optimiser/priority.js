@@ -2,7 +2,7 @@ import { storeToRefs } from "pinia";
 import {
   activityOptimiserPriorities,
   recipeOptimiserPriorities,
-} from "@/constants/optimiserPriorities";
+} from "@/constants/settings";
 import { useSettingsStore } from "@/store/settings";
 import useBaseContext from "@/composables/context/useBaseContext";
 

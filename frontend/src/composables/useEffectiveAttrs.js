@@ -1,9 +1,9 @@
 import { computed } from "vue";
 import { useRequirements } from "./useRequirements";
 import { useLevelBonus } from "./useLevelBonus";
-import { usedAttrs } from "../utils/qualityAttrs";
+import { usedAttrs } from "@/domain/quality/qualityAttrs";
 import { toDeepRaw } from "../utils/rawData";
-import { makePseudoStat } from "@/utils/domain/rollSpecialTable";
+import { makePseudoStat } from "@/domain/gear/pseudoStat";
 
 export function useEffectiveAttrs(ctx) {
   const { checkRequirements } = useRequirements(ctx);
@@ -16,9 +16,10 @@ export function useEffectiveAttrs(ctx) {
 
     return [...ownedCollectibles, ...gearSet]
       .map((item) => {
+        const rawItem = toDeepRaw(item);
         return {
           ...item,
-          attrs: toDeepRaw(usedAttrs(item, item.quality)),
+          attrs: usedAttrs(rawItem, rawItem.quality),
         };
       })
       .filter(({ attrs }) => attrs.length);

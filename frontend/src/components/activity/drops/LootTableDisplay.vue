@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import WsLabel from "@/components/common/WsLabel.vue";
-import { mapTableToItems } from "@/utils/lootTables";
+import { mapTableToItems } from "@/domain/lootTables/lootTables";
 
 const props = defineProps({
   lootTable: Object,

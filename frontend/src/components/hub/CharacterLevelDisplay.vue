@@ -14,7 +14,6 @@ const maxLevel = 99;
 
 <template>
   <icon-input-bubble
-    v-if="!loading"
     id="level"
     :title="`Character level: ${store.level}`"
     :icon="icons.character"

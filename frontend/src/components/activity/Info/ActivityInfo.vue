@@ -8,6 +8,7 @@ import RequirementDisplay from "@/components/activity/Info/RequirementDisplay.vu
 import WikiButton from "@/components/common/WikiButton.vue";
 import { useActivityStore } from "@/store/activity";
 import { usePlayerStore } from "@/store/player";
+import { useDataStore } from "@/store/data";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
 
 import useBaseContext from "@/composables/context/useBaseContext";
@@ -19,6 +20,7 @@ import { icons } from "@/constants/iconPaths";
 
 const activityStore = useActivityStore();
 const playerStore = usePlayerStore();
+const dataStore = useDataStore();
 
 const ctx = useBaseContext();
 const {
@@ -37,7 +39,7 @@ const {
 const { getLevelRequirementsMap } = useRequirements(ctx);
 
 const borderClass = computed(
-  () => `border-${ctx.activity.value?.relatedSkillsList[0]}`
+  () => `border-${ctx.activity.value?.relatedSkillsList[0]}`,
 );
 
 const sections = computed(() => {
@@ -53,16 +55,29 @@ const sections = computed(() => {
       ?.filter(Boolean)
       ?.filter(({ type }) => type === "inputActivity")
       .flatMap(({ inputs }) => inputs)
-      .map(({ item, quantity }) => {
-        const itemObj = ctx.materials.value[item];
-        const { name, icon } = itemObj;
+      .map(({ type, keyword, item, quantity }) => {
+        if (type === "keyword") {
+          const kw = dataStore.getKeywordById(keyword);
+          const { name, icon } = kw;
+          return {
+            name,
+            icon,
+            quantity,
+          };
+        } else if (type === "specific") {
+          const itemObj = ctx.materials.value[item];
+          if (!itemObj) return null;
+          const { name, icon } = itemObj;
 
-        return {
-          name,
-          icon,
-          quantity,
-        };
-      }) || [];
+          return {
+            name,
+            icon,
+            quantity,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean) || [];
   const inputsRow = {
     label: "Inputs",
     component: InfoBubble,
@@ -89,15 +104,15 @@ const sections = computed(() => {
       },
       {
         text: `${n(uncappedWorkEfficiency.value * 100)} / ${Math.round(
-          (maxWorkEfficiency.value) * 100
+          maxWorkEfficiency.value * 100,
         )}%`,
         tooltip: [
           `Your Work Efficiency: ${Math.round(
-            uncappedWorkEfficiency.value * 100
+            uncappedWorkEfficiency.value * 100,
           )}%`,
-          `Max Work Efficiency: ${n((maxWorkEfficiency.value) * 100, 0)}%`,
+          `Max Work Efficiency: ${n(maxWorkEfficiency.value * 100, 0)}%`,
           `Max benefit at: ${
-            Math.ceil((effectiveMaxWorkEfficiency.value) * 400) / 4
+            Math.ceil(effectiveMaxWorkEfficiency.value * 400) / 4
           }%`,
         ].join("\n"),
         iconPath: icons.WE,
@@ -179,7 +194,7 @@ const sections = computed(() => {
         skill,
         text: `${n(value)} /  ${n(displayedValue)}`,
         tooltip: `Gains ${n(value)} ${skillText} XP per step`,
-      })
+      }),
     ),
     itemProps: (item) => ({ ...item }),
   };

@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { computed } from "vue";
+
+const props = defineProps({
   title: {
     type: String,
     required: true,
@@ -21,12 +23,50 @@ function updateSettingDisplay(key, display) {
   const displayValue = isBool ? (display ? 1 : 0) : display;
   emit("update-setting-display", key, displayValue);
 }
+
+/**
+ * Settings with both an enable toggle and a "Visible in UI" toggle.
+ * Created by makeBoolSetting — no displayOptions, showEnable/showDisplay not overridden.
+ */
+const toggleWithVisibilitySettings = computed(() =>
+  Object.entries(props.settings).filter(
+    ([, s]) =>
+      !s.displayOptions &&
+      !("showEnable" in s && !s.showEnable) &&
+      !("showDisplay" in s && !s.showDisplay),
+  ),
+);
+
+/**
+ * Settings that only expose a dropdown (no enable checkbox).
+ * Created by makeDisplaySetting — has displayOptions and showEnable: false.
+ */
+const dropdownSettings = computed(() =>
+  Object.entries(props.settings).filter(
+    ([, s]) => s.displayOptions && "showEnable" in s && !s.showEnable,
+  ),
+);
+
+/**
+ * Settings with only an enable toggle and no display column.
+ * Created by makeDebugSetting — has showDisplay: false.
+ */
+const toggleOnlySettings = computed(() =>
+  Object.entries(props.settings).filter(
+    ([, s]) => "showDisplay" in s && !s.showDisplay,
+  ),
+);
 </script>
 
 <template>
   <div class="settings-table-container">
     <h3>{{ title }}</h3>
-    <table class="settings-table">
+
+    <!-- Toggle + Visible in UI -->
+    <table
+      v-if="toggleWithVisibilitySettings.length"
+      class="settings-table"
+    >
       <thead>
         <tr>
           <th>Setting</th>
@@ -35,80 +75,85 @@ function updateSettingDisplay(key, display) {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(setting, key) in settings" :key="key">
-          <td class="setting-label">
-            {{ setting.label }}
+        <tr v-for="[key, setting] in toggleWithVisibilitySettings" :key="key">
+          <td class="setting-label">{{ setting.label }}</td>
+          <td class="setting-enabled">
+            <input
+              type="checkbox"
+              :id="`${key}-value`"
+              :checked="setting.value"
+              @change="updateSettingValue(key, $event.target.checked)"
+            />
           </td>
+          <td class="setting-display">
+            <input
+              type="checkbox"
+              :id="`${key}-display`"
+              :checked="setting.display === 1"
+              @change="updateSettingDisplay(key, $event.target.checked)"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-          <!-- If setting has displayOptions and no showEnable, span the dropdown across both columns -->
-          <template
-            v-if="
-              setting.displayOptions &&
-              'showEnable' in setting &&
-              !setting.showEnable
-            "
-          >
-            <td colspan="2" class="setting-display-wide">
-              <select
-                :id="`${key}-display`"
-                :value="setting.display"
-                @change="
-                  updateSettingDisplay(key, parseInt($event.target.value))
-                "
-                class="wide-select"
-              >
-                <option
-                  v-for="(option, idx) in setting.displayOptions"
-                  :key="option"
-                  :value="idx"
-                >
-                  {{ option }}
-                </option>
-              </select>
-            </td>
-          </template>
-
-          <!-- Normal layout when enabled checkbox is shown -->
-          <template v-else>
-            <td class="setting-enabled">
-              <input
-                v-if="!('showEnable' in setting && !setting.showEnable)"
-                type="checkbox"
-                :id="`${key}-value`"
-                :checked="setting.value"
-                @change="updateSettingValue(key, $event.target.checked)"
-              />
-            </td>
-
-            <td v-if="setting.displayOptions" class="setting-display">
-              <select
-                :id="`${key}-display`"
-                :value="setting.display"
-                @change="
-                  updateSettingDisplay(key, parseInt($event.target.value))
-                "
-              >
-                <option
-                  v-for="(option, idx) in setting.displayOptions"
-                  :key="option"
-                  :value="idx"
-                >
-                  {{ option }}
-                </option>
-              </select>
-            </td>
-            <td
-              v-else-if="!('showDisplay' in setting && !setting.showDisplay)"
-              class="setting-display"
+    <!-- Dropdown-only -->
+    <table
+      v-if="dropdownSettings.length"
+      class="settings-table"
+      :class="{ 'mt-table': toggleWithVisibilitySettings.length }"
+    >
+      <thead>
+        <tr>
+          <th>Setting</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="[key, setting] in dropdownSettings" :key="key">
+          <td class="setting-label">{{ setting.label }}</td>
+          <td class="setting-display">
+            <select
+              :id="`${key}-display`"
+              :value="setting.display"
+              @change="updateSettingDisplay(key, parseInt($event.target.value))"
             >
-              <input
-                type="checkbox"
-                :id="`${key}-display`"
-                :checked="setting.display === 1"
-                @change="updateSettingDisplay(key, $event.target.checked)"
-              />
-            </td>
-          </template>
+              <option
+                v-for="(option, idx) in setting.displayOptions"
+                :key="option.value || option.name || idx"
+                :value="idx"
+              >
+                {{ option.name || option }}
+              </option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Toggle-only (no display column) -->
+    <table
+      v-if="toggleOnlySettings.length"
+      class="settings-table"
+      :class="{ 'mt-table': toggleWithVisibilitySettings.length || dropdownSettings.length }"
+    >
+      <thead>
+        <tr>
+          <th>Setting</th>
+          <th>Enabled</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="[key, setting] in toggleOnlySettings" :key="key">
+          <td class="setting-label">{{ setting.label }}</td>
+          <td class="setting-enabled">
+            <input
+              type="checkbox"
+              :id="`${key}-value`"
+              :checked="setting.value"
+              @change="updateSettingValue(key, $event.target.checked)"
+            />
+          </td>
         </tr>
       </tbody>
     </table>
@@ -120,6 +165,10 @@ function updateSettingDisplay(key, display) {
   h3 {
     margin: 0 0 $base 0;
     color: $txPrimary;
+  }
+
+  .mt-table {
+    margin-top: $base;
   }
 }
 
@@ -136,7 +185,7 @@ function updateSettingDisplay(key, display) {
 
     th {
       padding: $sm $base;
-      text-align: left;
+      text-align: center;
       font-weight: bold;
       color: $txPrimary;
       border-bottom: 1px solid $boxDarkOutline;
@@ -180,12 +229,6 @@ function updateSettingDisplay(key, display) {
         text-align: center;
         width: 20%;
       }
-
-      &.setting-display-wide {
-        text-align: center;
-        width: 40%;
-        padding: $sm $base;
-      }
     }
   }
 
@@ -219,11 +262,6 @@ function updateSettingDisplay(key, display) {
       background: $bgPrimary;
       color: $txPrimary;
     }
-
-    &.wide-select {
-      min-width: 200px;
-      max-width: 100%;
-    }
   }
 }
 
@@ -248,19 +286,11 @@ function updateSettingDisplay(key, display) {
       &.setting-display {
         width: 25%;
       }
-
-      &.setting-display-wide {
-        width: 50%;
-      }
     }
 
     select {
       padding: $xs;
       font-size: 14px;
-
-      &.wide-select {
-        min-width: 150px;
-      }
     }
   }
 }
@@ -268,12 +298,6 @@ function updateSettingDisplay(key, display) {
 @media (max-width: 480px) {
   .settings-table {
     font-size: 13px;
-
-    select {
-      &.wide-select {
-        min-width: 120px;
-      }
-    }
 
     tbody td {
       &.setting-label {

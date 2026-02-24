@@ -1,13 +1,13 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { petQualityOptions } from "@/constants/quality";
+import { petQualityOptions } from "@/domain/constants/quality";
 import { useItemsStore } from "@/store/items";
 import WsIcon from "@/components/common/WsIcon.vue";
 import StatsDisplay from "../common/StatsDisplay.vue";
 import AbilitiesDisplay from "../common/abilities/AbilitiesDisplay.vue";
 import useBaseContext from "@/composables/context/useBaseContext";
 import RequirementDisplay from "../activity/Info/RequirementDisplay.vue";
-import { getPetIcon } from "@/utils/pets";
+import { getPetIcon } from "@/domain/pets/getPetIcon";
 
 const props = defineProps({
   pet: Object,
