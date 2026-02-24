@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useNotificationStore } from "@/store/notifications";
+import { useSettingsStore } from "@/store/settings";
 
 /**
  * NotificationContainer.vue
@@ -19,8 +20,18 @@ import { useNotificationStore } from "@/store/notifications";
  */
 
 const notificationStore = useNotificationStore();
+const settingsStore = useSettingsStore();
 
 const notifications = computed(() => notificationStore.notifications);
+
+/**
+ * When the static undo/redo buttons are pinned to the bottom-right corner
+ * (undoRedo.display === 2), shift the notification container up so it doesn't
+ * overlap them. The offset matches the approximate height of that container.
+ */
+const containerStyle = computed(() => ({
+  "--undo-redo-offset": settingsStore.gearSettings?.undoRedo?.display === 2 ? "5rem" : "0px",
+}));
 
 function handleNotificationClick(id: number): void {
   notificationStore.removeNotification(id);
@@ -29,7 +40,7 @@ function handleNotificationClick(id: number): void {
 
 <template>
   <teleport to="body">
-    <div class="notification-container">
+    <div class="notification-container" :style="containerStyle">
       <transition-group name="notification" tag="div">
         <div
           v-for="notification in notifications"
@@ -48,8 +59,10 @@ function handleNotificationClick(id: number): void {
 @use "@/styles/variables" as *;
 
 .notification-container {
+  --undo-redo-offset: 0px;
+
   position: fixed;
-  bottom: 20px;
+  bottom: calc(20px + var(--undo-redo-offset));
   right: 20px;
   z-index: 9999;
   pointer-events: none;
@@ -61,7 +74,7 @@ function handleNotificationClick(id: number): void {
   @media (max-width: 768px) {
     left: 20px;
     right: 40px;
-    bottom: calc($footerHeight + 20px);
+    bottom: calc($footerHeight + 20px + var(--undo-redo-offset));
   }
 }
 
