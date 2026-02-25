@@ -14,7 +14,11 @@ const props = defineProps<{
 
 const expanded = ref(false);
 
-const hasBreakdown = computed(() => props.breakdown.length > 0);
+const visibleBreakdown = computed(() =>
+  props.breakdown.filter((line) => Math.abs(line.value) >= 0.005)
+);
+
+const hasBreakdown = computed(() => visibleBreakdown.value.length > 0);
 
 function toggle() {
   if (hasBreakdown.value) expanded.value = !expanded.value;
@@ -39,18 +43,17 @@ function toggle() {
     <Transition name="breakdown">
       <div v-if="expanded && hasBreakdown" class="breakdown">
         <div
-          v-for="line in breakdown"
+          v-for="line in visibleBreakdown"
           :key="line.label"
           class="breakdown-line"
+          :title="snakeToTitle(line.label)"
         >
           <ws-icon
             v-if="line.icon"
             :icon-path="line.icon"
             size="xs"
-            class="line-icon"
           />
           <span v-else class="line-icon-placeholder" />
-          <span class="line-label">{{ snakeToTitle(line.label) }}</span>
           <span
             :class="['line-value', line.value < 0 ? 'negative' : 'positive']"
           >
@@ -68,6 +71,7 @@ function toggle() {
   flex-direction: column;
   align-items: flex-start;
   gap: $xxxxs;
+  position: relative;
 }
 
 .bubble {
@@ -106,6 +110,11 @@ function toggle() {
 }
 
 .breakdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: $xxxxs;
+  z-index: 100;
   width: max-content;
   display: flex;
   flex-direction: column;
@@ -117,32 +126,19 @@ function toggle() {
 }
 
 .breakdown-line {
-  display: grid;
-  grid-template-columns: $md $xs 1fr auto;
+  display: flex;
   align-items: center;
   gap: $xxs;
 }
 
-.line-icon {
-  grid-column: 1;
-}
-
 .line-icon-placeholder {
-  grid-column: 1;
   display: inline-block;
   width: $xs;
-}
-
-.line-label {
-  grid-column: 3;
-  color: $txDarker;
-  text-align: left;
-  white-space: nowrap;
+  height: $xs;
+  flex-shrink: 0;
 }
 
 .line-value {
-  grid-column: 4;
-  text-align: right;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 
