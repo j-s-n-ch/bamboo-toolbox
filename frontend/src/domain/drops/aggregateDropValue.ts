@@ -315,7 +315,6 @@ export function buildGoldBreakdown(
 
     if (value === 0) continue;
 
-    console.log(id, id in allGearItems, id in allMaterialItems, value);
     if (id in allGearItems || id in allMaterialItems) {
       dropsValue += value;
       dropsIcon ??= info.icon;
