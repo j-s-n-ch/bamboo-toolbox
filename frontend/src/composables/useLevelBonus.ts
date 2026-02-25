@@ -1,9 +1,15 @@
 import { computed, type ComputedRef, type Ref } from "vue";
 import { useRequirements, type RequirementContext } from "./useRequirements";
-import type { Requirement } from "@/domain/types/common";
 import type { ActivityDetail } from "@/domain/types/activity";
 import type { RecipeDetail } from "@/domain/types/recipe";
-import type { Stat } from "@/domain/types/item";
+import type { Requirement } from "@/domain/types/common";
+import {
+  buildQualityOutcomeBonusAttr,
+  buildWorkEfficiencyBonusAttr,
+  calculateQualityOutcomeBonus,
+  calculateWorkEfficiencyBonus,
+  type LevelBonusAttr,
+} from "@/domain/levelBonus";
 
 /**
  * Calculates bonuses to work efficiency and quality outcome based on
@@ -28,19 +34,6 @@ export type LevelBonusGearItem = {
   name: string;
   icon: string;
   type: string;
-};
-
-/** Shape of the synthetic bonus attribute objects returned as computed values. */
-export type LevelBonusAttr = {
-  id: string;
-  requirements: Requirement[];
-  stats: Stat[];
-  item: {
-    id: string;
-    name: string;
-    icon: string;
-  };
-  tables: null;
 };
 
 /**
@@ -91,33 +84,9 @@ export function useLevelBonus(ctx: LevelBonusContext): {
     );
     const playerLevel = ctx.skillLevels.value[skill] || 1;
 
-    const levelDiff = isTravelling
-      ? Math.max(playerLevel - levelRequirement, 0)
-      : Math.min(20, Math.max(playerLevel - levelRequirement, 0));
-
-    const value = isTravelling ? levelDiff * 0.005 : levelDiff * 0.0125;
-
-    return {
-      id: "work_efficiency_bonus",
-      requirements: [],
-      stats: [
-        {
-          isMultiplicative: true,
-          isNegative: false,
-          isPercent: true,
-          name: "Work Efficiency",
-          stat: "work_efficiency",
-          type: "workEfficiency",
-          value,
-        },
-      ],
-      item: {
-        id: "work_efficiency_bonus",
-        name: "From levels above requirement",
-        icon: "",
-      },
-      tables: null,
-    };
+    return buildWorkEfficiencyBonusAttr(
+      calculateWorkEfficiencyBonus({ playerLevel, levelRequirement, isTravelling }),
+    );
   });
 
   const qualityOutcomeBonus = computed<LevelBonusAttr | null>(() => {
@@ -138,29 +107,9 @@ export function useLevelBonus(ctx: LevelBonusContext): {
     );
     const playerLevel = ctx.skillLevels.value[skill] || 1;
 
-    const value = Math.max(playerLevel - levelRequirement, 0);
-
-    return {
-      id: "quality_outcome_bonus",
-      requirements: [],
-      stats: [
-        {
-          isMultiplicative: true,
-          isNegative: false,
-          isPercent: false,
-          name: "Quality Outcome",
-          stat: "quality_outcome",
-          type: "qualityOutcome",
-          value,
-        },
-      ],
-      item: {
-        id: "quality_outcome_bonus",
-        name: "From levels above requirement",
-        icon: "",
-      },
-      tables: null,
-    };
+    return buildQualityOutcomeBonusAttr(
+      calculateQualityOutcomeBonus({ playerLevel, levelRequirement }),
+    );
   });
 
   return {
