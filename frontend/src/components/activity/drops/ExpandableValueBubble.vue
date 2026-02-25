@@ -115,14 +115,16 @@ function toggle() {
   left: 0;
   margin-top: $xxxxs;
   z-index: 100;
+  min-width: 100%;
   width: max-content;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: $xxxxs;
   padding: $xxxs $xxs;
   border-radius: $sm;
-  border: 1px solid $boxDarkOutline;
-  background-color: $boxDarkBackground;
+  border: 2px solid $chipOutline;
+  background-color: $boxPrimaryBackground;
 }
 
 .breakdown-line {
