@@ -1,6 +1,7 @@
 import { useGearStore } from "@/store/gear";
 import { useActivityStore } from "@/store/activity";
 import { useNotificationStore } from "@/store/notifications";
+import { usePlayerStore } from "@/store/player";
 
 import useBaseContext from "@/composables/context/useBaseContext";
 import { gearSlots, slotMax } from "@/domain/constants/gear";
@@ -36,6 +37,7 @@ export function useOptimiser() {
   const gearStore = useGearStore();
   const activityStore = useActivityStore();
   const notificationStore = useNotificationStore();
+  const playerStore = usePlayerStore();
 
   function requirementsFill(gearOptions: GearOptions): Candidate[] {
     const source = baseCtx.source.value as { requirements: Parameters<typeof isHandledRequirement>[0][] } | null;
@@ -194,7 +196,7 @@ export function useOptimiser() {
             ([slot]) =>
               !(
                 slot in candidate.slotCounts &&
-                candidate.slotCounts[slot] >= slotMax(slot)
+                candidate.slotCounts[slot] >= slotMax(slot, playerStore.level)
               ),
           ),
         ) as Record<string, (OptimiserItem | LocationSummary)[]>;
@@ -236,7 +238,12 @@ export function useOptimiser() {
         [reqSets],
       );
 
-      const primarySets = gearFill(gearSlots, reqSets, options, "primary");
+      const toolbeltSize = slotMax("tool", playerStore.level);
+      const activeSlots = gearSlots.filter((slot) => {
+        const toolMatch = slot.match(/^tool(\d+)$/);
+        return toolMatch ? Number(toolMatch[1]) <= toolbeltSize : true;
+      }) as readonly GearSlot[];
+      const primarySets = gearFill(activeSlots, reqSets, options, "primary");
       await notificationStore.debug(
         "Optimiser: Created gear sets with items helping target",
         [primarySets],

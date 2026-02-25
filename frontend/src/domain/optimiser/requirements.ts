@@ -145,11 +145,12 @@ export function getRequirementCandidates(
   gearOptions: Record<string, OptimiserItem[]>,
   req: Req,
   prio: string,
+  level?: number,
 ): RequirementCandidate[] {
   const result: RequirementCandidate[] = [];
 
   for (const [slotKey, items] of Object.entries(gearOptions)) {
-    const max = slotMax(slotKey);
+    const max = slotMax(slotKey, level);
 
     for (let i = 1; i <= max; i++) {
       const slotName = max > 1 ? `${slotKey}${i}` : slotKey;

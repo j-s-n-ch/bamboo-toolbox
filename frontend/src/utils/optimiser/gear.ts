@@ -234,5 +234,3 @@ export function getItemOptions(
     Object.entries(options).map(([slot, items]) => [slot, items[key]]),
   );
 }
-
-export { slotMax } from "./slots";
