@@ -3,7 +3,7 @@ import { useActivityStore } from "@/store/activity";
 import { useNotificationStore } from "@/store/notifications";
 import { usePlayerStore } from "@/store/player";
 
-import useBaseContext from "@/composables/context/useBaseContext";
+import { injectBaseContext } from "@/composables/context/injectShared";
 import { gearSlots, slotMax } from "@/domain/constants/gear";
 import type { GearSlot } from "@/domain/constants/gear";
 import type { LocationSummary } from "@/domain/types/location";
@@ -33,7 +33,7 @@ import type {
 } from "@/domain/optimiser/types";
 
 export function useOptimiser() {
-  const baseCtx = useBaseContext();
+  const baseCtx = injectBaseContext();
   const gearStore = useGearStore();
   const activityStore = useActivityStore();
   const notificationStore = useNotificationStore();

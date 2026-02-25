@@ -1,5 +1,6 @@
 import { computed, type ComputedRef, type Ref } from "vue";
-import useBaseContext, { type BaseContext } from "./useBaseContext";
+import { injectBaseContext } from "./injectShared";
+import type { BaseContext } from "./useBaseContext";
 import { useGearStore } from "@/store/gear";
 import type { LocationDetail } from "@/domain/types/location";
 import type { ServiceDetail } from "@/domain/types/service";
@@ -20,7 +21,7 @@ export function useGearContext(
   gearSetIndex: number,
   overrides: GearContextOverrides = {},
 ): BaseContext {
-  const baseCtx = useBaseContext();
+  const baseCtx = injectBaseContext();
   const gearStore = useGearStore();
 
   return {
