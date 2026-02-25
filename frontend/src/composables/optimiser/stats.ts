@@ -2,11 +2,8 @@ import { computed } from "vue";
 import { priorityValue } from "./priority";
 import { useSkillModifiers, type SkillModifiersContext } from "@/composables/useSkillModifiers";
 import useBaseContext from "@/composables/context/useBaseContext";
-import { filterUsefulStats } from "@/domain/optimiser/scoring";
-import type { GearSet, OptimiserItem } from "./types";
+import type { GearSet, OptimiserItem } from "@/domain/optimiser/types";
 import type { XpPerStep } from "@/domain/skillModifiers";
-
-export { filterUsefulStats };
 
 export const getGearSetStats = (set: GearSet): number => {
   const baseCtx = useBaseContext();
@@ -39,4 +36,3 @@ export const getGearSetStats = (set: GearSet): number => {
   // fallback
   return stats.stepsPerRewardRoll.value;
 };
-

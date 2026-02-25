@@ -5,7 +5,7 @@ import {
   compareScore as _compareScore,
 } from "@/domain/optimiser/scoring";
 import { getGearSetStats } from "./stats";
-import type { MappedItem, OptimiserItem } from "./types";
+import type { MappedItem, OptimiserItem } from "@/domain/optimiser/types";
 
 export const isHighStat = (): boolean => _isHighStat(priorityValue());
 
@@ -26,4 +26,3 @@ export const getItemScores = (
       baseScore,
     ),
   }));
-

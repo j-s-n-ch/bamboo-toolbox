@@ -53,3 +53,13 @@ export const gearSlots = [
 ] as const;
 
 export type GearSlot = (typeof gearSlots)[number];
+
+/**
+ * Returns the maximum number of items that can be equipped in a given slot type.
+ * Tools allow up to 6; rings allow up to 2; all other slots allow exactly 1.
+ */
+export const slotMax = (slotName: string): number => {
+  if (slotName === "tool") return 6;
+  if (slotName === "ring") return 2;
+  return 1;
+};

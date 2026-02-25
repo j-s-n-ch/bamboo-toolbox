@@ -12,10 +12,11 @@ import type { Stat } from "@/domain/types/item";
 import type { ItemDetail } from "@/domain/types/item";
 import type { Requirement } from "@/domain/types/common";
 
-import { getGearSetStats, filterUsefulStats } from "./stats";
+import { getGearSetStats } from "./stats";
+import { filterUsefulStats } from "@/domain/optimiser/scoring";
 import { getItemScores } from "./score";
 import { priorityValue } from "./priority";
-import type { MappedItem, OptimiserItem, GearSet, GearOptions, SlotOptions } from "./types";
+import type { MappedItem, OptimiserItem, GearSet, GearOptions, SlotOptions } from "@/domain/optimiser/types";
 import { intersect } from "@/utils/intersect";
 
 // ---------------------------------------------------------------------------
@@ -235,4 +236,4 @@ export function getItemOptions(
   );
 }
 
-export { slotMax } from "./slots";
+

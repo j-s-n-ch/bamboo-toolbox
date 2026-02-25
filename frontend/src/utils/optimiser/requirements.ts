@@ -1,158 +1,31 @@
-import { getLevelRequirementsMap } from "@/domain/requirements/requirementUtils";
-import { compareScore, isHighStat } from "./score";
-import { slotMax } from "./slots";
-import type { OptimiserItem } from "./types";
+import { priorityValue } from "./priority";
+import {
+  handledReqTypes,
+  isHandledRequirement,
+  getReq,
+  contributesToReq,
+  filterItemsForReq,
+  getRequirementCandidates as _getRequirementCandidates,
+} from "@/domain/optimiser/requirements";
 import type {
-  KeywordEquippedRequirement,
-  DistinctKeywordItemsEquippedRequirement,
-  KeywordWithLevelEquippedRequirement,
-  AbilityAvailableRequirement,
-  Requirement,
-} from "@/domain/types/requirement";
+  HandledReqType,
+  KeywordReq,
+  AbilityReq,
+  Req,
+  HandledRequirement,
+  RequirementCandidate,
+} from "@/domain/optimiser/requirements";
+import type { OptimiserItem } from "./types";
 
-// ---------------------------------------------------------------------------
-// Requirement type constants
-// ---------------------------------------------------------------------------
+export type { HandledReqType, KeywordReq, AbilityReq, Req, HandledRequirement, RequirementCandidate };
+export { handledReqTypes, isHandledRequirement, getReq, contributesToReq, filterItemsForReq };
 
-export const handledReqTypes = [
-  "distinctKeywordItemsEquipped",
-  "keywordEquipped",
-  "keywordWithLevelEquipped",
-  "abilityAvailable",
-] as const;
-
-export type HandledReqType = (typeof handledReqTypes)[number];
-
-// ---------------------------------------------------------------------------
-// Internal requirement representation
-// ---------------------------------------------------------------------------
-
-export type KeywordReq = {
-  keyword: string;
-  quantity: number;
-  level: number;
-};
-
-export type AbilityReq = {
-  ability: string;
-  quantity: number;
-  level: number;
-};
-
-export type Req = KeywordReq | AbilityReq;
-
-export type HandledRequirement =
-  | KeywordEquippedRequirement
-  | DistinctKeywordItemsEquippedRequirement
-  | KeywordWithLevelEquippedRequirement
-  | AbilityAvailableRequirement;
-
-// ---------------------------------------------------------------------------
-// Candidate type
-// ---------------------------------------------------------------------------
-
-export type RequirementCandidate = {
-  slotName: string;
-  slotKey: string;
-  item: OptimiserItem;
-};
-
-// ---------------------------------------------------------------------------
-// Type guard
-// ---------------------------------------------------------------------------
-
-export const isHandledRequirement = (req: Requirement): req is HandledRequirement =>
-  (handledReqTypes as ReadonlyArray<string>).includes(req.type);
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-export const getReq = (req: HandledRequirement): Req => {
-  if (req.type === "keywordEquipped") {
-    return { keyword: req.requirement.keyword, quantity: 1, level: 1 };
-  } else if (req.type === "distinctKeywordItemsEquipped") {
-    return {
-      keyword: req.requirement.keywords[0],
-      quantity: req.requirement.quantity,
-      level: 1,
-    };
-  } else if (req.type === "keywordWithLevelEquipped") {
-    return {
-      keyword: req.requirement.keyword,
-      quantity: 1,
-      level: req.requirement.level,
-    };
-  } else {
-    // abilityAvailable
-    return { ability: req.requirement.ability, quantity: 1, level: 1 };
-  }
-};
-
-export function contributesToReq(
-  item: OptimiserItem | null | undefined,
-  req: Req,
-): 0 | 1 {
-  if (!item) return 0;
-
-  if ("keyword" in req) {
-    if (!item.keywords?.includes(req.keyword)) return 0;
-    if (req.level && (item.level ?? 0) < req.level) return 0;
-    return 1;
-  } else if ("ability" in req) {
-    return 1;
-  }
-
-  return 0;
-}
-
-export const filterItemsForReq = (req: Req, items: OptimiserItem[]): OptimiserItem[] => {
-  return items.filter((item) => {
-    if ("keyword" in req) {
-      return (
-        item.keywords?.includes(req.keyword) &&
-        (req.level > 1
-          ? Object.values(getLevelRequirementsMap(item.requirements))[0] > req.level
-          : true)
-      );
-    } else if ("ability" in req && item.abilities) {
-      const itemAbilityNames = item.abilities
-        .flatMap((abilityVal) => {
-          if (typeof abilityVal === "string") return abilityVal;
-          const { quality } = item;
-          const { ability, unlockLevel } = abilityVal;
-          return quality >= unlockLevel ? ability : null;
-        })
-        .filter((value): value is string => value !== null);
-      return itemAbilityNames.includes(req.ability);
-    }
-    return false;
-  });
-};
-
-export function getRequirementCandidates(
+/**
+ * Wrapper that injects the active priority from the settings store so
+ * callers do not need to read it themselves.
+ */
+export const getRequirementCandidates = (
   gearOptions: Record<string, OptimiserItem[]>,
   req: Req,
-): RequirementCandidate[] {
-  const result: RequirementCandidate[] = [];
+): RequirementCandidate[] => _getRequirementCandidates(gearOptions, req, priorityValue());
 
-  for (const [slotKey, items] of Object.entries(gearOptions)) {
-    const max = slotMax(slotKey);
-
-    for (let i = 1; i <= max; i++) {
-      const slotName = max > 1 ? `${slotKey}${i}` : slotKey;
-
-      for (const item of items) {
-        if (contributesToReq(item, req)) {
-          result.push({ slotName, slotKey, item });
-        }
-      }
-    }
-  }
-
-  return result.sort((a, b) =>
-    isHighStat()
-      ? compareScore(b.item.score, a.item.score)
-      : compareScore(a.item.score, b.item.score),
-  );
-}

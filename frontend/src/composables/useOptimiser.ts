@@ -3,7 +3,7 @@ import { useActivityStore } from "@/store/activity";
 import { useNotificationStore } from "@/store/notifications";
 
 import useBaseContext from "@/composables/context/useBaseContext";
-import { gearSlots } from "@/domain/constants/gear";
+import { gearSlots, slotMax } from "@/domain/constants/gear";
 import type { GearSlot } from "@/domain/constants/gear";
 import type { LocationSummary } from "@/domain/types/location";
 
@@ -11,26 +11,25 @@ import {
   getGearOptions,
   getItemOptions,
   filterMultislot,
-  slotMax,
-} from "@/utils/optimiser/gear";
-import { getGearSetStats } from "@/utils/optimiser/stats";
-import { startScore, compareScore } from "@/utils/optimiser/score";
-import { priorityName } from "@/utils/optimiser/priority";
+} from "@/composables/optimiser/gear";
+import { getGearSetStats } from "@/composables/optimiser/stats";
+import { startScore, compareScore } from "@/composables/optimiser/score";
+import { priorityName } from "@/composables/optimiser/priority";
+import { getRequirementCandidates } from "@/composables/optimiser/requirements";
 import {
   getReq,
   filterItemsForReq,
-  getRequirementCandidates,
   contributesToReq,
   isHandledRequirement,
-} from "@/utils/optimiser/requirements";
-import type { Req } from "@/utils/optimiser/requirements";
+} from "@/domain/optimiser/requirements";
+import type { Req } from "@/domain/optimiser/requirements";
 import type {
   Candidate,
   FulfilledCandidate,
   GearOptions,
   GearSet,
   OptimiserItem,
-} from "@/utils/optimiser/types";
+} from "@/domain/optimiser/types";
 
 export function useOptimiser() {
   const baseCtx = useBaseContext();
