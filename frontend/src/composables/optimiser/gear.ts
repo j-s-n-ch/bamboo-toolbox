@@ -217,11 +217,42 @@ const getScoredItemsForSlot = (
   return { qualityItems, scoredItems };
 };
 
+/**
+ * Returns true when tool items `a` and `b` are mutually exclusive — i.e. at
+ * least one of them carries a keyword whose `bannedKeywords` list includes a
+ * keyword the other item has.  Only mutually exclusive tools compete for the
+ * same effective slot, so only they should be compared for stat dominance.
+ */
+const areMutuallyExclusiveTools = (
+  a: OptimiserItem,
+  b: OptimiserItem,
+  keywordsMap: Record<string, { bannedKeywords: string[] }>,
+): boolean => {
+  for (const kw of a.keywords) {
+    const banned = keywordsMap[kw]?.bannedKeywords ?? [];
+    if (b.keywords.some((k) => banned.includes(k))) return true;
+  }
+  for (const kw of b.keywords) {
+    const banned = keywordsMap[kw]?.bannedKeywords ?? [];
+    if (a.keywords.some((k) => banned.includes(k))) return true;
+  }
+  return false;
+};
+
 const upgradeFilteredForSlot = (
   slot: string,
   scoredItems: OptimiserItem[],
-): OptimiserItem[] =>
-  slot === "ring" ? scoredItems : filterDirectUpgrades(scoredItems);
+): OptimiserItem[] => {
+  if (slot === "ring") return scoredItems;
+  if (slot === "tool") {
+    const { keywordsMap } = useDataStore();
+    return filterDirectUpgrades(
+      scoredItems,
+      (a, b) => areMutuallyExclusiveTools(a, b, keywordsMap),
+    );
+  }
+  return filterDirectUpgrades(scoredItems);
+};
 
 // ---------------------------------------------------------------------------
 // Public gear-option generators (called lazily, one phase at a time)

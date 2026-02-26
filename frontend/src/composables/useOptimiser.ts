@@ -169,7 +169,7 @@ export function useOptimiser() {
     slots: readonly GearSlot[],
     gearOptions: Record<string, (OptimiserItem | LocationSummary)[]>,
   ): Candidate[] {
-    const BEAM_WIDTH = 3;
+    const BEAM_WIDTH = 6;
     let candidates: Candidate[] = [baseCandidate];
 
     for (const slotName of slots) {
@@ -179,6 +179,8 @@ export function useOptimiser() {
       const options = gearOptions[slotKey]?.length
         ? (gearOptions[slotKey] as OptimiserItem[])
         : [];
+
+      if (!options.length) continue;
 
       const next: Candidate[] = [];
 
@@ -197,10 +199,14 @@ export function useOptimiser() {
         }
       }
 
-      const newCandidates = next
+      // Merge filled-slot candidates with the current (empty-slot) candidates
+      // so that a partially-built set can stay in the beam if adding any single
+      // item at this point doesn't improve on it. This lets context-dependent
+      // items (e.g. -efficiency +double_action) survive early pruning and be
+      // re-evaluated once later slots have been filled.
+      candidates = [...candidates, ...next]
         .sort((a, b) => compareScore(b.score, a.score))
         .slice(0, BEAM_WIDTH);
-      candidates = newCandidates.length ? newCandidates : candidates;
     }
 
     return candidates;
@@ -259,10 +265,11 @@ export function useOptimiser() {
 
   /**
    * After the primary fill phase some slots may still be empty because no item
-   * contributed to the selected target.  This phase greedily fills those slots
-   * with the best item from the `fallback` pool — items that have *any* stats
-   * (i.e., passed `filterDirectUpgrades`) even if they're unrelated to the
-   * current priority.
+   * contributed to the selected target.  This phase fills those slots by
+   * evaluating every fallback item in the context of the current partial gear
+   * set and picking the one that produces the best full-set score.  This
+   * ensures context-dependent items (e.g. -efficiency +double_action) are
+   * selected when they are genuinely beneficial given what is already equipped.
    */
   function fallbackFill(
     slots: readonly GearSlot[],
@@ -285,9 +292,21 @@ export function useOptimiser() {
 
         if (!filteredItems.length) continue;
 
-        const [best] = filteredItems;
-        gearSet = { ...gearSet, [slotName]: best };
+        // Score every candidate item in the context of the current gear set
+        // and pick whichever produces the best full-set score.
         const prevCount = slotKey in slotCounts ? slotCounts[slotKey] : 0;
+        const best = filteredItems.reduce<{ item: OptimiserItem; score: number } | null>(
+          (best, item) => {
+            const score = getGearSetStats({ ...gearSet, [slotName]: item });
+            if (!best || compareScore(score, best.score) > 0) return { item, score };
+            return best;
+          },
+          null,
+        );
+
+        if (!best) continue;
+
+        gearSet = { ...gearSet, [slotName]: best.item };
         slotCounts = { ...slotCounts, [slotKey]: prevCount + 1 };
       }
 

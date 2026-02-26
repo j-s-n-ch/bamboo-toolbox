@@ -36,17 +36,23 @@ export const filterLocations = (
  * the list. Item `a` dominates item `b` (and `b` is removed) when:
  *   1. `a` has every stat that `b` has, with values >= `b`'s values.
  *   2. At least one of `a`'s stat values is strictly greater than `b`'s.
+ *   3. (When `areMutuallyExclusive` is provided) `a` and `b` are mutually
+ *      exclusive — only one of them can ever be equipped at a time. This
+ *      guard is needed for multi-slot types (e.g. tools) where two items with
+ *      different keywords could both be equipped in separate slots; in that
+ *      case neither should be filtered out regardless of stat comparison.
  *
  * Edge case: an item with zero stats is dominated by anything that has at
  * least one stat (conditions hold vacuously; condition 2 is satisfied by
  * `a` having any stat at all).
  *
- * Keywords are intentionally NOT considered here — they are only meaningful
- * when evaluating requirement fulfilment, which is handled separately in the
- * requirements-fill phase before this function is called.
+ * Keywords are intentionally NOT considered in the stat comparison — they are
+ * only meaningful when evaluating requirement fulfilment, which is handled
+ * separately in the requirements-fill phase before this function is called.
  */
 export const filterDirectUpgrades = (
   items: OptimiserItem[],
+  areMutuallyExclusive?: (a: OptimiserItem, b: OptimiserItem) => boolean,
 ): OptimiserItem[] => {
   function normalizeStats(stats: Stat[]): Map<string, number> {
     const map = new Map<string, number>();
@@ -59,6 +65,11 @@ export const filterDirectUpgrades = (
   type NormalizedItem = OptimiserItem & { _stats: Map<string, number> };
 
   function dominates(a: NormalizedItem, b: NormalizedItem): boolean {
+    // Mutual-exclusion guard: if the predicate is provided and the two items
+    // are NOT mutually exclusive they could both be equipped, so neither
+    // dominates the other from the perspective of slot competition.
+    if (areMutuallyExclusive && !areMutuallyExclusive(a, b)) return false;
+
     // Edge case: b has no stats — dominated by anything with at least one stat.
     if (b._stats.size === 0) return a._stats.size > 0;
 
@@ -84,7 +95,7 @@ export const filterDirectUpgrades = (
   return normalized
     .filter(
       (item, i) =>
-        !normalized.some((other, j) => i !== j && dominates(other, item)),
+        !normalized.some((other, j) => i !== j && dominates(other, item))
     )
     .map(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
