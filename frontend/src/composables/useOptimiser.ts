@@ -246,9 +246,17 @@ export function useOptimiser() {
       await notificationStore.debug(`Optimiser: [${ts(t)}] Generated primary gear options`, [primaryOptions]);
 
       // Phase 3: build fallback options for the same slot set — emptyAfterPrimary
-      // is unknown until the worker runs, so emptyAfterReq is used conservatively.
+      // is unknown until the worker runs. Build fallback only for slots that
+      // have no primary options at all.
       t = performance.now();
-      const fallbackOptions = getFallbackGearOptions(emptyAfterReq);
+      const fallbackSlotKeys = new Set(
+        [...emptyAfterReq].filter(
+          (slot) =>
+            slot !== "location" &&
+            ((primaryOptions[slot]?.primary as unknown[] | undefined)?.length ?? 0) === 0,
+        ),
+      );
+      const fallbackOptions = getFallbackGearOptions(fallbackSlotKeys);
       await notificationStore.debug(`Optimiser: [${ts(t)}] Generated fallback gear options`, [fallbackOptions]);
 
       // Worker phase: primary beam-search + fallback fill off the main thread.
