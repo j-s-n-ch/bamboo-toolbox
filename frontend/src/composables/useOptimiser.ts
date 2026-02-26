@@ -248,7 +248,9 @@ export function useOptimiser() {
       // Phase 3: build fallback options for the same slot set — emptyAfterPrimary
       // is unknown until the worker runs, so emptyAfterReq is used conservatively.
       t = performance.now();
-      const fallbackOptions = getFallbackGearOptions(emptyAfterReq);
+      const nonFallbackSlots = ["consumable"];
+      const fallBackEmpty = new Set([...emptyAfterReq].filter((slot) => !nonFallbackSlots.includes(slot)));
+      const fallbackOptions = getFallbackGearOptions(fallBackEmpty);
       await notificationStore.debug(`Optimiser: [${ts(t)}] Generated fallback gear options`, [fallbackOptions]);
 
       // Worker phase: primary beam-search + fallback fill off the main thread.
