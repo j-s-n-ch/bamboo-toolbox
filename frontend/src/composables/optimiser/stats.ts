@@ -228,6 +228,8 @@ export const buildWorkerJob = (
       faction: s.from.faction,
       subFactions: s.from.subFactions,
     })),
+    selectedServiceTier: baseCtx.service.value?.tier ?? null,
+    selectedServiceKeywords: baseCtx.service.value?.keywords ?? [],
     skillLevels: { ...playerStore.skillLevels },
     skillsMap: Object.fromEntries(
       Object.entries(playerStore.skillsMap).map(([k, v]) => [k, { type: v.type }]),

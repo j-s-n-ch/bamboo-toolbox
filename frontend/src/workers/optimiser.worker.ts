@@ -16,6 +16,7 @@ import {
   startScore as _startScore,
 } from "@/domain/optimiser/scoring";
 import { slotMax } from "@/domain/constants/gear";
+import { serviceTiers } from "@/domain/constants/services";
 import { getLevelRequirementsMap } from "@/domain/requirements/requirementUtils";
 import type { EffectiveAttrEntry } from "@/domain/effectiveAttrs";
 import type { SkillModifiersResult } from "@/domain/skillModifiers";
@@ -102,6 +103,33 @@ function checkRequirement(req: Requirement, sCtx: StaticReqCtx, dCtx: DynCtx): b
     case "traveling":
       value = sCtx.activityId === "travelling";
       break;
+    case "service": {
+      const { keywords, serviceKeyword, tier } = req.requirement;
+      const reqKeywords = keywords && keywords.length ? [...keywords] : [];
+      if (serviceKeyword) reqKeywords.push(serviceKeyword);
+
+      const selectedTier = sCtx.selectedServiceTier;
+      if (!selectedTier) {
+        value = false;
+        break;
+      }
+
+      const selectedTierIndex = serviceTiers.indexOf(
+        selectedTier as (typeof serviceTiers)[number],
+      );
+      const reqTierIndex = serviceTiers.indexOf(tier as (typeof serviceTiers)[number]);
+
+      const tierOk =
+        selectedTierIndex >= 0 && reqTierIndex >= 0
+          ? selectedTierIndex >= reqTierIndex
+          : selectedTier === tier;
+      const keywordsOk = reqKeywords.every((kw) =>
+        sCtx.selectedServiceKeywords.includes(kw),
+      );
+
+      value = tierOk && keywordsOk;
+      break;
+    }
     case "gameData": {
       const { data, gameDataId } = req.requirement;
       const rep = (JSON.parse(data) as { double?: number }).double ?? 0;

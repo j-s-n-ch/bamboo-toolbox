@@ -59,6 +59,9 @@ export type StaticReqCtx = {
   locationSubFactions: string[];
   segments: Array<{ keywords: string[]; faction: string; subFactions?: string[] }>;
 
+  selectedServiceTier: string | null;
+  selectedServiceKeywords: string[];
+
   skillLevels: Record<string, number>;
   /** Only the `type` field is needed (for `mainSkillType` requirements). */
   skillsMap: Record<string, { type: string }>;
