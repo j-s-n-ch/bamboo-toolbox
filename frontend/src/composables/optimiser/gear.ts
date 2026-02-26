@@ -8,6 +8,7 @@ import { type RequirementContext } from "@/composables/useRequirements";
 import { usedAttrs } from "@/domain/quality/qualityAttrs";
 import { gearTypes } from "@/domain/constants/gear";
 import { filterLocations, filterDirectUpgrades } from "@/domain/optimiser/gear";
+import { getLevelRequirementsMap } from "@/domain/requirements/requirementUtils";
 import type { Stat } from "@/domain/types/item";
 import type { ItemDetail } from "@/domain/types/item";
 import type { Requirement } from "@/domain/types/common";
@@ -59,7 +60,11 @@ const mapItemToStats = (
     };
   };
 
-  const base: MappedItem = { ...item, ...getAttrs(item, item.quality) };
+  const levelMap = getLevelRequirementsMap(item.requirements);
+  const levelValues = Object.values(levelMap);
+  const level = levelValues.length > 0 ? Math.max(...levelValues) : 1;
+
+  const base: MappedItem = { ...item, ...getAttrs(item, item.quality), level };
 
   if (item.gearType === "ring") {
     const owned = ctx.ownedItems.value[item.id];
@@ -69,6 +74,7 @@ const mapItemToStats = (
       {
         ...item,
         ...getAttrs(item, q2 ? q2 : item.quality),
+        level,
       } as MappedItem,
     ];
   }
@@ -228,6 +234,7 @@ const areMutuallyExclusiveTools = (
   b: OptimiserItem,
   keywordsMap: Record<string, { bannedKeywords: string[] }>,
 ): boolean => {
+  if (!a.keywords || !b.keywords) return false;
   for (const kw of a.keywords) {
     const banned = keywordsMap[kw]?.bannedKeywords ?? [];
     if (b.keywords.some((k) => banned.includes(k))) return true;

@@ -24,12 +24,12 @@ export const getGearSetStats = (set: GearSet): number => {
   const stats = useSkillModifiers(gearCtx);
   const prio = priorityValue();
 
-  if (prio === "stepsPerRewardRoll") return stats.stepsPerRewardRoll.value;
+  if (prio === "stepsPerRewardRoll" || prio === "balanced") return stats.stepsPerRewardRoll.value;
   if (prio === "xpPerStep") {
     const xp = stats.xpPerStep.value as XpPerStep[];
     return xp[xp.length - 1].value;
   }
-  if (prio === "craftsPerMaterial") return stats.craftsPerMaterial.value;
+  if (prio === "craftsPerMaterial" || prio === "balancedRecipe") return stats.craftsPerMaterial.value;
   if (prio === "stepsPerFineRoll") return stats.stepsPerFineRoll.value;
   if (prio === "stepsPerCollectibleRoll") return stats.stepsPerCollectibleRoll.value;
 
