@@ -258,23 +258,27 @@ export function useOptimiser() {
 
       await notificationStore.debug(`Optimiser: [total: ${ts(t0)}] Done`);
 
-      await gearStore.unequipAll();
       if (usedSet.gearSet.location) {
         const location = usedSet.gearSet.location as LocationSummary;
-        await activityStore.setLocation(
-          location as unknown as import("@/domain/types/location").LocationDetail,
-        );
+        await activityStore.setLocation(location as unknown as import("@/domain/types/location").LocationDetail);
         await notificationStore.debug(
           `Optimiser: Selected location ${location?.name}`,
           [location],
         );
       }
 
+      const equipPayload = Object.fromEntries(
+        activeSlots.map((slot) => {
+          const item = usedSet.gearSet[slot] as
+            | { id?: string; quality?: string | null }
+            | null
+            | undefined;
+          return [slot, item && item.id ? { id: item.id, quality: item.quality ?? null } : null];
+        }),
+      ) as Record<string, { id?: string; quality?: string | null } | null>;
+
       await gearStore.equipMultiple(
-        usedSet.gearSet as Record<
-          string,
-          { id?: string; quality?: string | null } | null
-        >,
+        equipPayload,
         true,
       );
       await notificationStore.debug("Optimiser: Equipped gear set", [usedSet]);
