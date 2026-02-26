@@ -7,6 +7,8 @@ import {
 import useBaseContext from "@/composables/context/useBaseContext";
 import { useRequirements, type RequirementContext } from "@/composables/useRequirements";
 import { useLevelBonus, type LevelBonusContext } from "@/composables/useLevelBonus";
+import { usePlayerStore } from "@/store/player";
+import { useDataStore } from "@/store/data";
 import { toDeepRaw } from "@/utils/rawData";
 import {
   resolveItemAttrs,
@@ -18,9 +20,18 @@ import {
   type SkillModifiersResult,
   type SkillModifiersSource,
 } from "@/domain/skillModifiers";
-import type { GearSet, OptimiserItem } from "@/domain/optimiser/types";
+import type { GearSet, OptimiserItem, GearOptions, Candidate } from "@/domain/optimiser/types";
 import type { ItemDetail } from "@/domain/types/item";
 import type { XpPerStep } from "@/domain/skillModifiers";
+import type { ActivityDetail } from "@/domain/types/activity";
+import type { RecipeDetail } from "@/domain/types/recipe";
+import type {
+  WorkerItem,
+  WorkerGearOptions,
+  OptimiserJobData,
+  StaticReqCtx,
+  WorkerCandidate,
+} from "@/workers/optimiserWorkerTypes";
 
 // ---------------------------------------------------------------------------
 // Score extraction
@@ -131,6 +142,138 @@ export const installScorer = (): (() => void) => {
   return () => {
     _activeScorer = null;
   };
+};
+
+// ---------------------------------------------------------------------------
+// Worker job builder
+// ---------------------------------------------------------------------------
+
+/**
+ * Pre-computes the `EffectiveAttrEntry[]` for a single item so the worker
+ * scorer can skip `resolveItemAttrs` + `buildAllAttrEntries` per call.
+ */
+const enrichItem = (item: OptimiserItem): WorkerItem => {
+  const raw = toDeepRaw(item as unknown as ItemDetail);
+  return {
+    ...(toDeepRaw(item as unknown as Record<string, unknown>) as OptimiserItem),
+    _attrEntries: buildAllAttrEntries(resolveItemAttrs([raw]), null, null, null),
+  };
+};
+
+const enrichItems = (items: OptimiserItem[]): WorkerItem[] => items.map(enrichItem);
+
+const enrichCandidates = (candidates: Candidate[]): WorkerCandidate[] =>
+  candidates.map((c) => ({
+    ...c,
+    gearSet: Object.fromEntries(
+      Object.entries(c.gearSet).map(([slot, item]) => [
+        slot,
+        item && "score" in item ? enrichItem(item as OptimiserItem) : item,
+      ]),
+    ),
+  }));
+
+/**
+ * Builds the serialisable `OptimiserJobData` to be posted to the optimiser
+ * worker.  Must be called from a component/composable context (Pinia stores
+ * are accessed here and nowhere in the worker).
+ */
+export const buildWorkerJob = (
+  reqSets: Candidate[],
+  primaryOptions: GearOptions,
+  fallbackOptions: GearOptions,
+  activeSlots: readonly string[],
+): OptimiserJobData => {
+  const baseCtx = useBaseContext();
+  const playerStore = usePlayerStore();
+  const dataStore = useDataStore();
+
+  const { workEfficiencyBonus, qualityOutcomeBonus } = useLevelBonus(
+    baseCtx as unknown as LevelBonusContext,
+  );
+
+  const source = baseCtx.source.value as SkillModifiersSource | null;
+  const activitySelected = baseCtx.activitySelected.value;
+  const prio = priorityValue();
+
+  // Static entries: collectibles + level bonuses + service (same as makeScorer).
+  const collectibles = toDeepRaw(
+    baseCtx.ownedItemsByCategory("collectibles") as ItemDetail[],
+  );
+  const staticEntries = buildAllAttrEntries(
+    resolveItemAttrs(collectibles),
+    workEfficiencyBonus.value,
+    qualityOutcomeBonus.value,
+    baseCtx.service.value,
+  );
+
+  // Static requirement context: snapshot of all store data checkRequirements needs.
+  const activitySource = baseCtx.source.value;
+  const activityDetail = baseCtx.activity.value as ActivityDetail | null;
+  const recipeDetail = baseCtx.recipe.value as RecipeDetail | null;
+  const location = baseCtx.location.value;
+
+  const reqCtx: StaticReqCtx = {
+    activityId: activitySource?.id ?? null,
+    activityKeywords: activitySource?.keywords ?? [],
+    activityRelatedSkills:
+      activityDetail?.relatedSkillsList ?? recipeDetail?.relatedSkills ?? [],
+    recipeRelatedSkills: recipeDetail?.relatedSkills ?? [],
+    isActivity: activitySelected,
+    locationKeywords: location?.keywords ?? [],
+    locationFaction: location?.faction ?? null,
+    locationSubFactions: location?.subFactions ?? [],
+    segments: baseCtx.segments.value.map((s) => ({
+      keywords: s.from.keywords,
+      faction: s.from.faction,
+      subFactions: s.from.subFactions,
+    })),
+    skillLevels: { ...playerStore.skillLevels },
+    skillsMap: Object.fromEntries(
+      Object.entries(playerStore.skillsMap).map(([k, v]) => [k, { type: v.type }]),
+    ),
+    achievementPoints: baseCtx.achievementPoints.value,
+    factionReputation: { ...(baseCtx.factionReputation.value ?? {}) },
+    ownedItemIds: Object.keys(baseCtx.ownedItems.value),
+  };
+
+  // Build enriched worker gear options.
+  const workerGearOptions: WorkerGearOptions = {
+    required: Object.fromEntries(
+      Object.entries(primaryOptions).map(([slot, opts]) => [
+        slot,
+        enrichItems(opts.required),
+      ]),
+    ),
+    primary: Object.fromEntries(
+      Object.entries(primaryOptions).map(([slot, opts]) => [
+        slot,
+        slot === "location"
+          ? (opts.primary as import("@/domain/types/location").LocationSummary[]) // LocationSummary[] — already serialisable
+          : enrichItems(opts.primary as OptimiserItem[]),
+      ]),
+    ),
+    fallback: Object.fromEntries(
+      Object.entries(fallbackOptions).map(([slot, opts]) => [
+        slot,
+        enrichItems(opts.fallback),
+      ]),
+    ),
+  };
+
+  return toDeepRaw({
+    staticEntries,
+    source,
+    activitySelected,
+    prio,
+    defaultLocation: location,
+    reqCtx,
+    reqSets: enrichCandidates(reqSets),
+    gearOptions: workerGearOptions,
+    activeSlots: [...activeSlots],
+    playerLevel: playerStore.level,
+    keywordsMap: dataStore.keywordsMap,
+  }) as OptimiserJobData;
 };
 
 // ---------------------------------------------------------------------------

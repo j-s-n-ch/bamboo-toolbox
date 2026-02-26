@@ -13,9 +13,9 @@ import {
   getPrimaryGearOptions,
   getFallbackGearOptions,
   getItemOptions,
-  filterMultislot,
 } from "@/composables/optimiser/gear";
-import { getGearSetStats, installScorer } from "@/composables/optimiser/stats";
+import { getGearSetStats, installScorer, buildWorkerJob } from "@/composables/optimiser/stats";
+import type { OptimiserJobResult } from "@/workers/optimiserWorkerTypes";
 import { startScore, compareScore } from "@/composables/optimiser/score";
 import { priorityName } from "@/composables/optimiser/priority";
 import { getRequirementCandidates } from "@/composables/optimiser/requirements";
@@ -164,158 +164,45 @@ export function useOptimiser() {
     return candidates.filter((c) => c.fulfilled >= req.quantity);
   }
 
-  function beamSearch(
-    baseCandidate: Candidate,
-    slots: readonly GearSlot[],
-    gearOptions: Record<string, (OptimiserItem | LocationSummary)[]>,
-  ): Candidate[] {
-    const BEAM_WIDTH = 3;
-    let candidates: Candidate[] = [baseCandidate];
-
-    for (const slotName of slots) {
-      if (baseCandidate.gearSet[slotName]) continue;
-
-      const slotKey = slotName.replace(/\d+$/, "");
-      const options = gearOptions[slotKey]?.length
-        ? (gearOptions[slotKey] as OptimiserItem[])
-        : [];
-
-      if (!options.length) continue;
-
-      const next: Candidate[] = [];
-
-      for (const { gearSet, slotCounts } of candidates) {
-        const filteredOptions = ["ring", "tool"].includes(slotKey)
-          ? filterMultislot(gearSet, options, slotKey, slotName)
-          : options;
-
-        for (const item of filteredOptions) {
-          const newSet: GearSet = { ...gearSet, [slotName]: item };
-          const score = getGearSetStats(newSet);
-          const prevCount = slotKey in slotCounts ? slotCounts[slotKey] : 0;
-          const newSlotCount = { ...slotCounts, [slotName]: prevCount + 1 };
-
-          next.push({ gearSet: newSet, score, slotCounts: newSlotCount });
-        }
-      }
-
-      // Merge filled-slot candidates with the current (empty-slot) candidates
-      // so that a partially-built set can stay in the beam if adding any single
-      // item at this point doesn't improve on it. This lets context-dependent
-      // items (e.g. -efficiency +double_action) survive early pruning and be
-      // re-evaluated once later slots have been filled.
-      candidates = [...candidates, ...next]
-        .sort((a, b) => compareScore(b.score, a.score))
-        .slice(0, BEAM_WIDTH);
-    }
-
-    return candidates;
-  }
-
-  function gearFill(
-    slots: readonly GearSlot[],
-    baseCandidates: Candidate[],
-    gearOptions: GearOptions,
-    gearKey: "primary",
-  ): Candidate[] {
-    let candidates: Candidate[] = baseCandidates.length
-      ? baseCandidates
-      : [{ gearSet: {}, score: startScore(), slotCounts: {} }];
-
-    const locationPrimary = gearOptions.location
-      ?.primary as (LocationSummary | null)[];
-    const locationOptions: (LocationSummary | null)[] = locationPrimary?.length
-      ? locationPrimary
-      : [null];
-
-    locationOptions.forEach((location) => {
-      candidates.forEach((candidate) => {
-        const primaryOptions = getItemOptions(gearOptions, gearKey);
-        const remainingGearOptions = Object.fromEntries(
-          Object.entries(primaryOptions).filter(
-            ([slot]) =>
-              !(
-                slot in candidate.slotCounts &&
-                candidate.slotCounts[slot] >= slotMax(slot, playerStore.level)
-              ),
-          ),
-        ) as Record<string, (OptimiserItem | LocationSummary)[]>;
-
-        const usedCandidate: Candidate = {
-          ...candidate,
-          gearSet: {
-            ...candidate.gearSet,
-            location: location ?? baseCtx.location.value,
-          },
-        };
-
-        const searchResult = beamSearch(
-          usedCandidate,
-          slots,
-          remainingGearOptions,
-        );
-        candidates = candidates.concat(searchResult);
-      });
-    });
-
-    return candidates
-      .sort((a, b) => compareScore(b.score, a.score))
-      .slice(0, 3);
-  }
-
   /**
-   * After the primary fill phase some slots may still be empty because no item
-   * contributed to the selected target.  This phase fills those slots by
-   * evaluating every fallback item in the context of the current partial gear
-   * set and picking the one that produces the best full-set score.  This
-   * ensures context-dependent items (e.g. -efficiency +double_action) are
-   * selected when they are genuinely beneficial given what is already equipped.
+   * Serialises the optimiser job and runs gearFill + fallbackFill in a
+   * dedicated Web Worker, keeping the main thread (and UI) responsive.
    */
-  function fallbackFill(
-    slots: readonly GearSlot[],
-    baseCandidates: Candidate[],
-    gearOptions: GearOptions,
-  ): Candidate[] {
-    return baseCandidates.map((candidate) => {
-      let { gearSet, slotCounts } = candidate;
-
-      for (const slotName of slots) {
-        if (gearSet[slotName]) continue;
-
-        const slotKey = slotName.replace(/\d+$/, "");
-        const fallbackItems = (gearOptions[slotKey]?.fallback ?? []) as OptimiserItem[];
-        if (!fallbackItems.length) continue;
-
-        const filteredItems = ["ring", "tool"].includes(slotKey)
-          ? filterMultislot(gearSet, fallbackItems, slotKey, slotName)
-          : fallbackItems;
-
-        if (!filteredItems.length) continue;
-
-        // Score every candidate item in the context of the current gear set
-        // and pick whichever produces the best full-set score.
-        const prevCount = slotKey in slotCounts ? slotCounts[slotKey] : 0;
-        const best = filteredItems.reduce<{ item: OptimiserItem; score: number } | null>(
-          (best, item) => {
-            const score = getGearSetStats({ ...gearSet, [slotName]: item });
-            if (!best || compareScore(score, best.score) > 0) return { item, score };
-            return best;
-          },
-          null,
+  async function runWorkerJob(
+    reqSets: Candidate[],
+    primaryOptions: GearOptions,
+    fallbackOptions: GearOptions,
+    activeSlots: readonly GearSlot[],
+  ): Promise<OptimiserJobResult> {
+    return new Promise((resolve, reject) => {
+      const worker = new Worker(
+        new URL("../workers/optimiser.worker.ts", import.meta.url),
+        { type: "module" },
+      );
+      let jobData: ReturnType<typeof buildWorkerJob>;
+      try {
+        jobData = structuredClone(
+          buildWorkerJob(reqSets, primaryOptions, fallbackOptions, activeSlots),
         );
-
-        if (!best) continue;
-
-        gearSet = { ...gearSet, [slotName]: best.item };
-        slotCounts = { ...slotCounts, [slotKey]: prevCount + 1 };
+      } catch (err) {
+        worker.terminate();
+        reject(new Error(`Optimiser worker payload serialization failed: ${String(err)}`));
+        return;
       }
-
-      return {
-        ...candidate,
-        gearSet,
-        score: getGearSetStats(gearSet),
-        slotCounts,
+      worker.onmessage = (e: MessageEvent<OptimiserJobResult>) => {
+        resolve(e.data);
+        worker.terminate();
       };
+      worker.onerror = (err) => {
+        reject(new Error(`Optimiser worker error: ${err.message}`));
+        worker.terminate();
+      };
+      try {
+        worker.postMessage(jobData);
+      } catch (err) {
+        reject(new Error(`Optimiser worker postMessage failed: ${String(err)}`));
+        worker.terminate();
+      }
     });
   }
 
@@ -352,35 +239,24 @@ export function useOptimiser() {
         [reqSets],
       );
 
-      // Phase 2: build primary options only for slots still empty, then fill.
+      // Phase 2: build primary options for still-empty slots.
       t = performance.now();
       const emptyAfterReq = getEmptySlotKeys(reqSets, activeSlots);
       const primaryOptions = getPrimaryGearOptions(emptyAfterReq);
       await notificationStore.debug(`Optimiser: [${ts(t)}] Generated primary gear options`, [primaryOptions]);
 
+      // Phase 3: build fallback options for the same slot set — emptyAfterPrimary
+      // is unknown until the worker runs, so emptyAfterReq is used conservatively.
       t = performance.now();
-      const primarySets = gearFill(activeSlots, reqSets, primaryOptions, "primary");
-      await notificationStore.debug(
-        `Optimiser: [${ts(t)}]   Created gear sets with items helping target`,
-        [primarySets],
-      );
-
-      // Phase 3: build fallback options only for slots still empty, then fill.
-      t = performance.now();
-      const emptyAfterPrimary = getEmptySlotKeys(primarySets, activeSlots);
-      const fallbackOptions = getFallbackGearOptions(emptyAfterPrimary);
+      const fallbackOptions = getFallbackGearOptions(emptyAfterReq);
       await notificationStore.debug(`Optimiser: [${ts(t)}] Generated fallback gear options`, [fallbackOptions]);
 
+      // Worker phase: primary beam-search + fallback fill off the main thread.
       t = performance.now();
-      const fallbackSets = fallbackFill(activeSlots, primarySets, fallbackOptions);
-      await notificationStore.debug(
-        `Optimiser: [${ts(t)}] Filled remaining empty slots with fallback items`,
-        [fallbackSets],
-      );
+      const usedSet = await runWorkerJob(reqSets, primaryOptions, fallbackOptions, activeSlots);
+      await notificationStore.debug(`Optimiser: [${ts(t)}] Worker completed beam search + fallback`, [usedSet]);
 
       await notificationStore.debug(`Optimiser: [total: ${ts(t0)}] Done`);
-
-      const [usedSet] = fallbackSets.sort((a, b) => compareScore(b.score, a.score));
 
       await gearStore.unequipAll();
       if (usedSet.gearSet.location) {
