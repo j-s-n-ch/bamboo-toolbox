@@ -57,62 +57,15 @@ async function downloadAllGearSets() {
 </template>
 
 <style lang="scss" scoped>
+@use "@/styles/mixins/settingsTableShared" as table;
+
 .data-settings-container {
   h3 {
-    margin: 0 0 $base 0;
-    color: $txPrimary;
+    @include table.settings-title;
   }
 }
 
 .settings-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: $bgPrimary;
-  border-radius: $sm;
-  overflow: hidden;
-  border: 1px solid $boxDarkOutline;
-
-  thead {
-    background: $boxDarkBackground;
-
-    th {
-      padding: $sm $base;
-      text-align: center;
-      font-weight: bold;
-      color: $txPrimary;
-      border-bottom: 1px solid $boxDarkOutline;
-
-      &:not(:last-child) {
-        border-right: 1px solid $boxDarkOutline;
-      }
-    }
-  }
-
-  tbody {
-    tr {
-      &:hover {
-        background: rgba(255, 255, 255, 0.05);
-      }
-    }
-
-    td {
-      padding: $sm $base;
-      color: $txPrimary;
-
-      &:not(:last-child) {
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      &.setting-label {
-        font-weight: 500;
-        width: 70%;
-      }
-
-      &.setting-action {
-        text-align: center;
-        width: 30%;
-      }
-    }
-  }
+  @include table.settings-table($label-width: 70%, $control-width: 30%, $striped-rows: false);
 }
 </style>

@@ -1,0 +1,143 @@
+@use "@/styles/variables/sizes" as sizes;
+@use "@/styles/variables/colors" as colors;
+
+@mixin settings-title {
+  margin: 0 0 sizes.$base 0;
+  color: colors.$txPrimary;
+}
+
+@mixin settings-table($label-width: 60%, $control-width: 20%, $striped-rows: true) {
+  width: 100%;
+  border-collapse: collapse;
+  background: colors.$bgPrimary;
+  border-radius: sizes.$sm;
+  overflow: hidden;
+  border: 1px solid colors.$boxDarkOutline;
+  border-radius: sizes.$xs;
+
+  thead {
+    background: colors.$boxDarkBackground;
+
+    th {
+      padding: sizes.$sm sizes.$base;
+      text-align: center;
+      font-weight: bold;
+      color: colors.$txPrimary;
+      border-bottom: 1px solid colors.$boxDarkOutline;
+
+      &:not(:last-child) {
+        border-right: 1px solid colors.$boxDarkOutline;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      @if $striped-rows {
+        &:nth-child(even) {
+          background: rgba(255, 255, 255, 0.02);
+        }
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      &:not(:last-child) td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    td {
+      padding: sizes.$sm sizes.$base;
+      color: colors.$txPrimary;
+
+      &:not(:last-child) {
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      &.setting-label {
+        font-weight: 500;
+        width: $label-width;
+      }
+
+      &.setting-enabled,
+      &.setting-display,
+      &.setting-action {
+        text-align: center;
+        width: $control-width;
+      }
+    }
+  }
+
+  input[type="checkbox"] {
+    cursor: pointer;
+    transform: scale(1.1);
+
+    &:focus {
+      outline: 2px solid var(--color-primary, colors.$txPrimary);
+      outline-offset: 2px;
+    }
+  }
+
+  select {
+    background: colors.$bgPrimary;
+    color: colors.$txPrimary;
+    border: 1px solid colors.$boxDarkOutline;
+    border-radius: sizes.$xs;
+    padding: sizes.$xs sizes.$sm;
+    cursor: pointer;
+    font-size: inherit;
+    max-width: 100%;
+
+    &:focus {
+      outline: 2px solid var(--color-primary, colors.$txPrimary);
+      outline-offset: 2px;
+      border-color: var(--color-primary, colors.$txPrimary);
+    }
+
+    option {
+      background: colors.$bgPrimary;
+      color: colors.$txPrimary;
+    }
+  }
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+
+    thead th {
+      padding: sizes.$xs sizes.$sm;
+    }
+
+    tbody td {
+      padding: sizes.$xs sizes.$sm;
+
+      &.setting-label {
+        width: 50%;
+        word-break: break-word;
+      }
+
+      &.setting-enabled,
+      &.setting-display,
+      &.setting-action {
+        width: 25%;
+      }
+    }
+
+    select {
+      padding: sizes.$xs;
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+
+    tbody td {
+      &.setting-label {
+        font-size: 12px;
+        line-height: 1.3;
+      }
+    }
+  }
+}
