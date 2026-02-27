@@ -8,12 +8,12 @@
 
 @mixin settings-table($label-width: 60%, $control-width: 20%, $striped-rows: true) {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   background: colors.$bgPrimary;
   border-radius: sizes.$sm;
   overflow: hidden;
   border: 1px solid colors.$boxDarkOutline;
-  border-radius: sizes.$xs;
 
   thead {
     background: colors.$boxDarkBackground;
