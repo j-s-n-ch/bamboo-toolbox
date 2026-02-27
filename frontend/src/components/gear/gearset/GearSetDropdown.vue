@@ -22,7 +22,7 @@ const filterCount = computed(() => internalFilterTags.value.length);
 const selectedSet = computed(() =>
   gearSetStore.currentSet.id
     ? gearSetStore.gearSets.find((set) => set.id === gearSetStore.currentSet.id)
-    : null
+    : null,
 );
 
 const displayName = computed({
@@ -51,7 +51,7 @@ const filteredGearSets = computed(() => {
     sets = sets.filter((set) => {
       if (!set.tags || set.tags.length === 0) return false;
       return internalFilterTags.value.every((filterTag) =>
-        set.tags.some((setTag) => setTag.id === filterTag.id)
+        set.tags.some((setTag) => setTag.id === filterTag.id),
       );
     });
   }
@@ -221,6 +221,7 @@ function isConfirmingDelete(setId) {
         <span v-else> No gear sets available </span>
       </div>
     </div>
+
   </div>
 </template>
 

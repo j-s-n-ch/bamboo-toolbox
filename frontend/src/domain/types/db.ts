@@ -88,6 +88,12 @@ export type DbGearSetDetail = DbGearSet & {
   items: DbGearSetItem[];
 };
 
+export type DbGearSetExport = {
+  name: string;
+  items: Pick<DbGearSetItem, "slotType" | "slotIndex" | "itemId" | "quality">[];
+  tags: string[];
+};
+
 export type UpsertGearSetPayload = {
   id?: number;
   name: string;

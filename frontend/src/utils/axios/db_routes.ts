@@ -7,6 +7,7 @@ import type {
   DbTag,
   DbGearSet,
   DbGearSetDetail,
+  DbGearSetExport,
   UpsertGearSetPayload,
   UpsertGearSetResponse,
   DeleteGearSetResponse,
@@ -52,6 +53,13 @@ export const getGearSetTags = async (): Promise<DbTag[]> => {
 
 export const getGearSets = async (): Promise<DbGearSet[]> => {
   const { data } = await axios.get<DbGearSet[]>(`${getHost()}/db/gear_sets`);
+  return data;
+};
+
+export const getGearSetsForExport = async (): Promise<DbGearSetExport[]> => {
+  const { data } = await axios.get<DbGearSetExport[]>(
+    `${getHost()}/db/gear_sets/export`,
+  );
   return data;
 };
 

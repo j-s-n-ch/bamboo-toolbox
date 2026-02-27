@@ -161,10 +161,11 @@ const toggleOnlySettings = computed(() =>
 </template>
 
 <style lang="scss" scoped>
+@use "@/styles/mixins/settingsTableShared" as table;
+
 .settings-table-container {
   h3 {
-    margin: 0 0 $base 0;
-    color: $txPrimary;
+    @include table.settings-title;
   }
 
   .mt-table {
@@ -173,139 +174,7 @@ const toggleOnlySettings = computed(() =>
 }
 
 .settings-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: $bgPrimary;
-  border-radius: $sm;
-  overflow: hidden;
-  border: 1px solid $boxDarkOutline;
-
-  thead {
-    background: $boxDarkBackground;
-
-    th {
-      padding: $sm $base;
-      text-align: center;
-      font-weight: bold;
-      color: $txPrimary;
-      border-bottom: 1px solid $boxDarkOutline;
-
-      &:not(:last-child) {
-        border-right: 1px solid $boxDarkOutline;
-      }
-    }
-  }
-
-  tbody {
-    tr {
-      &:nth-child(even) {
-        background: rgba(255, 255, 255, 0.02);
-      }
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.05);
-      }
-
-      &:not(:last-child) td {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
-    }
-
-    td {
-      padding: $sm $base;
-      color: $txPrimary;
-
-      &:not(:last-child) {
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      &.setting-label {
-        font-weight: 500;
-        width: 60%;
-      }
-
-      &.setting-enabled,
-      &.setting-display {
-        text-align: center;
-        width: 20%;
-      }
-    }
-  }
-
-  input[type="checkbox"] {
-    cursor: pointer;
-    transform: scale(1.1);
-
-    &:focus {
-      outline: 2px solid var(--color-primary, $txPrimary);
-      outline-offset: 2px;
-    }
-  }
-
-  select {
-    background: $bgPrimary;
-    color: $txPrimary;
-    border: 1px solid $boxDarkOutline;
-    border-radius: $xs;
-    padding: $xs $sm;
-    cursor: pointer;
-    font-size: inherit;
-    max-width: 100%;
-
-    &:focus {
-      outline: 2px solid var(--color-primary, $txPrimary);
-      outline-offset: 2px;
-      border-color: var(--color-primary, $txPrimary);
-    }
-
-    option {
-      background: $bgPrimary;
-      color: $txPrimary;
-    }
-  }
-}
-
-// Mobile responsiveness
-@media (max-width: 768px) {
-  .settings-table {
-    font-size: 14px;
-
-    thead th {
-      padding: $xs $sm;
-    }
-
-    tbody td {
-      padding: $xs $sm;
-
-      &.setting-label {
-        width: 50%;
-        word-break: break-word;
-      }
-
-      &.setting-enabled,
-      &.setting-display {
-        width: 25%;
-      }
-    }
-
-    select {
-      padding: $xs;
-      font-size: 14px;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .settings-table {
-    font-size: 13px;
-
-    tbody td {
-      &.setting-label {
-        font-size: 12px;
-        line-height: 1.3;
-      }
-    }
-  }
+  @include table.settings-table;
 }
 
 // Screen reader only class for accessibility
