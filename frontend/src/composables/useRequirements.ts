@@ -73,6 +73,10 @@ export type RequirementDisplay = {
 
 export type RequirementDisplayType = "stat" | "item";
 
+export type RequirementOwner = {
+  requirements?: Requirement[] | null;
+};
+
 // ---------------------------------------------------------------------------
 // Composable
 // ---------------------------------------------------------------------------
@@ -94,6 +98,11 @@ export function useRequirements(ctx: RequirementContext) {
     if (!reqs || !reqs.length) return true;
     return reqs.every((req) => checkRequirement(req, context));
   };
+
+  const canBeEquipped = (
+    item: RequirementOwner | null | undefined,
+    context: RequirementContext = ctx,
+  ): boolean => checkRequirements(item?.requirements, context);
 
   const checkRequirement = (
     req: Requirement,
@@ -561,6 +570,7 @@ export function useRequirements(ctx: RequirementContext) {
   return {
     checkRequirement,
     checkRequirements,
+    canBeEquipped,
     mapRequirementsText,
     mergeRequirements,
     getLevelRequirementsMap,

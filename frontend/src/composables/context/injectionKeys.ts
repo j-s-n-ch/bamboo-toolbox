@@ -10,6 +10,7 @@ import type {
   RequirementContext,
   RequirementDisplay,
   RequirementDisplayType,
+  RequirementOwner,
 } from "@/composables/useRequirements";
 import type { Requirement } from "@/domain/types/common";
 import type { XpReward, XpPerStep } from "@/domain/skillModifiers";
@@ -55,6 +56,10 @@ export type SharedRequirements = {
   checkRequirement: (req: Requirement, context?: RequirementContext) => boolean;
   checkRequirements: (
     reqs: Requirement[] | null | undefined,
+    context?: RequirementContext,
+  ) => boolean;
+  canBeEquipped: (
+    item: RequirementOwner | null | undefined,
     context?: RequirementContext,
   ) => boolean;
   mapRequirementsText: (
