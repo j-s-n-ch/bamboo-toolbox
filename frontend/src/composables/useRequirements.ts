@@ -265,6 +265,22 @@ export function useRequirements(ctx: RequirementContext) {
         break;
       }
 
+      case "skillTypeLevel": {
+        const { type, relativeLevel } = req.requirement;
+        const skillsByType = Object.entries(playerStore.skillsMap).filter(
+          ([,s]) => s.type === type,
+        );
+        const skillIds = skillsByType.map(([id]) => id);
+        const maximum = 98 * skillsByType.length;
+        const required = relativeLevel * maximum;
+        const current = skillIds.reduce(
+          (a, id) => a + ctx.skillLevels.value[id] - 1,
+          0,
+        );
+        value = current >= required;
+        break;
+      }
+
       case "activityType": {
         const source = context.source.value;
         if (source) {
@@ -496,6 +512,26 @@ export function useRequirements(ctx: RequirementContext) {
             prefix: `${requirementPrefix} at least ${level}`,
             text: skillData.name,
             icon: skillData.icon,
+          };
+          break;
+        }
+
+        case "skillTypeLevel": {
+          const { type, relativeLevel } = req.requirement;
+          const skillsByType = Object.entries(playerStore.skillsMap).filter(
+            ([, s]) => s.type === type,
+          );
+          const skillIds = skillsByType.map(([id]) => id);
+          const [, skill] = skillsByType[0];
+          const target = relativeLevel * 100;
+          const current = skillIds.reduce(
+            (a, b) => a + ctx.skillLevels.value[b] - 1,
+            0,
+          );
+          out = {
+            prefix: `Have ${target}% towards maximum`,
+            text: `${skill.type} level (${Math.min(current, target)}/${target})`,
+            icon: skill.typeIcon,
           };
           break;
         }

@@ -49,7 +49,7 @@ export const usePlayerStore = defineStore("playerStore", {
         })
         .sort((a, b) => a.name.localeCompare(b.name));
       this.skillsMap = Object.fromEntries(
-        skills.map(({ id, icon, name, type }) => [id, { icon, name, type }]),
+        skills.map(({ id, icon, name, type, typeIcon }) => [id, { icon, name, type, typeIcon }]),
       );
       this.skillLevels = Object.fromEntries(
         skills.map(({ id }) => [id, playerStats[id] ?? 1]),

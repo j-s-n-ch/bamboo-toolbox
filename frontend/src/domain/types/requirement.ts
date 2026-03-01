@@ -87,6 +87,11 @@ export type SkillLevelRequirement = RequirementBase & {
   requirement: { skill: string; level: number };
 };
 
+export type SkillTypeLevelRequirement = RequirementBase & {
+  type: "skillTypeLevel";
+  requirement: { type: string; relativeLevel: number };
+};
+
 export type ActivityTypeRequirement = RequirementBase & {
   type: "activityType";
   requirement: { keywords: string[]; skill: string | null; activity: string | null };
@@ -149,6 +154,7 @@ export type Requirement =
   | GameDataRequirement
   | CharacterLevelRequirement
   | SkillLevelRequirement
+  | SkillTypeLevelRequirement
   | ActivityTypeRequirement
   | TotalSkillLevelRequirement
   | TotalSkillLevelUpsRequirement
