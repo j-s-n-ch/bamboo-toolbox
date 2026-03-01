@@ -60,6 +60,10 @@ const sections = computed(() => {
       .map(({ type, keyword, item, quantity }) => {
         if (type === "keyword") {
           const kw = dataStore.getKeywordById(keyword);
+          if (!kw) {
+            console.warn("Keyword not found:", keyword);
+            return null;
+          }
           const { name, icon } = kw;
           return {
             name,
@@ -84,8 +88,8 @@ const sections = computed(() => {
     label: "Inputs",
     component: InfoBubble,
     items: inputs.map(({ name, icon, quantity }) => ({
-      text: `${quantity}`,
-      tooltip: `${quantity} ${name}`,
+      text: `${quantity ? `${quantity} ` : ""}${name}`,
+      tooltip: `${quantity ? `${quantity} ` : ""}${name}`,
       iconPath: icon,
     })),
     itemProps: (item) => ({ ...item }),
