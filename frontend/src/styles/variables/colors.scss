@@ -95,6 +95,8 @@ $skill-colors: (
   "smithing": rgb(226, 167, 167),
   "trinketry": rgb(255, 222, 177),
   "woodcutting": rgb(95, 241, 107),
+  "tailoring": rgba(167, 242, 253),
+  "hunting": rgba(251, 163, 86),
 );
 
 @each $name, $color in $skill-colors {
