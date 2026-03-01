@@ -1,0 +1,6 @@
+{
+  "type": "achievementPoint",
+  "name": "",
+  "opposite": false,
+  "requirement": { "isPercentage": true, "value": 1 }
+}

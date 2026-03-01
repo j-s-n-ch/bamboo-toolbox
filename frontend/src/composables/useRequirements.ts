@@ -16,6 +16,7 @@ import {
   getLevelRequirementsMap,
   mergeRequirements,
 } from "@/domain/requirements/requirementUtils";
+import icons from "@/constants/iconPaths";
 
 // Re-export pure functions so callers only need one import.
 export { getLevelRequirementsMap, mergeRequirements };
@@ -60,6 +61,8 @@ export type RequirementContext = {
   service?: Ref<ServiceDetail | null>;
   location: Ref<LocationDetail | null>;
   segments: Ref<RequirementSegment[]>;
+  characterLevel: Ref<number>;
+  skillLevels: Ref<Record<string, number>>;
   achievementPoints: Ref<number>;
   factionReputation: Ref<Record<string, number> | null>;
   source: Ref<RequirementSource | null>;
@@ -250,9 +253,15 @@ export function useRequirements(ctx: RequirementContext) {
         break;
       }
 
+      case "characterLevel": {
+        const { level } = req.requirement;
+        value = ctx.characterLevel.value >= level;
+        break;
+      }
+
       case "skillLevel": {
         const { skill, level } = req.requirement;
-        value = playerStore.skillLevels[skill] >= level;
+        value = ctx.skillLevels.value[skill] >= level;
         break;
       }
 
@@ -467,6 +476,16 @@ export function useRequirements(ctx: RequirementContext) {
               icon: act.icon,
             };
           }
+          break;
+        }
+
+        case "characterLevel": {
+          const { level } = req.requirement;
+          out = {
+            prefix: requirementPrefix,
+            text: `Character level ${level}`,
+            icon: icons.character,
+          };
           break;
         }
 

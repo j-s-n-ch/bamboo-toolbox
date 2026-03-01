@@ -1,0 +1,6 @@
+{
+  "type": "realm",
+  "name": null,
+  "opposite": false,
+  "requirement": { "realm": "jarvonia" }
+}

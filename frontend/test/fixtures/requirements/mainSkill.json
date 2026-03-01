@@ -1,0 +1,6 @@
+{
+  "type": "mainSkill",
+  "name": "",
+  "opposite": false,
+  "requirement": { "skill": "mining" }
+}

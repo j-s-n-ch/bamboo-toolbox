@@ -77,6 +77,11 @@ export type GameDataRequirement = RequirementBase & {
   requirement: { gameDataId: string; data: string };
 };
 
+export type CharacterLevelRequirement = RequirementBase & {
+  type: "characterLevel";
+  requirement: { level: number };
+};
+
 export type SkillLevelRequirement = RequirementBase & {
   type: "skillLevel";
   requirement: { skill: string; level: number };
@@ -142,6 +147,7 @@ export type Requirement =
   | TravelingRequirement
   | ServiceRequirement
   | GameDataRequirement
+  | CharacterLevelRequirement
   | SkillLevelRequirement
   | ActivityTypeRequirement
   | TotalSkillLevelRequirement

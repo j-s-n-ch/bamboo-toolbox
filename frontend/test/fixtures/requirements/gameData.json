@@ -1,0 +1,9 @@
+{
+  "type": "gameData",
+  "name": "requirements.singulars.factionReputations.syrenthiaReputation",
+  "opposite": false,
+  "requirement": {
+    "gameDataId": "syrenthiaReputation",
+    "data": "{\"double\":\"1.0\"}"
+  }
+}

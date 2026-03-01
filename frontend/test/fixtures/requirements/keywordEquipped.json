@@ -1,0 +1,6 @@
+{
+  "type": "keywordEquipped",
+  "name": "",
+  "opposite": false,
+  "requirement": { "keyword": "hatchet" }
+}

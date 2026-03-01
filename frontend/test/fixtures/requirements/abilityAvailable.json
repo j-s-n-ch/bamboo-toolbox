@@ -1,0 +1,9 @@
+{
+  "type": "abilityAvailable",
+  "name": "",
+  "opposite": false,
+  "requirement": {
+    "ability": "navigate_desert",
+    "scanEquippedItems": false
+  }
+}

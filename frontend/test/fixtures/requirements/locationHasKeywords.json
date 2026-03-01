@@ -1,0 +1,6 @@
+{
+  "type": "locationHasKeywords",
+  "name": "requirements.singulars.uniques.notUnderwater",
+  "opposite": true,
+  "requirement": { "keywords": ["underwater"] }
+}

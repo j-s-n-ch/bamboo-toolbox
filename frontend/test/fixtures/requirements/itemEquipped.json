@@ -1,0 +1,6 @@
+{
+  "type": "itemEquipped",
+  "name": "",
+  "opposite": false,
+  "requirement": { "item": "spectral_saw" }
+}

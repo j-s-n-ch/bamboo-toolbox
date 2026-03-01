@@ -1,0 +1,10 @@
+{
+  "type": "activityType",
+  "name": "requirements.singulars.gear.sledding",
+  "opposite": false,
+  "requirement": {
+    "keywords": [],
+    "skill": null,
+    "activity": "sledding"
+  }
+}

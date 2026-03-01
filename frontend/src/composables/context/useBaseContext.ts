@@ -22,6 +22,7 @@ export type BaseContext = {
   service: ComputedRef<ServiceDetail | null>;
   embargoedActivities: ComputedRef<Set<string>>;
 
+  characterLevel: ComputedRef<number>;
   skillLevels: ComputedRef<Record<string, number>>;
   achievementPoints: ComputedRef<number>;
   factionReputation: ComputedRef<Record<string, number>>;
@@ -67,6 +68,7 @@ function useBaseContext(): BaseContext {
     service: computed(() => activityStore.service),
     embargoedActivities: computed(() => activityStore.embargoedActivities),
 
+    characterLevel: computed(() => playerStore.level),
     skillLevels: computed(() => playerStore.skillLevels),
     achievementPoints: computed(() => playerStore.achievementPoints),
     factionReputation: computed(() => playerStore.factionReputation),

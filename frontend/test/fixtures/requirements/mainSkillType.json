@@ -1,0 +1,6 @@
+{
+  "type": "mainSkillType",
+  "name": "",
+  "opposite": false,
+  "requirement": { "type": "gathering" }
+}
