@@ -1,0 +1,6 @@
+{
+  "type": "itemAnywhere",
+  "name": "requirements.singulars.maps.jarvoniaMap",
+  "opposite": false,
+  "requirement": { "item": "map_of_jarvonia" }
+}

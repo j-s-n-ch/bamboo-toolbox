@@ -1,0 +1,11 @@
+{
+  "type": "historyData",
+  "name": "requirements.singulars.gear.tinkering",
+  "opposite": false,
+  "requirement": {
+    "category": "actionCompleted",
+    "data": "tinkering",
+    "value": 200,
+    "distinct": false
+  }
+}

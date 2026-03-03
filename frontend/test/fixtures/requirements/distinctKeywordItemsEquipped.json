@@ -1,0 +1,6 @@
+{
+  "type": "distinctKeywordItemsEquipped",
+  "name": null,
+  "opposite": false,
+  "requirement": { "quantity": 5, "keywords": ["proper_gear"] }
+}

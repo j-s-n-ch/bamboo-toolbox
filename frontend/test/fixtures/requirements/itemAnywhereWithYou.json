@@ -1,0 +1,6 @@
+{
+  "type": "itemAnywhereWithYou",
+  "name": "terrainmodifiers.singulars.requiresItems.UnderwaterMap.desc",
+  "opposite": false,
+  "requirement": { "item": "underwater_map" }
+}

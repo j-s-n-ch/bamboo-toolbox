@@ -1,0 +1,6 @@
+{
+  "type": "totalSkillLevel",
+  "name": "",
+  "opposite": false,
+  "requirement": { "levels": 100 }
+}

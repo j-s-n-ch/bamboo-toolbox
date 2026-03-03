@@ -16,6 +16,8 @@ import {
   getLevelRequirementsMap,
   mergeRequirements,
 } from "@/domain/requirements/requirementUtils";
+import icons from "@/constants/iconPaths";
+import { capitalize } from "@/utils/string";
 
 // Re-export pure functions so callers only need one import.
 export { getLevelRequirementsMap, mergeRequirements };
@@ -60,6 +62,8 @@ export type RequirementContext = {
   service?: Ref<ServiceDetail | null>;
   location: Ref<LocationDetail | null>;
   segments: Ref<RequirementSegment[]>;
+  characterLevel: Ref<number>;
+  skillLevels: Ref<Record<string, number>>;
   achievementPoints: Ref<number>;
   factionReputation: Ref<Record<string, number> | null>;
   source: Ref<RequirementSource | null>;
@@ -250,9 +254,31 @@ export function useRequirements(ctx: RequirementContext) {
         break;
       }
 
+      case "characterLevel": {
+        const { level } = req.requirement;
+        value = ctx.characterLevel.value >= level;
+        break;
+      }
+
       case "skillLevel": {
         const { skill, level } = req.requirement;
-        value = playerStore.skillLevels[skill] >= level;
+        value = ctx.skillLevels.value[skill] >= level;
+        break;
+      }
+
+      case "skillTypeLevel": {
+        const { type, relativeLevel } = req.requirement;
+        const skillsByType = Object.entries(playerStore.skillsMap).filter(
+          ([,s]) => s.type === type,
+        );
+        const skillIds = skillsByType.map(([id]) => id);
+        const maximum = 98 * skillsByType.length;
+        const required = relativeLevel * maximum;
+        const current = skillIds.reduce(
+          (a, id) => a + ctx.skillLevels.value[id] - 1,
+          0,
+        );
+        value = current >= required;
         break;
       }
 
@@ -470,6 +496,16 @@ export function useRequirements(ctx: RequirementContext) {
           break;
         }
 
+        case "characterLevel": {
+          const { level } = req.requirement;
+          out = {
+            prefix: requirementPrefix,
+            text: `Character level ${level}`,
+            icon: icons.character,
+          };
+          break;
+        }
+
         case "skillLevel": {
           const { skill, level } = req.requirement;
           const skillData = playerStore.skillsMap[skill];
@@ -477,6 +513,26 @@ export function useRequirements(ctx: RequirementContext) {
             prefix: `${requirementPrefix} at least ${level}`,
             text: skillData.name,
             icon: skillData.icon,
+          };
+          break;
+        }
+
+        case "skillTypeLevel": {
+          const { type, relativeLevel } = req.requirement;
+          const skillsByType = Object.entries(playerStore.skillsMap).filter(
+            ([, s]) => s.type === type,
+          );
+          const skillIds = skillsByType.map(([id]) => id);
+          const [, skill] = skillsByType[0];
+          const target = relativeLevel * 100;
+          const current = skillIds.reduce(
+            (a, b) => a + ctx.skillLevels.value[b] - 1,
+            0,
+          );
+          out = {
+            prefix: `Have ${target}% towards maximum`,
+            text: `${capitalize(skill.type)} level (${Math.min(current, target)}/${target})`,
+            icon: skill.typeIcon,
           };
           break;
         }

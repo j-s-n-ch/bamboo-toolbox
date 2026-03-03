@@ -9,7 +9,7 @@ import { useNotificationStore } from "@/store/notifications";
 
 export type SkillOption = Skill & { value: string };
 
-export type SkillInfo = Pick<Skill, "icon" | "name" | "type">;
+export type SkillInfo = Pick<Skill, "icon" | "name" | "type" | "typeIcon">;
 
 export type FactionInfo = Pick<Faction, "icon" | "name" | "color" | "reputation">;
 
@@ -49,7 +49,7 @@ export const usePlayerStore = defineStore("playerStore", {
         })
         .sort((a, b) => a.name.localeCompare(b.name));
       this.skillsMap = Object.fromEntries(
-        skills.map(({ id, icon, name, type }) => [id, { icon, name, type }]),
+        skills.map(({ id, icon, name, type, typeIcon }) => [id, { icon, name, type, typeIcon }]),
       );
       this.skillLevels = Object.fromEntries(
         skills.map(({ id }) => [id, playerStats[id] ?? 1]),

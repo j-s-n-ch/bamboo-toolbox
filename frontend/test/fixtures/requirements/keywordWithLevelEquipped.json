@@ -1,0 +1,6 @@
+{
+  "type": "keywordWithLevelEquipped",
+  "name": "",
+  "opposite": false,
+  "requirement": { "keyword": "pickaxe", "skill": "mining", "level": 60 }
+}

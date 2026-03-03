@@ -1,0 +1,6 @@
+{
+  "type": "skillLevel",
+  "name": "",
+  "opposite": false,
+  "requirement": { "level": 60, "skill": "mining" }
+}
