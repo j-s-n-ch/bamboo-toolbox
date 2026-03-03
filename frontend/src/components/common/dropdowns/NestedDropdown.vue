@@ -128,6 +128,7 @@ ul {
   display: flex;
   flex-direction: column;
   text-align: left;
+  position: relative;
 
   .header {
     display: flex;
@@ -152,7 +153,7 @@ ul {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: $boxTransparentPrimaryBackground;
+  background-color: $boxPrimaryBackground;
 
   padding: $sm;
   border: 1px solid $boxPrimaryOutline;
@@ -160,9 +161,14 @@ ul {
 }
 
 .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
   border: 1px solid $boxPrimaryOutline;
   border-radius: $md;
-  background-color: $boxTransparentPrimaryBackground;
+  background-color: $boxPrimaryBackground;
   overflow: hidden;
 
   .dropdown-search {
