@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import WsLabel from "@/components/primitives/WsLabel.vue";
 import LabelWithIcon from "../LabelWithIcon.vue";
 import DropdownCategory from "./DropdownCategory.vue";
@@ -33,17 +33,6 @@ const searchTerm = ref("");
 onMounted(() => {
   const noneOption = props.data.filter(({ value }) => value === "None");
   if (!selected.value && noneOption.length) selectItem(noneOption[0], false);
-
-  const onEsc = (e) => {
-    if (e.key === "Escape" || e.key === "Esc") {
-      isOpen.value = false;
-    }
-  };
-  window.addEventListener("keydown", onEsc);
-  // Clean up
-  onBeforeUnmount(() => {
-    window.removeEventListener("keydown", onEsc);
-  });
 });
 
 const toggle = () => {
