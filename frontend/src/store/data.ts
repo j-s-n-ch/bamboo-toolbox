@@ -117,7 +117,11 @@ export const useDataStore = defineStore("dataStore", {
         ]),
       );
 
-      const hiddenStatTypes = new Set(["skillLevel", "travelingDistance"]);
+      const hiddenStatTypes = new Set([
+        "skillLevel",
+        "travelingDistance",
+        "countsAsKeyword",
+      ]);
       this.stats = statList;
       this.mainStats = statList.filter(
         ({ type }) => !hiddenStatTypes.has(type),

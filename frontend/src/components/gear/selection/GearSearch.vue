@@ -273,12 +273,21 @@ const handleClick = (item) => {
   gap: $xxs;
   padding: $xxs;
   box-sizing: border-box;
+  min-width: 0;
+
+  label {
+    flex-shrink: 0;
+  }
 
   select {
+    flex: 1;
+    min-width: 0;
     padding: $xxxs $xxs;
     border-radius: $sm;
     border: 1px solid $boxPrimaryOutline;
     background-color: $bgPrimary;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     &:focus {
       outline: 1px solid $chipOutline;
