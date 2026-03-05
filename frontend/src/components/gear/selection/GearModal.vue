@@ -26,7 +26,11 @@ const closeDialog = () => {
 };
 
 const handleSelectItem = async (item) => {
-  await gearStore.loadItem(props.slotName, item.id, item.quality);
+  if (props.gearType === "activityInput") {
+    gearStore.setGearSlot(props.slotName, item);
+  } else {
+    await gearStore.loadItem(props.slotName, item.id, item.quality);
+  }
 
   urlStore.encodeAndPushToUrl();
   closeDialog();
