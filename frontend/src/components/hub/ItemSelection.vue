@@ -3,10 +3,12 @@ import { ref, computed } from "vue";
 import { useItemsStore } from "@/store/items";
 import ItemCategoryPanel from "./ItemCategoryPanel.vue";
 import LoadingThrobber from "@/components/primitives/LoadingThrobber.vue";
+import KeywordFilter from "./KeywordFilter.vue";
 
 const openCategoryGroup = ref(null);
 const openCategory = ref(null);
 const itemsStore = useItemsStore();
+const selectedKeyword = ref(null);
 
 function toggleCategory(group, category) {
   if (openCategoryGroup.value === group && openCategory.value === category) {
@@ -43,32 +45,34 @@ const categoryOwnedCount = computed(() => {
     <div v-if="!itemsStore.isLoaded">
       <loading-throbber />
     </div>
-    <div v-else class="categories">
-      <div
-        v-for="(group, index) in itemsStore.categorizedItems"
-        :key="`group-${index}`"
-        class="detail-groups"
-      >
-        <details class="details">
-          <summary>
-            {{ group.title }}
-            <span class="count">{{ categoryOwnedCount[group.title] }} </span>
-          </summary>
-          <item-category-panel
-            v-for="cat in group.categories"
-            :key="cat.title"
-            :group="group.title"
-            :title="cat.title"
-            :qualities="cat.qualities"
-            :item-category="cat.key"
-            :is-open="
-              openCategoryGroup === group.title && openCategory === cat.title
-            "
-            @toggle="() => toggleCategory(group.title, cat.title)"
-          />
-        </details>
+    <template v-else>
+      <keyword-filter v-model:keyword="selectedKeyword" />
+      <div v-show="!selectedKeyword" class="categories">
+        <div
+          v-for="(group, index) in itemsStore.categorizedItems"
+          :key="`group-${index}`"
+          class="detail-groups"
+        >
+          <details class="details">
+            <summary>
+              {{ group.title }}
+              <span class="count">{{ categoryOwnedCount[group.title] }} </span>
+            </summary>
+            <item-category-panel
+              v-for="cat in group.categories"
+              :key="cat.title"
+              :group="group.title"
+              :title="cat.title"
+              :item-category="cat.key"
+              :is-open="
+                openCategoryGroup === group.title && openCategory === cat.title
+              "
+              @toggle="() => toggleCategory(group.title, cat.title)"
+            />
+          </details>
+        </div>
       </div>
-    </div>
+    </template>
   </details>
 </template>
 
