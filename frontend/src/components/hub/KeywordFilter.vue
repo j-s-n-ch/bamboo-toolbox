@@ -104,35 +104,40 @@ function toggleItem(data: ToggleItemPayload) {
           placeholder="Search keywords..."
           aria-label="Search keywords"
         />
-        <ws-icon
-          v-if="selectedKeyword?.icon"
-          :icon-path="selectedKeyword.icon"
-          size="sm"
-          alt-text=""
-          decorative
-          class="keyword-icon"
-        />
-        <select
-          id="keyword-select"
-          :value="keyword ?? ''"
-          @change="onSelect"
-          class="keyword-select"
-        >
-          <option value="">— select keyword —</option>
-          <option v-for="kw in visibleKeywords" :key="kw.id" :value="kw.id">
-            {{ kw.name }} ({{ keywordCounts[kw.id] ?? 0 }})
-          </option>
-        </select>
-        <button
-          v-if="keyword"
-          class="clear-btn"
-          @click="clear"
-          aria-label="Clear keyword filter"
-        >
-          ✕
-        </button>
+        <div class="kw-select">
+          <ws-icon
+            v-if="selectedKeyword?.icon"
+            :icon-path="selectedKeyword.icon"
+            size="sm"
+            alt-text=""
+            decorative
+            class="keyword-icon"
+          />
+          <select
+            id="keyword-select"
+            :value="keyword ?? ''"
+            @change="onSelect"
+            class="keyword-select"
+          >
+            <option value="">— select keyword —</option>
+            <option v-for="kw in visibleKeywords" :key="kw.id" :value="kw.id">
+              {{ kw.name }} ({{ keywordCounts[kw.id] ?? 0 }})
+            </option>
+          </select>
+          <button
+            v-if="keyword"
+            class="clear-btn"
+            @click="clear"
+            aria-label="Clear keyword filter"
+          >
+            ✕
+          </button>
+        </div>
       </div>
-      <span v-if="keywordSearch && visibleKeywords.length === 0" class="no-keywords">
+      <span
+        v-if="keywordSearch && visibleKeywords.length === 0"
+        class="no-keywords"
+      >
         No keywords match "{{ keywordSearch }}".
       </span>
     </div>
@@ -191,11 +196,16 @@ function toggleItem(data: ToggleItemPayload) {
   white-space: nowrap;
 }
 
+.kw-select,
 .select-wrapper {
   display: flex;
   align-items: center;
   gap: $xxs;
   flex-wrap: wrap;
+}
+
+.kw-select {
+  flex-wrap: nowrap;
 }
 
 .keyword-search {
