@@ -70,7 +70,7 @@ watch([normalOwned, fineOwned, isHidden], () => {
   });
 });
 
-const hasAttrs = computed(() => props.item.buffs.length > 0);
+const hasAttrs = computed(() => props.item?.buffs?.length > 0);
 
 function toggleNormal(e) {
   e.stopPropagation();
