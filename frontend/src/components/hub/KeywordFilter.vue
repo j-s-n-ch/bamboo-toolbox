@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useItemsStore } from "@/store/items";
 import { useDataStore } from "@/store/data";
 import ItemEntry from "./ItemEntry.vue";
@@ -23,6 +23,7 @@ const emit = defineEmits<{
 
 const itemsStore = useItemsStore();
 const dataStore = useDataStore();
+const keywordSearch = ref("");
 
 type KeywordItem = ItemDetail & Partial<PetDetail>;
 
@@ -34,18 +35,33 @@ function isConsumableItem(item: KeywordItem): boolean {
   return item.type === "consumable" || !!item.consumableType;
 }
 
-const allKeywords = computed(() => {
-  const kws = new Set<string>();
+const keywordCounts = computed<Record<string, number>>(() => {
+  const counts: Record<string, number> = {};
   for (const item of Object.values(itemsStore.allGearItems) as KeywordItem[]) {
-    if (!item.keywords) continue;
-    for (const kw of item.keywords) {
-      kws.add(kw);
+    if (!item.keywords?.length) continue;
+    const uniqueKeywords = new Set(item.keywords);
+    for (const kw of uniqueKeywords) {
+      counts[kw] = (counts[kw] ?? 0) + 1;
     }
   }
-  return [...kws]
-    .sort()
+  return counts;
+});
+
+const allKeywords = computed<Keyword[]>(() => {
+  return Object.keys(keywordCounts.value)
     .map((kw) => dataStore.getKeywordById(kw))
     .filter((kw): kw is Keyword => kw !== null);
+});
+
+const visibleKeywords = computed<Keyword[]>(() => {
+  const search = keywordSearch.value.trim().toLowerCase();
+
+  return [...allKeywords.value]
+    .filter((kw) => {
+      if (!search) return true;
+      return kw.name.toLowerCase().includes(search);
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 });
 
 const selectedKeyword = computed<Keyword | null>(() => {
@@ -81,6 +97,13 @@ function toggleItem(data: ToggleItemPayload) {
         Show items with keyword:
       </label>
       <div class="select-wrapper">
+        <input
+          v-model="keywordSearch"
+          type="search"
+          class="keyword-search"
+          placeholder="Search keywords..."
+          aria-label="Search keywords"
+        />
         <ws-icon
           v-if="selectedKeyword?.icon"
           :icon-path="selectedKeyword.icon"
@@ -96,8 +119,8 @@ function toggleItem(data: ToggleItemPayload) {
           class="keyword-select"
         >
           <option value="">— select keyword —</option>
-          <option v-for="kw in allKeywords" :key="kw.id" :value="kw.id">
-            {{ kw.name }}
+          <option v-for="kw in visibleKeywords" :key="kw.id" :value="kw.id">
+            {{ kw.name }} ({{ keywordCounts[kw.id] ?? 0 }})
           </option>
         </select>
         <button
@@ -109,6 +132,9 @@ function toggleItem(data: ToggleItemPayload) {
           ✕
         </button>
       </div>
+      <span v-if="keywordSearch && visibleKeywords.length === 0" class="no-keywords">
+        No keywords match "{{ keywordSearch }}".
+      </span>
     </div>
 
     <div v-if="keyword && filteredItems.length" class="keyword-results">
@@ -169,6 +195,17 @@ function toggleItem(data: ToggleItemPayload) {
   display: flex;
   align-items: center;
   gap: $xxs;
+  flex-wrap: wrap;
+}
+
+.keyword-search {
+  background: $boxDarkBackground;
+  color: $txPrimary;
+  border: 1px solid $bgPrimary;
+  border-radius: $sm;
+  padding: $xxxs $xxs;
+  font: inherit;
+  font-size: $md;
 }
 
 .keyword-select {
@@ -205,6 +242,11 @@ function toggleItem(data: ToggleItemPayload) {
 }
 
 .no-results {
+  font-size: $md;
+  opacity: 0.7;
+}
+
+.no-keywords {
   font-size: $md;
   opacity: 0.7;
 }
