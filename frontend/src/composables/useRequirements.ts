@@ -547,7 +547,7 @@ export function useRequirements(ctx: RequirementContext) {
           const [, skill] = skillsByType[0];
           const target = relativeLevel * 100;
           const current = skillIds.reduce(
-            (a, b) => a + context.skillLevels.value[b] - 1,
+            (a, b) => a + playerStore.skillLevels[b] - 1,
             0,
           );
           out = {
@@ -609,7 +609,7 @@ export function useRequirements(ctx: RequirementContext) {
 
         case "itemAnywhere":
         case "itemAnywhereWithYou": {
-          const item = context.allGearItems.value[req.requirement.item];
+          const item = itemsStore.allGearItems[req.requirement.item];
           if (item) out = { prefix: "Own a", text: item.name, icon: item.icon };
           break;
         }
@@ -631,7 +631,7 @@ export function useRequirements(ctx: RequirementContext) {
         }
 
         case "itemEquipped": {
-          const item = context.allGearItems.value[req.requirement.item];
+          const item = itemsStore.allGearItems[req.requirement.item];
           if (item) {
             out = {
               prefix: "Have",
