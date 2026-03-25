@@ -3,6 +3,7 @@ import farganitePickaxe from "../../fixtures/items/farganite_pickaxe.json";
 import tarsiliumBoots from "../../fixtures/items/tarsilium_toed_boots.json";
 import cookedSquid from "../../fixtures/items/cooked_squid.json";
 import spectralHuntingBow from "../../fixtures/items/spectral_hunting_bow.json";
+import spectralVest from "../../fixtures/items/spectral_vest.json";
 import camel from "../../fixtures/pets/camel.json";
 import {
   sumAttrs,
@@ -202,7 +203,7 @@ describe("sumAttrs", () => {
       expect(doubleRewards).toHaveLength(2);
     });
 
-    it("first doubleRewards (general hunting) has value 0.05 at good quality", () => {
+    it("first doubleRewards (general hunting) has value 0.06 at good quality", () => {
       const result = sumAttrs(
         spectralHuntingBow.itemAttrs as Attribute[],
         spectralHuntingBow.itemQualityAttrs as Attribute[],
@@ -212,11 +213,11 @@ describe("sumAttrs", () => {
       const doubleRewards = result.filter(
         (a) => a.stats[0].type === "doubleRewards" && a.skillText === "Hunting",
       );
-      // base 0.01 + uncommon bonus 0.04 = 0.05
-      expect(doubleRewards[0].stats[0].value).toBeCloseTo(0.05, 5);
+      // base 0.02 + uncommon bonus 0.04 = 0.06
+      expect(doubleRewards[0].stats[0].value).toBeCloseTo(0.06, 5);
     });
 
-    it("second doubleRewards (spectral locations) has value 0.07 at good quality", () => {
+    it("second doubleRewards (spectral locations) has value 0.05 at good quality", () => {
       const result = sumAttrs(
         spectralHuntingBow.itemAttrs as Attribute[],
         spectralHuntingBow.itemQualityAttrs as Attribute[],
@@ -226,8 +227,54 @@ describe("sumAttrs", () => {
       const doubleRewards = result.filter(
         (a) => a.stats[0].type === "doubleRewards" && a.skillText === "Hunting",
       );
-      // base 0.07, quality bonus applies only to first matching attr
-      expect(doubleRewards[1].stats[0].value).toBeCloseTo(0.07, 5);
+      // base 0.05, quality bonus only matches attrs with same requirements → unchanged
+      expect(doubleRewards[1].stats[0].value).toBeCloseTo(0.05, 5);
+    });
+  });
+
+  describe("gear item where quality tier adds a new doubleRewards with different requirements", () => {
+    it("returns two separate doubleRewards attrs at uncommon quality", () => {
+      const result = sumAttrs(
+        spectralVest.itemAttrs as Attribute[],
+        spectralVest.itemQualityAttrs as Attribute[],
+        [],
+        "uncommon",
+      );
+      const doubleRewards = result.filter(
+        (a) => a.stats[0].type === "doubleRewards",
+      );
+      expect(doubleRewards).toHaveLength(2);
+    });
+
+    it("spectral-only doubleRewards (base) keeps its value 0.025 unchanged", () => {
+      const result = sumAttrs(
+        spectralVest.itemAttrs as Attribute[],
+        spectralVest.itemQualityAttrs as Attribute[],
+        [],
+        "uncommon",
+      );
+      const spectralAttr = result.find(
+        (a) =>
+          a.stats[0].type === "doubleRewards" &&
+          a.requirements.some((r) => r.type === "locationHasKeywords"),
+      );
+      // base 0.025, no matching quality bonus (different requirements key)
+      expect(spectralAttr?.stats[0].value).toBeCloseTo(0.025, 5);
+    });
+
+    it("general doubleRewards (added by uncommon tier) has value 0.025", () => {
+      const result = sumAttrs(
+        spectralVest.itemAttrs as Attribute[],
+        spectralVest.itemQualityAttrs as Attribute[],
+        [],
+        "uncommon",
+      );
+      const generalAttr = result.find(
+        (a) =>
+          a.stats[0].type === "doubleRewards" &&
+          !a.requirements.some((r) => r.type === "locationHasKeywords"),
+      );
+      expect(generalAttr?.stats[0].value).toBeCloseTo(0.025, 5);
     });
   });
 
