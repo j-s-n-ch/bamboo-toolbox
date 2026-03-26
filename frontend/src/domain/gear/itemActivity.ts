@@ -41,6 +41,7 @@ export type AttrFilterOptions = {
   isRecipe: boolean;
   hasCollectibleDrops: boolean;
   hasFineDrops: boolean;
+  hideInventoryAttr: boolean;
   /** IDs of every crafted item that appears in the activity's item rewards. */
   craftedRewardItemIds: string[];
   /** Injected from the composable layer — checks requirements reactively. */
@@ -112,8 +113,9 @@ export function filterUsefulKeywords(
   return allRequirements
     .filter(({ type }) => type.toLowerCase().includes("keyword"))
     .map((req) => {
-      const requirement = (req as Requirement & { requirement: Record<string, unknown> })
-        .requirement;
+      const requirement = (
+        req as Requirement & { requirement: Record<string, unknown> }
+      ).requirement;
       return "keyword" in requirement
         ? (item.keywords as string[]).includes(requirement["keyword"] as string)
         : (requirement["keywords"] as string[]).some((kw) =>
@@ -131,8 +133,14 @@ export function filterUsefulAttrs(
   attrs: Attribute[],
   options: AttrFilterOptions,
 ): Attribute[] {
-  const { isRecipe, hasCollectibleDrops, hasFineDrops, craftedRewardItemIds, checkRequirements } =
-    options;
+  const {
+    isRecipe,
+    hasCollectibleDrops,
+    hasFineDrops,
+    hideInventoryAttr,
+    craftedRewardItemIds,
+    checkRequirements,
+  } = options;
 
   return attrs.filter((attr) => {
     // Activity-only attrs are suppressed when viewing recipes.
@@ -147,8 +155,11 @@ export function filterUsefulAttrs(
       if (!benefitsCO) return false;
     }
 
-    if (attr.statText === "Find collectibles" && !hasCollectibleDrops) return false;
-    if (attr.statText === "Fine material finding" && !hasFineDrops) return false;
+    if (attr.statText === "Find collectibles" && !hasCollectibleDrops)
+      return false;
+    if (attr.statText === "Fine material finding" && !hasFineDrops)
+      return false;
+    if (attr.statText === "Inventory space" && hideInventoryAttr) return false;
 
     const usedRequirements =
       attr.requirements?.filter(

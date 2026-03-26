@@ -80,6 +80,7 @@ export function useShowItemForActivity(ctx: LootTablesContext): {
   );
   const settingsStore = useSettingsStore();
   const { hasCollectibleDrops, hasFineDrops } = useLootTables(ctx);
+  const hideInventoryAttr = settingsStore.gearSettings.hideInventoryAttr;
 
   const usefulAbilities = (
     item: ItemForDisplay,
@@ -133,6 +134,7 @@ export function useShowItemForActivity(ctx: LootTablesContext): {
       isRecipe: isRecipe ?? false,
       hasCollectibleDrops: hasCollectibleDrops.value,
       hasFineDrops: hasFineDrops.value,
+      hideInventoryAttr: hideInventoryAttr.value === true,
       craftedRewardItemIds,
       checkRequirements,
     });

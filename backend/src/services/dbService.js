@@ -49,6 +49,7 @@ const ALLOWED_SETTINGS = new Set([
   "showUseful",
   "openStatRequirements",
   "showUnmetRequirements",
+  "hideInventoryAttr",
   "undoRedo",
   "activityOptimiserPriority",
   "recipeOptimiserPriority",
