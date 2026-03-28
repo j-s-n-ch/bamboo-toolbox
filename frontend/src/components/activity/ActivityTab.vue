@@ -59,8 +59,25 @@ const categorize = (source) =>
               return req.opposite ? !meetsLevel : meetsLevel;
             });
           })
-          .map((item) => ({ ...item, value: item.name }))
-          .sort((a, b) => a.name.localeCompare(b.name)),
+          .map((item) => {
+            const skillLevelReq = (item.requirements ?? []).find(
+              (r) => r.type === "skillLevel" && r.requirement.skill === id,
+            );
+            const level = skillLevelReq?.requirement.level ?? 1;
+            return { ...item, value: `${item.name} (${level})` };
+          })
+          .sort((a, b) => {
+            const aLevel =
+              (a.requirements ?? []).find(
+                (r) => r.type === "skillLevel" && r.requirement.skill === id,
+              )?.requirement.level ?? 0;
+            const bLevel =
+              (b.requirements ?? []).find(
+                (r) => r.type === "skillLevel" && r.requirement.skill === id,
+              )?.requirement.level ?? 0;
+            if (bLevel !== aLevel) return bLevel - aLevel;
+            return a.name.localeCompare(b.name);
+          }),
       };
     })
     .filter(({ items }) => items.length > 0);
