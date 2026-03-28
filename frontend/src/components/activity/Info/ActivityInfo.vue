@@ -16,6 +16,7 @@ import {
   injectSkillModifiers,
   injectRequirements,
 } from "@/composables/context/injectShared";
+import { useXpDisplay } from "@/composables/useXpDisplay";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
 import { icons } from "@/constants/iconPaths";
@@ -61,6 +62,8 @@ const {
 } = injectSkillModifiers();
 
 const { getLevelRequirementsMap } = injectRequirements();
+
+const { xpRewardItems, xpPerStepItems } = useXpDisplay(xpRewards, xpPerStep);
 
 const borderClass = computed(
   () => `border-${ctx.activity.value?.relatedSkillsList[0]}`,
@@ -221,26 +224,14 @@ const sections = computed(() => {
   const xpRewardsRow: SectionRow = {
     label: "XP rewards (current / base)",
     component: SkillBubble,
-    items: xpRewards.value.map(({ skill, skillText, value, base }) => ({
-      skill,
-      text: `${n(value)} / ${n(base)}`,
-      tooltipText: `Rewards ${n(value)} ${skillText} XP`,
-      value,
-      base,
-    })),
+    items: xpRewardItems.value,
     itemProps: (item) => ({ ...item }),
   };
 
   const xpPerStepRow: SectionRow = {
     label: "XP per step (real / displayed)",
     component: SkillBubble,
-    items: xpPerStep.value.map(
-      ({ skill, skillText, value, displayedValue }) => ({
-        skill,
-        text: `${n(value)} /  ${n(displayedValue)}`,
-        tooltip: `Gains ${n(value)} ${skillText} XP per step`,
-      }),
-    ),
+    items: xpPerStepItems.value,
     itemProps: (item) => ({ ...item }),
   };
 

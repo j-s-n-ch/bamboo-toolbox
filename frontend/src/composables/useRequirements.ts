@@ -191,6 +191,11 @@ export function useRequirements(ctx: RequirementContext) {
         break;
       }
 
+      case "distinctKeywordItemInInventory": {
+        value = true;
+        break;
+      }
+
       case "historyData":
         value = true;
         break;
@@ -467,6 +472,21 @@ export function useRequirements(ctx: RequirementContext) {
             out = {
               prefix: `${requirementPrefix} wearing ${quantity}`,
               text: resolvedKw.name,
+              icon: resolvedKw.icon,
+            };
+          }
+          break;
+        }
+
+        case "distinctKeywordItemInInventory": {
+          const { keywords, quantity } = req.requirement;
+          const resolvedKw = keywords
+            .map(dataStore.getKeywordById)
+            .filter((kw): kw is Keyword => kw !== null)[0];
+          if (resolvedKw) {
+            out = {
+              prefix: `${requirementPrefix} having ${quantity > 1 ? quantity : ""}`,
+              text: `${resolvedKw.name} in inventory`,
               icon: resolvedKw.icon,
             };
           }

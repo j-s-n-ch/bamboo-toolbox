@@ -129,18 +129,19 @@ export function calculateStatTotals(entries: EffectiveAttrEntry[]): StatTotals {
 
   for (const attr of entries) {
     for (const stat of attr.stats) {
-      const { type, isPercent, value, isNegative } = stat;
+      const { type, isPercent, value, isNegative, skill } = stat;
+      const typeKey = skill ? `${type}:${skill}` : type;
 
-      if (!(type in totals)) {
-        totals[type] = {
+      if (!(typeKey in totals)) {
+        totals[typeKey] = {
           flat: { sum: 0, positive: 0, negative: 0 },
           percent: { sum: 0, positive: 0, negative: 0 },
         };
       }
 
       const key = isPercent ? "percent" : "flat";
-      totals[type][key].sum += value;
-      totals[type][key][isNegative ? "negative" : "positive"] += value;
+      totals[typeKey][key].sum += value;
+      totals[typeKey][key][isNegative ? "negative" : "positive"] += value;
     }
   }
 

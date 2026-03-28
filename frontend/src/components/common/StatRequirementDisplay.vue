@@ -3,10 +3,8 @@ import { ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useDataStore } from "@/store/data";
 import { useSettingsStore } from "@/store/settings";
-import {
-  injectBaseContext,
-  injectRequirements,
-} from "@/composables/context/injectShared";
+import { usePlayerStore } from "@/store/player";
+import { injectRequirements } from "@/composables/context/injectShared";
 import WsIcon from "@/components/primitives/WsIcon.vue";
 
 import { n } from "@/utils/number";
@@ -27,9 +25,9 @@ const props = defineProps({
 });
 
 const dataStore = useDataStore();
+const playerStore = usePlayerStore();
 const settingsStore = useSettingsStore();
 const { gearSettings } = storeToRefs(settingsStore);
-const ctx = injectBaseContext();
 const { checkRequirements, mapRequirementsText } = injectRequirements();
 const isOpen = ref(gearSettings.value.openStatRequirements.value);
 
@@ -55,6 +53,14 @@ const statActive = computed(() => {
   return requirementsActive.value.every((active) => active);
 });
 
+const skill = computed(() => {
+  if (props.stat.skill) {
+    console.log(playerStore.skillsMap[props.stat.skill]);
+    return playerStore.skillsMap[props.stat.skill];
+  }
+  return null;
+});
+
 const reqs = computed(() =>
   mapRequirementsText(props.requirements, requirementsActive.value),
 );
@@ -66,7 +72,7 @@ const toggle = () => {
 <template>
   <div class="stat-requirement-display">
     <div
-      v-if="!reqs || !reqs.length"
+      v-if="(!reqs || !reqs.length) && !skill"
       class="stat-wrapper"
       :class="stat.isNegative ? 'negative' : 'positive'"
     >
@@ -89,6 +95,8 @@ const toggle = () => {
     >
       <span class="stat-value">{{ displayValue }}</span>
       <ws-icon :iconPath="iconPath" size="sm" />
+      <ws-icon v-if="skill" :iconPath="skill.icon" size="sm" />
+      <span v-if="skill" class="stat-name">{{ skill.name }}</span>
       <span class="stat-name">{{ stat.name }}</span>
     </button>
     <div v-if="isOpen" class="requirements-list">

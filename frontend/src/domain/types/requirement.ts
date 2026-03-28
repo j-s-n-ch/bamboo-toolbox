@@ -47,6 +47,11 @@ export type DistinctKeywordItemsEquippedRequirement = RequirementBase & {
   requirement: { quantity: number; keywords: string[] };
 };
 
+export type DistinctKeywordItemInInventoryRequirement = RequirementBase & {
+  type: "distinctKeywordItemInInventory";
+  requirement: { keywords: string[], quantity: number };
+}
+
 export type HistoryDataRequirement = RequirementBase & {
   type: "historyData";
   requirement: {
@@ -152,6 +157,7 @@ export type Requirement =
   | LocationHasKeywordsRequirement
   | AchievementPointRequirement
   | DistinctKeywordItemsEquippedRequirement
+  | DistinctKeywordItemInInventoryRequirement
   | HistoryDataRequirement
   | RealmRequirement
   | TravelingRequirement

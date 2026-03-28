@@ -9,6 +9,8 @@ export const skillTags = [
   { id: "smithing", name: "Smithing" },
   { id: "trinketry", name: "Trinketry" },
   { id: "woodcutting", name: "Woodcutting" },
+  { id: "tailoring", name: "Tailoring" },
+  { id: "hunting", name: "Hunting" },
 ];
 
 export const attributeTags = [
