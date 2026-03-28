@@ -132,15 +132,22 @@ export function calculateSkillModifiers(
   // --- Chance modifiers ------------------------------------------------------
 
   const doubleAction = Math.min(1, getStat(totals, "doubleAction", "percent"));
-  const doubleRewards = Math.min(1, getStat(totals, "doubleRewards", "percent"));
-  const noMaterialsConsumed = Math.min(1, getStat(totals, "noMaterialsConsumed", "percent"));
+  const doubleRewards = Math.min(
+    1,
+    getStat(totals, "doubleRewards", "percent"),
+  );
+  const noMaterialsConsumed = Math.min(
+    1,
+    getStat(totals, "noMaterialsConsumed", "percent"),
+  );
 
   // --- Find modifiers --------------------------------------------------------
 
   const findCollectibles = 1 + getStat(totals, "findCollectibles", "percent");
   const findGems = 1 + getStat(totals, "findGems", "percent");
   const findBirdNests = 1 + getStat(totals, "findBirdNests", "percent");
-  const fineMaterialFind = (1 + getStat(totals, "fineMaterialFind", "percent")) / 100;
+  const fineMaterialFind =
+    (1 + getStat(totals, "fineMaterialFind", "percent")) / 100;
   const chestFind = 1 + getStat(totals, "chestFind", "percent");
   const qualityOutcome = getStat(totals, "qualityOutcome", "flat");
 
@@ -154,6 +161,27 @@ export function calculateSkillModifiers(
 
   // --- XP --------------------------------------------------------------------
 
+  // TODO better place to define list of skills
+  const skills = [
+    "agility",
+    "carpentry",
+    "cooking",
+    "crafting",
+    "fishing",
+    "foraging",
+    "mining",
+    "smithing",
+    "trinketry",
+    "woodcutting",
+    "tailoring",
+    "hunting",
+  ];
+  const skillXpFlat = skills
+    .map((skill) => ({
+      skill,
+      value: getStat(totals, `bonusExperience:${skill}`, "flat"),
+    }))
+    .filter(({ value }) => value !== 0);
   const xpFlat = getStat(totals, "bonusExperience", "flat");
   const xpPercent = getStat(totals, "bonusExperience", "percent");
 
@@ -172,6 +200,22 @@ export function calculateSkillModifiers(
       }))
     : [];
 
+  if (skillXpFlat.length > 0) {
+    skillXpFlat.forEach(({ skill, value }) => {
+      const existing = xpRewardsList.find((r) => r.skill === skill);
+      if (existing) {
+        existing.base += value;
+      } else {
+        xpRewardsList.push({
+          skill,
+          skillText: skill,
+          base: 0,
+          value: (1 + xpPercent) * value,
+        });
+      }
+    });
+  }
+
   if (xpRewardsList.length > 1) {
     xpRewardsList.push({
       skill: "xp",
@@ -181,12 +225,14 @@ export function calculateSkillModifiers(
     });
   }
 
-  const xpPerStep: XpPerStep[] = xpRewardsList.map(({ skill, skillText, value }) => ({
-    skill,
-    skillText,
-    value: value / stepsPerAction,
-    displayedValue: value / stepsPerCompletion,
-  }));
+  const xpPerStep: XpPerStep[] = xpRewardsList.map(
+    ({ skill, skillText, value }) => ({
+      skill,
+      skillText,
+      value: value / stepsPerAction,
+      displayedValue: value / stepsPerCompletion,
+    }),
+  );
 
   return {
     maxWorkEfficiency,

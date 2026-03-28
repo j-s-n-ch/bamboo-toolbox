@@ -17,6 +17,7 @@ export type Stat = {
   stat: string;
   name: string;
   type: string;
+  skill?: string;
   isPercent: boolean;
   value: number;
   isNegative: boolean;
