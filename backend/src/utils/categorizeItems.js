@@ -92,7 +92,7 @@ const resolveCategories = (category, data) => {
 
 const resolveAchievementRewardCategory = (category, rewards) => {
   const { title, source } = category;
-  const rewardItems = new Set(rewards);
+  const rewardItems = new Set(rewards.map(({ id }) => id));
 
   return {
     title: "Achievement rewards",
@@ -117,12 +117,12 @@ const resolveRewardsCategories = (category, rewards) => {
   const achievement_rewards = new Set(
     rewards
       .filter(({ type }) => type === "achievementPoints")
-      .flatMap(({ rewardItems }) => rewardItems),
+      .flatMap(({ rewardItems }) => rewardItems.map(({ id }) => id)),
   );
   const reputation_rewards = new Set(
     rewards
       .filter(({ type }) => type === "factionReputation")
-      .flatMap(({ rewardItems }) => rewardItems),
+      .flatMap(({ rewardItems }) => rewardItems.map(({ id }) => id)),
   );
   return [
     {
@@ -276,7 +276,7 @@ const resolveCraftedCategories = (crafted, allRecipes, loot) => {
 
   const recipeLevels = Object.fromEntries(
     allRecipes.flatMap(({ itemRewards, requirements }) => {
-      const id = Object.keys(itemRewards)[0];
+      const id = Object.keys(itemRewards)[0].id;
       const skills = requirements.filter(({ type }) => type == "skillLevel");
       const level = skills.length ? skills[0].requirement["level"] : 1;
       return [[id, level]];
