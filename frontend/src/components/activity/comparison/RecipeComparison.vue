@@ -102,16 +102,27 @@ const tableRows = computed(() => {
     },
   ];
 
-  const xpPerStepRows = sm1["xpPerStep"].value.map(({ skill, value }, idx) => {
-    const v1 = value * xpRewardsMultiplier.value;
-    const v2 = sm2["xpPerStep"].value[idx].value * xpRewardsMultiplier.value;
-    const comp = v1 - v2;
+  const sm1XpBySkill = Object.fromEntries(
+    sm1["xpPerStep"].value.map((r) => [r.skill, r.value]),
+  );
+  const sm2XpBySkill = Object.fromEntries(
+    sm2["xpPerStep"].value.map((r) => [r.skill, r.value]),
+  );
+  const allXpSkills = [
+    ...new Set([
+      ...sm1["xpPerStep"].value.map((r) => r.skill),
+      ...sm2["xpPerStep"].value.map((r) => r.skill),
+    ]),
+  ];
 
+  const xpPerStepRows = allXpSkills.map((skill) => {
+    const v1 = (sm1XpBySkill[skill] ?? 0) * xpRewardsMultiplier.value;
+    const v2 = (sm2XpBySkill[skill] ?? 0) * xpRewardsMultiplier.value;
     return {
       title: `${skill !== "xp" ? skill : "total"} xp`,
       left: n(v1, 2),
       right: n(v2, 2),
-      comp,
+      comp: v1 - v2,
     };
   });
 
