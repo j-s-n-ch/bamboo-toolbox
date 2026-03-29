@@ -37,7 +37,7 @@ const gs2Ctx = useGearContext(1, {
   service: gs2Service,
 });
 
-const { canUseFineMaterials, xpRewardsMultiplier, useFine } =
+const { xpRewardsMultiplier, useFine } =
   useFineMaterials(gs1Ctx);
 
 const borderClass = computed(
@@ -227,7 +227,7 @@ const editableRows = computed(() => {
 </script>
 
 <template>
-  <label v-if="canUseFineMaterials">
+  <label>
     <input type="checkbox" v-model="activityStore.useFineMaterials" />
     Fine Materials
   </label>
