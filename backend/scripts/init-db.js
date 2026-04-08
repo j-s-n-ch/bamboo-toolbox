@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 
 if (process.env.NODE_ENV === "development") {
-  execSync("npx prisma migrate reset --force --skip-seed", {
+  execSync("npx prisma migrate reset --force", {
     stdio: "inherit",
   });
 } else {

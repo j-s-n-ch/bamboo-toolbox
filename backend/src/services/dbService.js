@@ -1,7 +1,7 @@
-import { PrismaClient } from "../generated/prisma/index.js";
+import { PrismaClient } from "../generated/prisma/client.js";
 import { validTags } from "../../prisma/tag-data.js";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL });
 
 const ALLOWED_STATS = new Set([
   "level",

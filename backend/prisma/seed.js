@@ -1,4 +1,4 @@
-import { PrismaClient } from "../src/generated/prisma/index.js";
+import { PrismaClient } from "../src/generated/prisma/client.js";
 import * as dbService from "../src/services/dbService.js";
 import {
   skillService,
@@ -12,7 +12,7 @@ import {
   otherTags,
 } from "./tag-data.js";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL });
 
 async function seedSkillTags() {
   console.log("🌱 Seeding default tags...");
