@@ -81,6 +81,11 @@ const mapItemToStats = (
   if (item.gearType === "ring") {
     const owned = ctx.ownedItems.value[item.id];
     const q2 = owned?.craftedTier2;
+    const quantity = owned?.quantity ?? 0;
+
+    // Only produce a second entry if the player owns 2+ of this ring
+    if (quantity < 2) return base;
+
     return [
       base,
       {
