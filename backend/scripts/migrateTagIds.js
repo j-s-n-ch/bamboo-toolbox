@@ -1,7 +1,7 @@
-import { PrismaClient } from "../src/generated/prisma/index.js";
+import { PrismaClient } from "../src/generated/prisma/client.js";
 import { allTags } from "../prisma/tag-data.js";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL });
 
 async function migrate() {
   console.log("Starting Tag ID migration...");

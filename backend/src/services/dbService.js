@@ -1,7 +1,7 @@
-import { PrismaClient } from "../generated/prisma/index.js";
+import { PrismaClient } from "../generated/prisma/client.js";
 import { validTags } from "../../prisma/tag-data.js";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL });
 
 const ALLOWED_STATS = new Set([
   "level",
@@ -122,13 +122,31 @@ export async function getUserOwnedItems(userUuid) {
   const items = await prisma.ownedItem.findMany({
     where: { userUuid, OR: [{ owned: true }, { hidden: true }] },
   });
-  return items.map(({ itemId, owned, hidden, quality, quality2 }) => ({
-    itemId,
-    owned,
-    hidden,
-    quality,
-    quality2,
-  }));
+  return items.map(
+    ({
+      itemId,
+      owned,
+      hidden,
+      quantity,
+      craftedTier,
+      craftedTier2,
+      consumableCommon,
+      consumableFine,
+      petLevel,
+      petRarity,
+    }) => ({
+      itemId,
+      owned,
+      hidden,
+      quantity,
+      craftedTier,
+      craftedTier2,
+      consumableCommon,
+      consumableFine,
+      petLevel,
+      petRarity,
+    }),
+  );
 }
 
 export async function upsertUserOwnedItems(userUuid, items) {
@@ -140,16 +158,26 @@ export async function upsertUserOwnedItems(userUuid, items) {
         update: {
           owned: item.owned,
           hidden: item.hidden,
-          quality: item.quality,
-          quality2: item.quality2,
+          quantity: item.quantity,
+          craftedTier: item.craftedTier,
+          craftedTier2: item.craftedTier2,
+          consumableCommon: item.consumableCommon,
+          consumableFine: item.consumableFine,
+          petLevel: item.petLevel,
+          petRarity: item.petRarity,
         },
         create: {
           userUuid,
           itemId: item.itemId,
           owned: item.owned,
           hidden: item.hidden,
-          quality: item.quality,
-          quality2: item.quality2,
+          quantity: item.quantity,
+          craftedTier: item.craftedTier,
+          craftedTier2: item.craftedTier2,
+          consumableCommon: item.consumableCommon,
+          consumableFine: item.consumableFine,
+          petLevel: item.petLevel,
+          petRarity: item.petRarity,
         },
       }),
     ),

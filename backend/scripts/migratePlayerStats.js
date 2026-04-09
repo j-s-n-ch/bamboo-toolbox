@@ -1,5 +1,5 @@
-import { PrismaClient } from "../generated/prisma/index.js";
-const prisma = new PrismaClient();
+import { PrismaClient } from "../src/generated/prisma/client.js";
+const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL });
 
 async function migrate() {
   const stats = await prisma.playerStats.findMany();

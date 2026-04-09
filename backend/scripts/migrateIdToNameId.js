@@ -1,6 +1,6 @@
-import { PrismaClient } from "../src/generated/prisma/index.js";
+import { PrismaClient } from "../src/generated/prisma/client.js";
 import { itemService } from "../src/services/index.js";
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL });
 
 // Helper function to add delay between requests
 function delay(ms) {
