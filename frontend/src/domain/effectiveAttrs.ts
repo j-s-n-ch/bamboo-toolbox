@@ -33,6 +33,9 @@ import type { LevelBonusAttr } from "@/domain/levelBonus";
 export type EffectiveAttrEntry = {
   requirements: Requirement[];
   stats: Stat[];
+  customText: string;
+  statText: string;
+  skillText: string;
   item: { id: string; name: string; icon: string; quality?: string };
 };
 
@@ -95,7 +98,13 @@ export function buildAllAttrEntries(
         attr?.stats?.[0]?.type !== "rollSpecialTable"
           ? attr
           : makePseudoStat(attr);
-      return { ...stat, item };
+      return {
+        ...stat,
+        item,
+        customText: attr.customText,
+        statText: attr.statText,
+        skillText: attr.skillText,
+      };
     }),
   );
 

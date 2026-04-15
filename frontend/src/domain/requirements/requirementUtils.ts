@@ -12,6 +12,7 @@ import type { Requirement } from "@/domain/types/common";
 import type {
   AbilityAvailableRequirement,
   DistinctKeywordItemsEquippedRequirement,
+  MainSkillRequirement,
   SkillLevelRequirement,
 } from "@/domain/types/requirement";
 
@@ -95,9 +96,33 @@ export function getLevelRequirementsMap(
   for (const req of requirements) {
     if (req.type !== "skillLevel") continue;
     const { skill, level } = req.requirement;
-    map[skill] = level;
+    if (skill in map) {
+      map[skill] = Math.max(map[skill], level);
+    } else {
+      map[skill] = level;
+    }
   }
   return map;
+}
+
+export function getMainSkillRequirement(
+  requirements: Requirement[] | null | undefined,
+): string | null {
+  if (!requirements) return null;
+  const mainSkillReq = requirements.find((req) => req.type === "mainSkill") as
+    | MainSkillRequirement
+    | undefined;
+  return mainSkillReq ? mainSkillReq.requirement.skill : null;
+}
+
+export function getDistinctKeywordItemsEquippedRequirement(
+  requirements: Requirement[] | null | undefined,
+): { quantity: number; keywords: string[] } | null {
+  if (!requirements) return null;
+  const req = requirements.find(
+    (r) => r.type === "distinctKeywordItemsEquipped",
+  ) as DistinctKeywordItemsEquippedRequirement | undefined;
+  return req ? req.requirement : null;
 }
 
 /**

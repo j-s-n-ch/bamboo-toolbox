@@ -10,7 +10,14 @@ const skillObj = skillsMap[props.skill];
 
 <template>
   <span class="skill" :class="[`color-${props.skill}`]">
-    <ws-icon :icon-path="skillObj.icon" size="xs" />
+    <ws-icon :icon-path="skillObj.icon" size="xs" class="skill-icon" />
     {{ skillObj.name }}
   </span>
 </template>
+
+<style lang="scss" scoped>
+.skill-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+</style>

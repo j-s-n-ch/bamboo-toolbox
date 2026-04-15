@@ -1,6 +1,8 @@
 <script setup>
 import { parseGameString } from "@/utils/stringTokenizer";
 import SkillTag from "./SkillTag.vue";
+import StatTag from "./StatTag.vue";
+import SuppTag from "./SuppTag.vue";
 import ObjectTag from "./ObjectTag.vue";
 import TextHighlight from "./TextHighlight.vue";
 import VariableTag from "./VariableTag.vue";
@@ -16,6 +18,10 @@ function resolveComponent(token) {
   switch (token.type) {
     case "variable":
       return VariableTag;
+    case "stat":
+      return StatTag;
+    case "supp":
+      return SuppTag;
     case "skill":
       return SkillTag;
     case "object":
@@ -28,8 +34,14 @@ function resolveComponent(token) {
 }
 
 function getProps(token) {
+  if (token.type === "stat") {
+    return { stat: token.s, text: token?.text || "" };
+  }
   if (token.type === "skill") {
     return { skill: token.skill };
+  }
+  if (token.type === "supp") {
+    return { k: token.k, data: props.data };
   }
   if (token.type === "object") {
     return { objectId: token.id, data: props.data };
@@ -52,7 +64,7 @@ function renderText(token) {
 </script>
 
 <template>
-  <span>
+  <span class="ws-text">
     <component
       v-for="(token, i) in tokens"
       :key="i"
@@ -64,4 +76,9 @@ function renderText(token) {
   </span>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.ws-text {
+  display: inline;
+  vertical-align: middle;
+}
+</style>
