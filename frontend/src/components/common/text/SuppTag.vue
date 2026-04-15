@@ -7,8 +7,6 @@ const { skillsMap } = usePlayerStore();
 
 const props = defineProps({ k: String, data: Object });
 
-console.log(props.data);
-
 const determineValue = () => {
   if (!props.data) return props.k;
   if (props.k === "skill") {

@@ -12,6 +12,7 @@ import type { Requirement } from "@/domain/types/common";
 import type {
   AbilityAvailableRequirement,
   DistinctKeywordItemsEquippedRequirement,
+  MainSkillRequirement,
   SkillLevelRequirement,
 } from "@/domain/types/requirement";
 
@@ -102,6 +103,16 @@ export function getLevelRequirementsMap(
     }
   }
   return map;
+}
+
+export function getMainSkillRequirement(
+  requirements: Requirement[] | null | undefined,
+): string | null {
+  if (!requirements) return null;
+  const mainSkillReq = requirements.find((req) => req.type === "mainSkill") as
+    | MainSkillRequirement
+    | undefined;
+  return mainSkillReq ? mainSkillReq.requirement.skill : null;
 }
 
 /**

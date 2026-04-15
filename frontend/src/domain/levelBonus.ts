@@ -29,6 +29,9 @@ export type LevelBonusAttr = {
   id: string;
   requirements: Requirement[];
   stats: Stat[];
+  customText: string;
+  statText: string;
+  skillText: string;
   item: {
     id: string;
     name: string;
@@ -99,6 +102,9 @@ export function buildWorkEfficiencyBonusAttr(value: number): LevelBonusAttr {
   return {
     id: "work_efficiency_bonus",
     requirements: [],
+    customText: "",
+    statText: "",
+    skillText: "",
     stats: [
       {
         isMultiplicative: true,
@@ -124,6 +130,9 @@ export function buildQualityOutcomeBonusAttr(value: number): LevelBonusAttr {
   return {
     id: "quality_outcome_bonus",
     requirements: [],
+    customText: "",
+    statText: "",
+    skillText: "",
     stats: [
       {
         isMultiplicative: true,

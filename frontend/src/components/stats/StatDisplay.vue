@@ -2,12 +2,17 @@
 import { computed, ref } from "vue";
 import { injectEffectiveAttrs } from "@/composables/context/injectShared";
 import WsIcon from "@/components/primitives/WsIcon.vue";
+import WsText from "@/components/common/text/WsText.vue";
 import StatSourceDisplay from "@/components/stats/StatSourceDisplay.vue";
 
 const props = defineProps({
   stat: {
     type: Object,
     required: true,
+  },
+  data: {
+    type: Object,
+    default: () => ({}),
   },
   isPercent: Boolean,
 });
@@ -69,7 +74,7 @@ const toggle = () => {
       >
         <span>{{ sumApplicable.value }}</span>
         <ws-icon :iconPath="stat.icon" size="sm" />
-        <span>{{ stat.name }}</span>
+        <ws-text :text="stat.name" :data="data" />
       </div>
       <div class="group">
         <div class="total-bubble">{{ sumTotal }}</div>

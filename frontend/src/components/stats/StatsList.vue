@@ -8,7 +8,14 @@ const { allAttrs } = injectEffectiveAttrs();
 const dataStore = useDataStore();
 
 const includedStats = computed(() => {
-  const attrStats = allAttrs.value.map(({ stats }) => stats[0]);
+  const attrStats = allAttrs.value.map(
+    ({ stats, customText, statText, skillText }) => ({
+      ...stats[0],
+      customText,
+      statText,
+      skillText,
+    }),
+  );
   const regularStats = dataStore.stats
     .flatMap((stat) => {
       return [
@@ -27,11 +34,16 @@ const includedStats = computed(() => {
     .filter(({ stats }) => {
       return stats.some((stat) => !regularStatIds.includes(stat.stat));
     })
-    .map(({ stats, customIcon }) => {
+    .map(({ stats, customIcon, customText, skillText, statText }) => {
       const { name, stat, isPercent } = stats[0];
+      const data = { skill: skillText, stat: statText };
+      const emptyCustomText = !customText || customText === "";
+      const usedName = emptyCustomText ? name : customText;
+
       return {
-        stat: { name, id: stat, type: stat, icon: customIcon },
+        stat: { name: usedName, id: stat, type: stat, icon: customIcon },
         isPercent,
+        data,
       };
     })
     .filter((item, index, array) => {
@@ -52,9 +64,10 @@ const includedStats = computed(() => {
 <template>
   <section class="stats">
     <stat-display
-      v-for="{ stat, isPercent } in includedStats"
+      v-for="{ stat, isPercent, data } in includedStats"
       :key="`${stat.id}-${isPercent}`"
       :stat="stat"
+      :data="data"
       :isPercent="isPercent"
     />
   </section>

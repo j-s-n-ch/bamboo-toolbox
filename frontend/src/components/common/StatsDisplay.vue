@@ -33,7 +33,7 @@ const props = defineProps({
   hideWikiButton: {
     type: Boolean,
     default: false,
-  }
+  },
 });
 
 const dataStore = useDataStore();
@@ -51,14 +51,20 @@ const mapAttrs = (quality) => {
 
   return baseAttrs
     .flatMap((obj) => {
-      const { customText, stats, requirements } = obj;
+      const { customText, stats, requirements, text, statText } = obj;
       return stats.flatMap((stat) => {
         if (stat.stat === "roll_special_table") {
-          stat.name = stripHtmlTags(customText);
+          stat.name = customText;
           stat.customIcon = obj.customIcon;
+        } else {
+          stat.name = text || statText;
         }
+        const data = {
+          requirements,
+          stats,
+        };
 
-        return { stat, requirements: requirements || [] };
+        return { stat, requirements: requirements || [], data };
       });
     })
     .filter(({ stat }) => {
@@ -93,9 +99,10 @@ const attrs = computed(() => mapAttrs(props.quality));
       ]"
     >
       <stat-requirement-display
-        v-for="({ stat, requirements }, key) in attrs"
+        v-for="({ stat, requirements, data }, key) in attrs"
         :key="key"
         :stat="stat"
+        :data="data"
         :requirements="requirements"
         :show-active-colors="props.showActiveColors"
       />

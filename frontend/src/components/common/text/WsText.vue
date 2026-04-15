@@ -61,8 +61,6 @@ function renderText(token) {
   }
   return "";
 }
-
-console.log(props.text, props.data, tokens);
 </script>
 
 <template>

@@ -6,6 +6,7 @@ import { useSettingsStore } from "@/store/settings";
 import { usePlayerStore } from "@/store/player";
 import { injectRequirements } from "@/composables/context/injectShared";
 import WsIcon from "@/components/primitives/WsIcon.vue";
+import WsText from "./text/WsText.vue";
 
 import { n } from "@/utils/number";
 
@@ -13,6 +14,10 @@ const props = defineProps({
   stat: {
     type: Object,
     required: true,
+  },
+  data: {
+    type: Object,
+    default: () => ({}),
   },
   requirements: {
     type: Array,
@@ -75,10 +80,9 @@ const toggle = () => {
       class="stat-wrapper"
       :class="stat.isNegative ? 'negative' : 'positive'"
     >
-      <span>Global </span>
       <span class="stat-value">{{ displayValue }}</span>
       <ws-icon :iconPath="iconPath" size="sm" />
-      <span class="stat-name">{{ stat.name }}</span>
+      <span class="stat-name"><ws-text :text="stat.name" :data="data" /></span>
     </div>
     <button
       v-else
@@ -96,7 +100,7 @@ const toggle = () => {
       <ws-icon :iconPath="iconPath" size="sm" />
       <ws-icon v-if="skill" :iconPath="skill.icon" size="sm" />
       <span v-if="skill" class="stat-name">{{ skill.name }}</span>
-      <span class="stat-name">{{ stat.name }}</span>
+      <span class="stat-name"><ws-text :text="stat.name" :data="data" /></span>
     </button>
     <div v-if="isOpen" class="requirements-list">
       <p
