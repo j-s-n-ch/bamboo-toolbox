@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   buildExportedSlot,
   encodeGearSet,
@@ -115,6 +115,9 @@ describe("encodeGearSet + decodeGearSet round-trip", () => {
 // ---------------------------------------------------------------------------
 
 describe("decodeGearSet error handling", () => {
+  beforeEach(() => vi.spyOn(console, "error").mockImplementation(() => {}));
+  afterEach(() => vi.restoreAllMocks());
+
   it("returns failure for an empty string", () => {
     const result = decodeGearSet("");
     expect(result.success).toBe(false);

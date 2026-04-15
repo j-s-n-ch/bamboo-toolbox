@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   isHighStat,
   startScore,
@@ -116,6 +116,9 @@ describe("compareScore", () => {
 // ---------------------------------------------------------------------------
 
 describe("filterUsefulStats", () => {
+  beforeEach(() => vi.spyOn(console, "warn").mockImplementation(() => {}));
+  afterEach(() => vi.restoreAllMocks());
+
   it("keeps items with a stat that is in the target's useful set", () => {
     const item = makeOptimiserItem("a", [{ stat: "work_efficiency" }]);
     const result = filterUsefulStats([item], "stepsPerRewardRoll");
