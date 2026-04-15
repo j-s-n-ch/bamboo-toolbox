@@ -40,7 +40,14 @@ const colorClass = getColor(type, object);
 
 <template>
   <span :class="['object', colorClass]">
-    <ws-icon :icon-path="object.icon" size="xs" />
+    <ws-icon :icon-path="object.icon" size="xs" class="icon" />
     {{ object.name }}
   </span>
 </template>
+
+<style lang="scss" scoped>
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+</style>

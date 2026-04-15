@@ -98,15 +98,33 @@ const toggle = () => {
 .stat {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
 
   background-color: $boxDarkBackground;
   border-radius: $sm;
   padding: $xxs;
 
   .active {
-    display: flex;
-    gap: $xxxs;
-    align-items: center;
+    min-width: 0;
+    text-align: left;
+
+    & > * {
+      margin-inline-end: $xxxs;
+
+      &:last-child {
+        margin-inline-end: 0;
+      }
+    }
+
+    & > div {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    & > span {
+      display: inline;
+      vertical-align: middle;
+    }
   }
 }
 

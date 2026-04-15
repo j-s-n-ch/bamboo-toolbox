@@ -24,7 +24,15 @@ const determineValue = () => {
       v-if="determineValue().icon"
       :icon-path="determineValue().icon"
       size="xs"
+      class="icon"
     />
     {{ determineValue().value }}
   </span>
 </template>
+
+<style lang="scss" scoped>
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+</style>

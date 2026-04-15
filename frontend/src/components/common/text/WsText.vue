@@ -64,7 +64,7 @@ function renderText(token) {
 </script>
 
 <template>
-  <span>
+  <span class="ws-text">
     <component
       v-for="(token, i) in tokens"
       :key="i"
@@ -76,4 +76,9 @@ function renderText(token) {
   </span>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.ws-text {
+  display: inline;
+  vertical-align: middle;
+}
+</style>
