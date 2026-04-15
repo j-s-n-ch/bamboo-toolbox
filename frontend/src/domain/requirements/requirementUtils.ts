@@ -95,7 +95,11 @@ export function getLevelRequirementsMap(
   for (const req of requirements) {
     if (req.type !== "skillLevel") continue;
     const { skill, level } = req.requirement;
-    map[skill] = level;
+    if (skill in map) {
+      map[skill] = Math.max(map[skill], level);
+    } else {
+      map[skill] = level;
+    }
   }
   return map;
 }
