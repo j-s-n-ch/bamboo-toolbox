@@ -180,6 +180,15 @@ export function getMaterials(): Promise<AxiosResponse<ItemDetail[]>> {
   });
 }
 
+export function getContainerItems(): Promise<AxiosResponse<ItemDetail[]>> {
+  return proxy<ItemDetail[]>({
+    url: "items/search",
+    options: {
+      params: { type: "container", detailed: true },
+    },
+  });
+}
+
 export function getFineMaterials(): Promise<AxiosResponse<string[]>> {
   return proxy<string[]>({
     url: `items/fine_materials`,
