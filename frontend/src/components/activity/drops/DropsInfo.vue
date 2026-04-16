@@ -1,19 +1,39 @@
 <script setup>
+import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useSettingsStore } from "@/store/settings";
+import { useItemsStore } from "@/store/items";
 import {
   injectBaseContext,
   injectLootTables,
 } from "@/composables/context/injectShared";
+import { useChestLootTables } from "@/composables/useChestLootTables";
 import DropItemDisplay from "./DropItemDisplay.vue";
 import LootTableDisplay from "./LootTableDisplay.vue";
 import AggregateDrops from "./AggregateDrops.vue";
+import ChestLootTableSection from "./ChestLootTableSection.vue";
 
 const ctx = injectBaseContext();
 
 const settingsStore = useSettingsStore();
 const { activitySettings } = storeToRefs(settingsStore);
 const { groupedLootTables, dropItemInfoMap } = injectLootTables();
+
+const itemsStore = useItemsStore();
+const chestLootTables = useChestLootTables(dropItemInfoMap);
+
+const showChests = computed(() => activitySettings.value.showChestLootTables?.value === true);
+
+const visibleItemIds = computed(() => {
+  const ids = Object.keys(dropItemInfoMap.value);
+  if (!showChests.value) return ids;
+  return ids.filter((id) => !(id in itemsStore.containers));
+});
+
+const visibleLootTables = computed(() => {
+  if (!showChests.value) return groupedLootTables.value;
+  return groupedLootTables.value.filter((t) => !t.type.includes("chestTable"));
+});
 </script>
 
 <template>
@@ -43,18 +63,25 @@ const { groupedLootTables, dropItemInfoMap } = injectLootTables();
       <section class="drops-info">
         <template v-if="activitySettings.showCombined.value">
           <drop-item-display
-            v-for="item in Object.keys(dropItemInfoMap)"
+            v-for="item in visibleItemIds"
             :key="item"
             :item-id="item"
           />
         </template>
         <template v-else>
           <loot-table-display
-            v-for="(table, index) in groupedLootTables"
+            v-for="(table, index) in visibleLootTables"
             :key="index"
             :loot-table="table"
           />
         </template>
+      </section>
+      <section v-if="showChests && chestLootTables.length > 0" class="chest-sections">
+        <chest-loot-table-section
+          v-for="chestInfo in chestLootTables"
+          :key="chestInfo.chestItemId"
+          :chest-info="chestInfo"
+        />
       </section>
     </div>
   </details>
@@ -83,5 +110,12 @@ const { groupedLootTables, dropItemInfoMap } = injectLootTables();
   gap: $md;
 
   border: 1px solid $boxDarkOutline;
+}
+
+.chest-sections {
+  display: flex;
+  flex-direction: column;
+  gap: $sm;
+  margin-top: $sm;
 }
 </style>

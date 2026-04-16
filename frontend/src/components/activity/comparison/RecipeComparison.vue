@@ -1,36 +1,46 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
 import { useActivityStore } from "@/store/activity";
 import { useItemsStore } from "@/store/items";
 import ComparisonTableShell from "./table/ComparisonTableShell.vue";
 import EmitLocationBubble from "@/components/common/EmitLocationBubble.vue";
-import { useSkillModifiers } from "@/composables/useSkillModifiers";
-import { useFineMaterials } from "@/composables/useFineMaterialsCalculations";
+import { useSkillModifiers, type SkillModifiersContext } from "@/composables/useSkillModifiers";
+import { useComparisonRows } from "@/composables/useComparisonRows";
+import { useFineMaterials, type FineMaterialsContext } from "@/composables/useFineMaterialsCalculations";
 import { n } from "@/utils/number";
 import EmitServiceBubble from "@/components/common/EmitServiceBubble.vue";
+import type { BaseContext } from "@/composables/context/useBaseContext";
+import type { LocationDetail } from "@/domain/types/location";
+import type { ServiceDetail } from "@/domain/types/service";
+import type { RecipeDetail } from "@/domain/types/recipe";
+import type { ComputedRef } from "vue";
 import ComparisonValueRow from "./table/ComparisonValueRow.vue";
 import EditableComparisonRow from "./table/EditableComparisonRow.vue";
 import CraftingQualityComparison from "./CraftingQualityComparison.vue";
 
-const props = defineProps({
-  gs1Ctx: { type: Object, required: true },
-  gs2Ctx: { type: Object, required: true },
-});
+const props = defineProps<{
+  gs1Ctx: BaseContext;
+  gs2Ctx: BaseContext;
+}>();
 
-const emit = defineEmits([
-  "update:gs1Service",
-  "update:gs2Service",
-  "update:gs1Location",
-  "update:gs2Location",
-]);
+const emit = defineEmits<{
+  "update:gs1Service": [service: ServiceDetail];
+  "update:gs2Service": [service: ServiceDetail];
+  "update:gs1Location": [location: LocationDetail | null];
+  "update:gs2Location": [location: LocationDetail | null];
+}>();
+
+type LocationChangeInfo = { location: LocationDetail; index: number; gearSetIndex: number };
+type ServiceChangeInfo = { service: ServiceDetail; index: number; gearSetIndex: number };
+type RowChangeInfo = LocationChangeInfo | ServiceChangeInfo;
 
 const activityStore = useActivityStore();
 const itemsStore = useItemsStore();
 
-const gs1Locations = ref(null);
-const gs2Locations = ref(null);
+const gs1Locations = ref<LocationDetail[] | null>(null);
+const gs2Locations = ref<LocationDetail[] | null>(null);
 
-const findIdx = (list, id) =>
+const findIdx = (list: { id: string }[] | null | undefined, id: string | undefined): number =>
   Math.max(0, list?.findIndex((item) => item.id === id) ?? 0);
 
 const gs1ServiceIdx = ref(
@@ -58,85 +68,63 @@ onMounted(async () => {
 });
 
 const { xpRewardsMultiplier, fineMode, useFine } = useFineMaterials(
-  props.gs1Ctx,
+  props.gs1Ctx as unknown as FineMaterialsContext,
 );
 
 const borderClass = computed(
-  () => `border-${props.gs1Ctx.recipe.value?.relatedSkills[0]}`,
+  () => `border-${(props.gs1Ctx.recipe.value as RecipeDetail)?.relatedSkills[0]}`,
 );
 
 const rewardCount = computed(() => {
-  const { itemRewards } = props.gs1Ctx.recipe.value;
+  const { itemRewards } = props.gs1Ctx.recipe.value as RecipeDetail;
   return Object.values(itemRewards)[0];
 });
 
-const sm1 = useSkillModifiers(props.gs1Ctx);
-const sm2 = useSkillModifiers(props.gs2Ctx);
+const sm1 = useSkillModifiers(props.gs1Ctx as unknown as SkillModifiersContext);
+const sm2 = useSkillModifiers(props.gs2Ctx as unknown as SkillModifiersContext);
 
 const resultHasCO = computed(() => {
-  const [itemId] = Object.keys(props.gs1Ctx.recipe.value.itemRewards);
+  const [itemId] = Object.keys((props.gs1Ctx.recipe.value as RecipeDetail).itemRewards);
   return (
     itemId in itemsStore.allGearItems &&
     itemsStore.allGearItems[itemId].type === "crafted"
   );
 });
 
-const tableRows = computed(() => {
-  const getBothValues = (
-    key,
-    isPercent = false,
-    negative = false,
-    modifyValue = (item) => item,
-  ) => {
-    const multi = isPercent ? 100 : 1;
-    const v1 = sm1[key].value * multi;
-    const v2 = sm2[key].value * multi;
-
-    return {
-      left: `${n(modifyValue(v1), 2)}${isPercent ? "%" : ""}`,
-      right: `${n(modifyValue(v2), 2)}${isPercent ? "%" : ""}`,
-      comp: negative ? v1 - v2 : v2 - v1,
-    };
-  };
-
-  const basicStatsRows = [
+const basicRows = useComparisonRows(
+  sm1 as unknown as Record<string, ComputedRef<number>>,
+  sm2 as unknown as Record<string, ComputedRef<number>>,
+  computed(() => [
     {
       title: "Work Efficiency",
-      ...getBothValues("workEfficiency", true, true),
+      key: "workEfficiency",
+      isPercent: true,
+      negative: true,
     },
-    {
-      title: "Steps per action",
-      ...getBothValues("stepsPerAction"),
-    },
+    { title: "Steps per action", key: "stepsPerAction" },
     {
       title: "Steps per item",
-      ...getBothValues(
-        "stepsPerRewardRoll",
-        false,
-        false,
-        (item) => item / rewardCount.value,
-      ),
+      key: "stepsPerRewardRoll",
+      modifyValue: (v) => v / rewardCount.value,
     },
-    {
-      title: "Crafts per material",
-      ...getBothValues("craftsPerMaterial", false, true),
-    },
-  ];
+    { title: "Crafts per material", key: "craftsPerMaterial", negative: true },
+  ]),
+);
 
+const xpPerStepRows = computed(() => {
   const sm1XpBySkill = Object.fromEntries(
-    sm1["xpPerStep"].value.map((r) => [r.skill, r.value]),
+    sm1.xpPerStep.value.map((r) => [r.skill, r.value]),
   );
   const sm2XpBySkill = Object.fromEntries(
-    sm2["xpPerStep"].value.map((r) => [r.skill, r.value]),
+    sm2.xpPerStep.value.map((r) => [r.skill, r.value]),
   );
   const allXpSkills = [
     ...new Set([
-      ...sm1["xpPerStep"].value.map((r) => r.skill),
-      ...sm2["xpPerStep"].value.map((r) => r.skill),
+      ...sm1.xpPerStep.value.map((r) => r.skill),
+      ...sm2.xpPerStep.value.map((r) => r.skill),
     ]),
   ];
-
-  const xpPerStepRows = allXpSkills.map((skill) => {
+  return allXpSkills.map((skill) => {
     const v1 = (sm1XpBySkill[skill] ?? 0) * xpRewardsMultiplier.value;
     const v2 = (sm2XpBySkill[skill] ?? 0) * xpRewardsMultiplier.value;
     return {
@@ -146,11 +134,11 @@ const tableRows = computed(() => {
       comp: v1 - v2,
     };
   });
-
-  return [...basicStatsRows, ...xpPerStepRows];
 });
 
-const updateLocation = ({ location, index, gearSetIndex }) => {
+const tableRows = computed(() => [...basicRows.value, ...xpPerStepRows.value]);
+
+const updateLocation = ({ location, index, gearSetIndex }: LocationChangeInfo) => {
   if (gearSetIndex === 0) {
     gs1LocationIdx.value = index;
     emit("update:gs1Location", location);
@@ -161,7 +149,7 @@ const updateLocation = ({ location, index, gearSetIndex }) => {
   }
 };
 
-const updateService = async ({ service, index, gearSetIndex }) => {
+const updateService = async ({ service, index, gearSetIndex }: ServiceChangeInfo) => {
   if (gearSetIndex === 0) {
     gs1ServiceIdx.value = index;
     emit("update:gs1Service", service);
@@ -170,7 +158,7 @@ const updateService = async ({ service, index, gearSetIndex }) => {
       gs1Locations.value = locs;
     });
     updateLocation({
-      location: gs1Locations.value[0],
+      location: gs1Locations.value![0],
       index: 0,
       gearSetIndex: 0,
     });
@@ -183,14 +171,14 @@ const updateService = async ({ service, index, gearSetIndex }) => {
       gs2Locations.value = locs;
     });
     updateLocation({
-      location: gs2Locations.value[0],
+      location: gs2Locations.value![0],
       index: 0,
       gearSetIndex: 1,
     });
   }
 };
 
-const onRowChange = async (info) => {
+const onRowChange = async (info: RowChangeInfo) => {
   if ("location" in info) updateLocation(info);
   if ("service" in info) await updateService(info);
 };
@@ -202,7 +190,7 @@ const editableRows = computed(() => {
     columns: [
       {
         items: activityStore.services,
-        itemProps: (item, index) => ({
+        itemProps: (item: unknown, index: number) => ({
           service: item,
           index,
           selected: index === gs1ServiceIdx.value,
@@ -210,7 +198,7 @@ const editableRows = computed(() => {
       },
       {
         items: activityStore.services,
-        itemProps: (item, index) => ({
+        itemProps: (item: unknown, index: number) => ({
           service: item,
           index,
           selected: index === gs2ServiceIdx.value,
@@ -227,7 +215,7 @@ const editableRows = computed(() => {
         items: gs1Locations.value
           ? gs1Locations.value
           : activityStore.locations,
-        itemProps: (item, index) => ({
+        itemProps: (item: unknown, index: number) => ({
           location: item,
           index,
           selected: index === gs1LocationIdx.value,
@@ -237,7 +225,7 @@ const editableRows = computed(() => {
         items: gs2Locations.value
           ? gs2Locations.value
           : activityStore.locations,
-        itemProps: (item, index) => ({
+        itemProps: (item: unknown, index: number) => ({
           location: item,
           index,
           selected: index === gs2LocationIdx.value,

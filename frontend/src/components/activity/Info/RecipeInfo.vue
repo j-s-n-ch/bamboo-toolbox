@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import WsLabel from "@/components/primitives/WsLabel.vue";
@@ -20,6 +20,11 @@ import {
 import { useXpDisplay } from "@/composables/useXpDisplay";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
+import {
+  extractLevelRequirement,
+  resolveMaterials,
+} from "@/domain/recipe/recipeMaterials";
+import type { RecipeDetail } from "@/domain/types/recipe";
 
 const activityStore = useActivityStore();
 const itemsStore = useItemsStore();
@@ -53,20 +58,17 @@ const stats = computed(() => {
   };
 });
 
-const levelRequirement = computed(() => {
-  const [level] = recipe.value.requirements
-    .filter(({ type }) => type === "skillLevel")
-    .map(({ requirement }) => requirement);
-  return level || { level: 1, skill: "none" };
-});
+const levelRequirement = computed(() =>
+  extractLevelRequirement((recipe.value as RecipeDetail).requirements),
+);
 
 const borderClass = computed(
-  () => `border-${activityStore.recipe?.relatedSkills[0]}`,
+  () => `border-${(activityStore.recipe as RecipeDetail | null)?.relatedSkills[0]}`,
 );
 
 const sections = computed(() => {
-  const serviceRequirements = ctx.recipe.value.requirements.filter(
-    ({ type }) => type === "service",
+  const serviceRequirements = ((ctx.recipe.value as RecipeDetail)?.requirements ?? []).filter(
+    ({ type }: { type: string }) => type === "service",
   );
   if (serviceRequirements.length) {
     return [
@@ -74,19 +76,19 @@ const sections = computed(() => {
         label: "Services",
         component: ServiceBubble,
         items: activityStore.services,
-        itemProps: (item) => ({ service: item }),
+        itemProps: (item: unknown) => ({ service: item }),
       },
       {
         label: "Service Requirements",
         component: RequirementDisplay,
         items: activityStore.service?.requirements ?? [],
-        itemProps: (item) => ({ requirement: item }),
+        itemProps: (item: unknown) => ({ requirement: item }),
       },
       {
         label: "Locations",
         component: LocationBubble,
         items: activityStore.locations,
-        itemProps: (item) => ({ location: item }),
+        itemProps: (item: unknown) => ({ location: item }),
       },
     ].filter(({ items }) => !isEmpty(items));
   }
@@ -101,42 +103,27 @@ const sections = computed(() => {
 });
 
 const resultHasCO = computed(() => {
-  const [itemId] = Object.keys(recipe.value.itemRewards);
+  const [itemId] = Object.keys((recipe.value as RecipeDetail).itemRewards);
   return (
     itemId in itemsStore.allGearItems &&
     itemsStore.allGearItems[itemId].type === "crafted"
   );
 });
 
-const materials = computed(() => {
-  return recipe.value.materials.map(({ options }) =>
-    options
-      .map(({ item, amount }) => {
-        if (!(item in itemsStore.allGearItems || item in itemsStore.materials))
-          return;
-
-        const fullItem =
-          itemsStore.allGearItems[item] || itemsStore.materials[item];
-        const { name, icon } = fullItem;
-        return {
-          id: item,
-          name,
-          icon,
-          amount,
-        };
-      })
-      .filter(({ name }) => name),
-  );
-});
+const materials = computed(() =>
+  resolveMaterials((recipe.value as RecipeDetail).materials, {
+    getItem: (id) => itemsStore.allGearItems[id] ?? itemsStore.materials[id],
+  }),
+);
 
 const wikiLink = computed(() => {
-  const { name, itemRewards } = activityStore.recipe;
+  const { name, itemRewards } = activityStore.recipe as RecipeDetail;
   if (name.toLowerCase() === "upcycle trash") return "Upcycle_Trash";
   return `${Object.keys(itemRewards || {})[0]}#Recipes`;
 });
 
 const rewardCount = computed(() => {
-  const { itemRewards } = recipe.value;
+  const { itemRewards } = recipe.value as RecipeDetail;
   return Object.values(itemRewards)[0];
 });
 </script>
@@ -145,7 +132,7 @@ const rewardCount = computed(() => {
   <details open>
     <summary>Recipe Info</summary>
     <section :class="['recipe-info', borderClass]">
-      <div class="info-section" :key="recipe">
+      <div class="info-section" :key="recipe?.id ?? 'none'">
         <div class="info-row">
           <label>
             <input type="checkbox" v-model="activityStore.useFineMaterials" />
@@ -195,7 +182,7 @@ const rewardCount = computed(() => {
                 ? `
           (${stats.uncappedStepsPerCompletion})`
                 : ''
-            } / ${recipe.workRequired || 1000}`"
+            } / ${recipe?.workRequired || 1000}`"
             :tooltip="`${stats.stepsPerCompletion} steps per action`"
             iconPath="assets/icons/text/general_icons/steps.png"
           />

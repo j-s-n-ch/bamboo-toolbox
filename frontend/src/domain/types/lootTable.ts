@@ -5,11 +5,22 @@ export type LootTableSummary = {
   name: string;
 };
 
+/**
+ * An inline sub-table within a chest loot table.
+ * `weight` is the per-roll probability that this sub-table is triggered.
+ */
+export type ChestSubTable = {
+  id: string;
+  weight: number;
+  type: string;
+  tableRows: LootTableRow[];
+};
+
 export type LootTableDetail = {
   id: string;
   category: string;
   noDropChance: number;
-  subTables: LootTableRef[];
+  subTables: ChestSubTable[];
   tableRows: LootTableRow[];
 }
 

@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { upsertOwnedItems, fetchOwnedItems } from "@/utils/axios/db_routes";
 import {
   getCategorizedItems,
+  getContainerItems,
   getFineMaterials,
   getMaterials,
 } from "@/utils/axios/api_routes";
@@ -54,6 +55,7 @@ export const useItemsStore = defineStore("itemStore", {
     embargoedItems: new Set<string>(),
     changedOwnedItems: {} as Record<string, OwnedItemState>,
     materials: {} as Record<string, ItemDetail>,
+    containers: {} as Record<string, ItemDetail>,
     fineMaterials: {} as Record<string, boolean>,
     isLoaded: false,
   }),
@@ -78,11 +80,13 @@ export const useItemsStore = defineStore("itemStore", {
         { data: categorizedItems },
         ownedItems,
         { data: materials },
+        { data: containers },
         { data: fineMaterials },
       ] = await Promise.all([
         getCategorizedItems(),
         fetchOwnedItems(),
         getMaterials(),
+        getContainerItems(),
         getFineMaterials(),
       ]);
 
@@ -107,6 +111,9 @@ export const useItemsStore = defineStore("itemStore", {
       );
       this.materials = Object.fromEntries(
         materials.map((item) => [item.id, item]),
+      );
+      this.containers = Object.fromEntries(
+        containers.map((item) => [item.id, item]),
       );
       this.fineMaterials = Object.fromEntries(
         fineMaterials.map((id) => [id, true]),

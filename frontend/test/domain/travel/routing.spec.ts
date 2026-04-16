@@ -4,12 +4,12 @@ import {
   stepsPerNode,
   averageStepsPerRoute,
   pathfind,
-} from "@/domain/routing";
+} from "@/domain/travel/routing";
 import {
   defaultRouteStats,
   makeSimpleBuildSegment,
   makeBuildSegmentWithReq,
-} from "../fixtures/routes";
+} from "../../fixtures/routes";
 import type { Requirement } from "@/domain/types/common";
 
 // ---------------------------------------------------------------------------
