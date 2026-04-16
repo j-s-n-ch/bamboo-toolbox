@@ -1,0 +1,322 @@
+{
+  "id": "woodcutting_chest_table",
+  "name": "woodcutting chest table",
+  "category": "chest",
+  "noDropChance": 0,
+  "tableRows": [
+    {
+      "rowItemID": "birch_logs",
+      "name": "Birch logs",
+      "icon": "assets/icons/items/materials/logs/birch_log.png",
+      "isMoney": false,
+      "linearWeightScaling": true,
+      "rowWeight": 11,
+      "rowMinimumAmount": 4,
+      "rowMaximumAmount": 9,
+      "minWeightScale": 0.05,
+      "requirementsBonuses": []
+    },
+    {
+      "rowItemID": "pine_logs",
+      "name": "Pine logs",
+      "icon": "assets/icons/items/materials/logs/pine_log.png",
+      "isMoney": false,
+      "linearWeightScaling": true,
+      "rowWeight": 9,
+      "rowMinimumAmount": 5,
+      "rowMaximumAmount": 14,
+      "minWeightScale": 0.05,
+      "requirementsBonuses": []
+    },
+    {
+      "rowItemID": "spruce_logs",
+      "name": "Spruce logs",
+      "icon": "assets/icons/items/materials/logs/spruce_log.png",
+      "isMoney": false,
+      "linearWeightScaling": true,
+      "rowWeight": 10,
+      "rowMinimumAmount": 5,
+      "rowMaximumAmount": 12,
+      "minWeightScale": 0.05,
+      "requirementsBonuses": []
+    },
+    {
+      "rowItemID": "maple_logs",
+      "name": "Maple logs",
+      "icon": "assets/icons/items/materials/logs/maple_log.png",
+      "isMoney": false,
+      "linearWeightScaling": true,
+      "rowWeight": 8,
+      "rowMinimumAmount": 6,
+      "rowMaximumAmount": 11,
+      "minWeightScale": 0.05,
+      "requirementsBonuses": []
+    },
+    {
+      "rowItemID": "schnitzel",
+      "name": "Schnitzel",
+      "icon": "assets/icons/items/materials/food/schnitzel.png",
+      "isMoney": false,
+      "linearWeightScaling": true,
+      "rowWeight": 2,
+      "rowMinimumAmount": 1,
+      "rowMaximumAmount": 1,
+      "minWeightScale": 0.05,
+      "requirementsBonuses": []
+    },
+    {
+      "rowItemID": "oak_logs",
+      "name": "Oak logs",
+      "icon": "assets/icons/items/materials/logs/oak_log.png",
+      "isMoney": false,
+      "linearWeightScaling": true,
+      "rowWeight": 10,
+      "rowMinimumAmount": 5,
+      "rowMaximumAmount": 10,
+      "minWeightScale": 0.05,
+      "requirementsBonuses": []
+    },
+    {
+      "rowItemID": "woodcutting_memosphere",
+      "name": "Woodcutting memosphere",
+      "icon": "assets/icons/items/consumables/memospheres/memosphere_woodcutting.png",
+      "isMoney": false,
+      "linearWeightScaling": true,
+      "rowWeight": 4,
+      "rowMinimumAmount": 1,
+      "rowMaximumAmount": 2,
+      "minWeightScale": 0.05,
+      "requirementsBonuses": []
+    },
+    {
+      "rowItemID": "sturdy_branch",
+      "name": "Sturdy branch",
+      "icon": "assets/icons/items/materials/misc/sturdy_stick.png",
+      "isMoney": false,
+      "linearWeightScaling": true,
+      "rowWeight": 5,
+      "rowMinimumAmount": 1,
+      "rowMaximumAmount": 1,
+      "minWeightScale": 0.05,
+      "requirementsBonuses": []
+    }
+  ],
+  "subTables": [
+    {
+      "id": "b002192d-321c-4d3a-9205-22e2c2e9b8b2",
+      "weight": 0.2164,
+      "type": "money",
+      "tableRows": [
+        {
+          "rowItemID": null,
+          "name": null,
+          "icon": "assets/icons/items/money.png",
+          "isMoney": true,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 10,
+          "rowMaximumAmount": 100,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        },
+        {
+          "rowItemID": "circular_root_trinket",
+          "name": "Circular root trinket",
+          "icon": "assets/icons/items/materials/misc/circular_root_trinket.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 0.512,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": null
+        }
+      ]
+    },
+    {
+      "id": "839c74f8-9bfc-43a7-bc41-c44866b01803",
+      "weight": 0.2,
+      "type": "common",
+      "tableRows": [
+        {
+          "rowItemID": "lumberjack_sandals",
+          "name": "Lumberjack sandals",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/lumberjack_sandals.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        },
+        {
+          "rowItemID": "lumberjack_pants",
+          "name": "Lumberjack pants",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/lumberjacks_pants.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        }
+      ]
+    },
+    {
+      "id": "fc49471e-9494-41c1-8551-f992379ed7db",
+      "weight": 0.05,
+      "type": "uncommon",
+      "tableRows": [
+        {
+          "rowItemID": "log_basket",
+          "name": "Log basket",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/log_basket.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        },
+        {
+          "rowItemID": "lumberjack_hat",
+          "name": "Lumberjack hat",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/lumberjack_hat.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        },
+        {
+          "rowItemID": "lumberjack_shirt",
+          "name": "Lumberjack shirt",
+          "icon": "assets/icons/items/gear/skill_gear/lumberjacks_shirt.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        }
+      ]
+    },
+    {
+      "id": "c3625473-017f-4b06-9fd5-a570aed2f58a",
+      "weight": 0.025,
+      "type": "rare",
+      "tableRows": [
+        {
+          "rowItemID": "log_splitter",
+          "name": "Log splitter",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/log_splitter.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        },
+        {
+          "rowItemID": "foresters_pants",
+          "name": "Forester's pants",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/foresters_pants.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        }
+      ]
+    },
+    {
+      "id": "82d360e7-73a8-46ff-b14c-b9d505b7088c",
+      "weight": 0.0075,
+      "type": "epic",
+      "tableRows": [
+        {
+          "rowItemID": "heavy_axe_handle",
+          "name": "Heavy axe handle",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/heavy_axe_handle.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        },
+        {
+          "rowItemID": "foresters_hat",
+          "name": "Forester's hat",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/foresters_hat.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        },
+        {
+          "rowItemID": "woodcutting_guidebook",
+          "name": "Woodcutting guidebook",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/woodcutting_guidebook.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        },
+        {
+          "rowItemID": "foresters_flannel_shirt",
+          "name": "Forester's flannel shirt",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/foresters_flannel_shirt.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        }
+      ]
+    },
+    {
+      "id": "c9c85a3c-288c-4603-8055-e9b46191644f",
+      "weight": 0.001,
+      "type": "legendary",
+      "tableRows": [
+        {
+          "rowItemID": "foresters_boots",
+          "name": "Forester's boots",
+          "icon": "assets/icons/items/gear/skill_gear/woodcutting/foresters_boots.png",
+          "isMoney": false,
+          "linearWeightScaling": true,
+          "rowWeight": 10,
+          "rowMinimumAmount": 1,
+          "rowMaximumAmount": 1,
+          "minWeightScale": 0,
+          "requirementsBonuses": []
+        }
+      ]
+    },
+    {
+      "id": "4b7e7967-9294-489d-811f-830aed9c6645",
+      "weight": 0.0001,
+      "type": "ethereal",
+      "tableRows": []
+    }
+  ]
+}
