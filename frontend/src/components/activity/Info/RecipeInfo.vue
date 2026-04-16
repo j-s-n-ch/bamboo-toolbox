@@ -20,6 +20,10 @@ import {
 import { useXpDisplay } from "@/composables/useXpDisplay";
 import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
+import {
+  extractLevelRequirement,
+  resolveMaterials,
+} from "@/domain/recipe/recipeMaterials";
 
 const activityStore = useActivityStore();
 const itemsStore = useItemsStore();
@@ -53,12 +57,9 @@ const stats = computed(() => {
   };
 });
 
-const levelRequirement = computed(() => {
-  const [level] = recipe.value.requirements
-    .filter(({ type }) => type === "skillLevel")
-    .map(({ requirement }) => requirement);
-  return level || { level: 1, skill: "none" };
-});
+const levelRequirement = computed(() =>
+  extractLevelRequirement(recipe.value.requirements),
+);
 
 const borderClass = computed(
   () => `border-${activityStore.recipe?.relatedSkills[0]}`,
@@ -108,26 +109,11 @@ const resultHasCO = computed(() => {
   );
 });
 
-const materials = computed(() => {
-  return recipe.value.materials.map(({ options }) =>
-    options
-      .map(({ item, amount }) => {
-        if (!(item in itemsStore.allGearItems || item in itemsStore.materials))
-          return;
-
-        const fullItem =
-          itemsStore.allGearItems[item] || itemsStore.materials[item];
-        const { name, icon } = fullItem;
-        return {
-          id: item,
-          name,
-          icon,
-          amount,
-        };
-      })
-      .filter(({ name }) => name),
-  );
-});
+const materials = computed(() =>
+  resolveMaterials(recipe.value.materials, {
+    getItem: (id) => itemsStore.allGearItems[id] ?? itemsStore.materials[id],
+  }),
+);
 
 const wikiLink = computed(() => {
   const { name, itemRewards } = activityStore.recipe;

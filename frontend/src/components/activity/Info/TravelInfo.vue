@@ -14,6 +14,7 @@ import {
 } from "@/composables/context/injectShared";
 import { icons } from "@/constants/iconPaths";
 import { n } from "@/utils/number";
+import { calculateRouteStepSummary } from "@/domain/routeStepSummary";
 
 const playerStore = usePlayerStore();
 const routeStore = useRouteStore();
@@ -82,26 +83,9 @@ const segments = computed(() => {
   return route.value?.bestValid.segments;
 });
 
-const totalAverageSteps = computed(() => {
-  return segments.value.reduce((total, { distance, stats }) => {
-    return total + averageStepsPerRoute(distance, stats);
-  }, 0);
-});
-
-const totalMinSteps = computed(() => {
-  return segments.value.reduce((total, { distance, stats }) => {
-    const { doubleAction } = stats;
-    const stepsPerSingleNode = stepsPerNode(distance, stats);
-    const routeMinCompletions = doubleAction > 0 ? 5 : 10;
-    return total + stepsPerSingleNode * routeMinCompletions;
-  }, 0);
-});
-
-const totalMaxSteps = computed(() => {
-  return segments.value.reduce((total, { distance, stats }) => {
-    return total + stepsPerNode(distance, stats) * 10;
-  }, 0);
-});
+const routeStepSummary = computed(() =>
+  calculateRouteStepSummary(segments.value),
+);
 
 const stats = (segment) => {
   const {
@@ -158,15 +142,15 @@ const statsRow = computed(() => {
     items: [
       {
         text: `${getRangeText(
-          [totalMinSteps.value, totalMaxSteps.value],
+          [routeStepSummary.value.totalMin, routeStepSummary.value.totalMax],
           false,
-        )} (~${n(totalAverageSteps.value, 0)})`,
+        )} (~${n(routeStepSummary.value.totalAverage, 0)})`,
         tooltip: `Min steps: ${Math.round(
-          totalMinSteps.value,
+          routeStepSummary.value.totalMin,
         )} (best case with double action)\nMax steps: ${
-          totalMaxSteps.value
+          routeStepSummary.value.totalMax
         } (worst case, no double action)\nAverage steps: ${Math.round(
-          totalAverageSteps.value,
+          routeStepSummary.value.totalAverage,
         )}`,
         iconPath: icons.steps,
       },
