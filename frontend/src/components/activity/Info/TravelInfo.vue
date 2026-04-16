@@ -14,7 +14,7 @@ import {
 } from "@/composables/context/injectShared";
 import { icons } from "@/constants/iconPaths";
 import { n } from "@/utils/number";
-import { calculateRouteStepSummary } from "@/domain/routeStepSummary";
+import { calculateRouteStepSummary } from "@/domain/travel/routeStepSummary";
 
 const playerStore = usePlayerStore();
 const routeStore = useRouteStore();

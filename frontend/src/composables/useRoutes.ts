@@ -12,7 +12,7 @@ import {
   type GraphEdge,
   type PathfindResult,
   type RouteSegmentStats,
-} from "@/domain/routing";
+} from "@/domain/travel/routing";
 
 export type { PathfindResult, RouteSegmentStats };
 

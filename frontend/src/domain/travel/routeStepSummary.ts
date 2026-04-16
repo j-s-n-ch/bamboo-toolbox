@@ -11,7 +11,7 @@
  * - Mutate inputs.
  */
 
-import { stepsPerNode, averageStepsPerRoute } from "@/domain/routing";
+import { stepsPerNode, averageStepsPerRoute } from "@/domain/travel/routing";
 import type { RouteSegmentStats } from "@/domain/types/route";
 
 // ---------------------------------------------------------------------------

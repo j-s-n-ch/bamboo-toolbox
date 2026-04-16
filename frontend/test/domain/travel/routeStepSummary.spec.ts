@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { calculateRouteStepSummary } from "@/domain/routeStepSummary";
-import type { SegmentForSummary } from "@/domain/routeStepSummary";
+import { calculateRouteStepSummary } from "@/domain/travel/routeStepSummary";
+import type { SegmentForSummary } from "@/domain/travel/routeStepSummary";
 import type { RouteSegmentStats } from "@/domain/types/route";
 
 // ---------------------------------------------------------------------------
