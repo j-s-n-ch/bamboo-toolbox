@@ -3,6 +3,7 @@ import {
   computeNewItems,
   computeStepsPerAnyNewItem,
   type NewItemEntry,
+  type ChestDropMap,
 } from "@/domain/drops/stepsPerNewItem";
 import type { DropItemInfo } from "@/domain/lootTables/dropInfo";
 import type { MappedTableRow } from "@/domain/types/lootTable";
@@ -46,6 +47,14 @@ function makeInfo(
   };
 }
 
+function makeChest(
+  chestItemId: string,
+  items: Record<string, DropItemInfo>,
+  icon = "chest.png",
+): ChestDropMap {
+  return { chestItemId, icon, dropInfoMap: items };
+}
+
 const allItems: Record<string, { type: string }> = {
   rusty_sword: { type: "loot" },
   collectible_badge: { type: "collectible" },
@@ -53,13 +62,15 @@ const allItems: Record<string, { type: string }> = {
   bird_nest: { type: "material" },
   blue_dragon_egg: { type: "material" }, // pet egg – identified by table type
   wood_log: { type: "material" },
+  chest_loot_a: { type: "loot" },
+  chest_loot_b: { type: "loot" },
 };
 
 // ---------------------------------------------------------------------------
-// computeNewItems
+// computeNewItems – activity drops
 // ---------------------------------------------------------------------------
 
-describe("computeNewItems", () => {
+describe("computeNewItems - activity drops", () => {
   it("includes loot-type items not in ownedItems", () => {
     const dropMap = { rusty_sword: makeInfo("rusty_sword", 500) };
     const result = computeNewItems(dropMap, [], {}, allItems);
@@ -73,9 +84,7 @@ describe("computeNewItems", () => {
   });
 
   it("includes petEgg table-type items not in ownedItems", () => {
-    const dropMap = {
-      blue_dragon_egg: makeInfo("blue_dragon_egg", 50000, ["petEgg"]),
-    };
+    const dropMap = { blue_dragon_egg: makeInfo("blue_dragon_egg", 50000, ["petEgg"]) };
     const result = computeNewItems(dropMap, [], {}, allItems);
     expect(result.map((i) => i.id)).toContain("blue_dragon_egg");
   });
@@ -86,54 +95,102 @@ describe("computeNewItems", () => {
       bird_nest: makeInfo("bird_nest", 500, ["birdNest"]),
       wood_log: makeInfo("wood_log", 500),
     };
-    const result = computeNewItems(dropMap, [], {}, allItems);
-    expect(result).toHaveLength(0);
+    expect(computeNewItems(dropMap, [], {}, allItems)).toHaveLength(0);
   });
 
   it("excludes items already in ownedItems", () => {
     const dropMap = { rusty_sword: makeInfo("rusty_sword", 500) };
-    const result = computeNewItems(dropMap, [], { rusty_sword: {} }, allItems);
-    expect(result).toHaveLength(0);
+    expect(computeNewItems(dropMap, [], { rusty_sword: {} }, allItems)).toHaveLength(0);
   });
 
   it("excludes pet egg when the pet (without _egg) is owned", () => {
-    const dropMap = {
-      blue_dragon_egg: makeInfo("blue_dragon_egg", 50000, ["petEgg"]),
-    };
-    const result = computeNewItems(dropMap, [], { blue_dragon: {} }, allItems);
-    expect(result).toHaveLength(0);
+    const dropMap = { blue_dragon_egg: makeInfo("blue_dragon_egg", 50000, ["petEgg"]) };
+    expect(computeNewItems(dropMap, [], { blue_dragon: {} }, allItems)).toHaveLength(0);
   });
 
   it("includes pet egg when the pet (without _egg) is not owned", () => {
-    const dropMap = {
-      blue_dragon_egg: makeInfo("blue_dragon_egg", 50000, ["petEgg"]),
-    };
-    const result = computeNewItems(dropMap, [], {}, allItems);
+    const dropMap = { blue_dragon_egg: makeInfo("blue_dragon_egg", 50000, ["petEgg"]) };
+    expect(computeNewItems(dropMap, [], {}, allItems)).toHaveLength(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeNewItems – chest grouping
+// ---------------------------------------------------------------------------
+
+describe("computeNewItems - chest grouping", () => {
+  it("returns one entry per chest that has at least one new item", () => {
+    const chest = makeChest("wood_chest", {
+      chest_loot_a: makeInfo("chest_loot_a", 10000),
+      chest_loot_b: makeInfo("chest_loot_b", 20000),
+    });
+    const result = computeNewItems({}, [chest], {}, allItems);
     expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("wood_chest");
   });
 
-  it("includes loot items from chestInfos when provided", () => {
-    const chestDropMap = {
-      rare_loot: makeInfo("rare_loot", 30000),
-    };
-    const chestAllItems = { ...allItems, rare_loot: { type: "loot" } };
-    const result = computeNewItems({}, [{ dropInfoMap: chestDropMap }], {}, chestAllItems);
-    expect(result.map((i) => i.id)).toContain("rare_loot");
+  it("uses the chest icon as the entry icon", () => {
+    const chest = makeChest("wood_chest", {
+      chest_loot_a: makeInfo("chest_loot_a", 10000),
+    }, "chest_icon.png");
+    const result = computeNewItems({}, [chest], {}, allItems);
+    expect(result[0].icon).toBe("chest_icon.png");
   });
 
-  it("deduplicates items that appear in both dropMap and chestInfos", () => {
+  it("stepsPerItem for the chest entry is the harmonic mean of its new items", () => {
+    // Items: 10000 and 20000 → harmonic mean = 1/(1/10000 + 1/20000) ≈ 6667
+    const chest = makeChest("wood_chest", {
+      chest_loot_a: makeInfo("chest_loot_a", 10000),
+      chest_loot_b: makeInfo("chest_loot_b", 20000),
+    });
+    const result = computeNewItems({}, [chest], {}, allItems);
+    const expected = 1 / (1 / 10000 + 1 / 20000);
+    expect(result[0].stepsPerItem).toBeCloseTo(expected, 1);
+  });
+
+  it("omits a chest when all its items are already owned", () => {
+    const chest = makeChest("wood_chest", {
+      chest_loot_a: makeInfo("chest_loot_a", 10000),
+    });
+    const result = computeNewItems({}, [chest], { chest_loot_a: {} }, allItems);
+    expect(result).toHaveLength(0);
+  });
+
+  it("partially owned chest: only unowned items contribute to the step count", () => {
+    // chest_loot_a is owned; only chest_loot_b (20000 steps) qualifies
+    const chest = makeChest("wood_chest", {
+      chest_loot_a: makeInfo("chest_loot_a", 10000),
+      chest_loot_b: makeInfo("chest_loot_b", 20000),
+    });
+    const result = computeNewItems({}, [chest], { chest_loot_a: {} }, allItems);
+    expect(result).toHaveLength(1);
+    expect(result[0].stepsPerItem).toBeCloseTo(20000, 1);
+  });
+
+  it("returns separate entries for two chests that both have new items", () => {
+    const chest1 = makeChest("chest_a", { chest_loot_a: makeInfo("chest_loot_a", 10000) });
+    const chest2 = makeChest("chest_b", { chest_loot_b: makeInfo("chest_loot_b", 20000) });
+    const result = computeNewItems({}, [chest1, chest2], {}, allItems);
+    expect(result).toHaveLength(2);
+    expect(result.map((r) => r.id)).toContain("chest_a");
+    expect(result.map((r) => r.id)).toContain("chest_b");
+  });
+
+  it("omits chest items of non-qualifying type", () => {
+    // wood_log is type 'material', not 'loot'
+    const chest = makeChest("wood_chest", {
+      wood_log: makeInfo("wood_log", 500),
+    });
+    expect(computeNewItems({}, [chest], {}, allItems)).toHaveLength(0);
+  });
+
+  it("chest and activity drop appear as separate entries (no dedup across them)", () => {
     const dropMap = { rusty_sword: makeInfo("rusty_sword", 500) };
-    const chestDropMap = { rusty_sword: makeInfo("rusty_sword", 1000) };
-    const result = computeNewItems(dropMap, [{ dropInfoMap: chestDropMap }], {}, allItems);
-    const ids = result.map((i) => i.id);
-    expect(ids.filter((id) => id === "rusty_sword")).toHaveLength(1);
-  });
-
-  it("uses the first-seen stepsPerItem when deduplicating", () => {
-    const dropMap = { rusty_sword: makeInfo("rusty_sword", 500) };
-    const chestDropMap = { rusty_sword: makeInfo("rusty_sword", 1000) };
-    const result = computeNewItems(dropMap, [{ dropInfoMap: chestDropMap }], {}, allItems);
-    expect(result[0].stepsPerItem).toBe(500);
+    const chest = makeChest("wood_chest", {
+      chest_loot_a: makeInfo("chest_loot_a", 10000),
+    });
+    const result = computeNewItems(dropMap, [chest], {}, allItems);
+    expect(result).toHaveLength(2);
   });
 });
 
@@ -166,8 +223,7 @@ describe("computeStepsPerAnyNewItem", () => {
       { id: "b", icon: undefined, stepsPerItem: 5000 },
       { id: "c", icon: undefined, stepsPerItem: 10000 },
     ];
-    const combined = computeStepsPerAnyNewItem(items);
-    expect(combined).toBeLessThan(1000);
+    expect(computeStepsPerAnyNewItem(items)).toBeLessThan(1000);
   });
 
   it("is symmetric — order of items does not matter", () => {

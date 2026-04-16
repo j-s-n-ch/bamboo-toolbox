@@ -19,6 +19,8 @@ import type { DropItemInfo } from "@/domain/lootTables/dropInfo";
 
 /** Minimal shape of chest info needed for new-item calculations. */
 export type ChestDropMap = {
+  chestItemId: string;
+  icon: string;
   dropInfoMap: Record<string, DropItemInfo>;
 };
 
@@ -86,22 +88,31 @@ export function computeNewItems(
   ownedItems: Record<string, unknown>,
   allGearItems: Record<string, { type: string }>,
 ): NewItemEntry[] {
-  const candidates: [string, DropItemInfo][] = [
-    ...Object.entries(dropItemInfoMap),
-    ...chestInfos.flatMap(({ dropInfoMap }) => Object.entries(dropInfoMap)),
-  ];
-
-  const seen = new Set<string>();
   const result: NewItemEntry[] = [];
 
-  for (const [id, info] of candidates) {
-    if (seen.has(id)) continue;
-    seen.add(id);
-
+  // Individual new items from the activity drop map.
+  for (const [id, info] of Object.entries(dropItemInfoMap)) {
     if (!isNewItemCandidate(id, info, allGearItems)) continue;
     if (isOwned(id, info, ownedItems)) continue;
-
     result.push({ id, icon: info.icon, stepsPerItem: info.stepsPerItem });
+  }
+
+  // Each chest contributes at most one grouped entry: the chest icon is used
+  // as the display icon, and the step count is the harmonic-mean combined
+  // steps to get any new item from that chest.
+  for (const chest of chestInfos) {
+    const chestNewItems: NewItemEntry[] = [];
+    for (const [id, info] of Object.entries(chest.dropInfoMap)) {
+      if (!isNewItemCandidate(id, info, allGearItems)) continue;
+      if (isOwned(id, info, ownedItems)) continue;
+      chestNewItems.push({ id, icon: info.icon, stepsPerItem: info.stepsPerItem });
+    }
+    if (chestNewItems.length === 0) continue;
+    result.push({
+      id: chest.chestItemId,
+      icon: chest.icon,
+      stepsPerItem: computeStepsPerAnyNewItem(chestNewItems),
+    });
   }
 
   return result;
