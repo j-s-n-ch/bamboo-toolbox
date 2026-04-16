@@ -10,13 +10,14 @@ import { snakeToTitle } from "@/utils/string";
 
 const props = defineProps({
   itemId: String,
+  dropInfo: Object,
 });
 
 const settingsStore = useSettingsStore();
 const { activitySettings } = storeToRefs(settingsStore);
 
 const { dropItemInfoMap } = injectLootTables();
-const item = computed(() => dropItemInfoMap.value[props.itemId]);
+const item = computed(() => props.dropInfo ?? dropItemInfoMap.value[props.itemId]);
 </script>
 
 <template>
