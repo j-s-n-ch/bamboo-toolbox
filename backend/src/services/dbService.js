@@ -64,6 +64,7 @@ const ALLOWED_SETTINGS = new Set([
   "shownDropRate",
   "thousandSeparator",
   "decimalSeparator",
+  "showChestLootTables",
   ...DEBUG_SETTINGS,
 ]);
 

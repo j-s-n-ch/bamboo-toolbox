@@ -70,6 +70,7 @@ export const ACTIVITY_SETTING_KEYS = [
   "shownDropRate",
   "thousandSeparator",
   "decimalSeparator",
+  "showChestLootTables",
 ] as const;
 
 export const DEBUG_SETTING_KEYS = [
@@ -440,6 +441,10 @@ export const useSettingsStore = defineStore("settingsStore", {
           [
             "decimalSeparator",
             makeDisplaySetting("Decimal separator", decimalSeparators),
+          ],
+          [
+            "showChestLootTables",
+            makeDebugSetting("Show chest loot tables"),
           ],
         ]),
 
