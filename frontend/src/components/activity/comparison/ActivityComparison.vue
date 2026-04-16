@@ -4,6 +4,7 @@ import { useActivityStore } from "@/store/activity";
 import ComparisonTableShell from "./table/ComparisonTableShell.vue";
 import EmitLocationBubble from "@/components/common/EmitLocationBubble.vue";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
+import { useComparisonRows } from "@/composables/useComparisonRows";
 import { n } from "@/utils/number";
 import ComparisonValueRow from "./table/ComparisonValueRow.vue";
 import EditableComparisonRow from "./table/EditableComparisonRow.vue";
@@ -34,49 +35,31 @@ const borderClass = computed(
 const sm1 = useSkillModifiers(props.gs1Ctx);
 const sm2 = useSkillModifiers(props.gs2Ctx);
 
-const tableRows = computed(() => {
-  const getBothValues = (key, isPercent = false, negative = false) => {
-    const multi = isPercent ? 100 : 1;
-    const v1 = sm1[key].value * multi;
-    const v2 = sm2[key].value * multi;
+const basicRows = useComparisonRows(sm1, sm2, [
+  {
+    title: "Work Efficiency",
+    key: "workEfficiency",
+    isPercent: true,
+    negative: true,
+  },
+  { title: "Steps per action", key: "stepsPerAction" },
+  { title: "Steps per reward roll", key: "stepsPerRewardRoll" },
+]);
 
-    return {
-      left: `${n(v1, 2)}${isPercent ? "%" : ""}`,
-      right: `${n(v2, 2)}${isPercent ? "%" : ""}`,
-      comp: negative ? v1 - v2 : v2 - v1,
-    };
-  };
-
-  const basicStatsRows = [
-    {
-      title: "Work Efficiency",
-      ...getBothValues("workEfficiency", true, true),
-    },
-    {
-      title: "Steps per action",
-      ...getBothValues("stepsPerAction"),
-    },
-    {
-      title: "Steps per reward roll",
-      ...getBothValues("stepsPerRewardRoll"),
-    },
-  ];
-
-  const xpPerStepRows = sm1["xpPerStep"].value.map(({ skill, value }, idx) => {
+const xpPerStepRows = computed(() =>
+  sm1.xpPerStep.value.map(({ skill, value }, idx) => {
     const v1 = value;
-    const v2 = sm2["xpPerStep"].value[idx].value;
-    const comp = v1 - v2;
-
+    const v2 = sm2.xpPerStep.value[idx].value;
     return {
       title: `${skill !== "xp" ? skill : "total"} xp`,
       left: n(v1, 2),
       right: n(v2, 2),
-      comp,
+      comp: v1 - v2,
     };
-  });
+  }),
+);
 
-  return [...basicStatsRows, ...xpPerStepRows];
-});
+const tableRows = computed(() => [...basicRows.value, ...xpPerStepRows.value]);
 
 const updateLocation = ({ location, index, gearSetIndex }) => {
   if (gearSetIndex === 0) {

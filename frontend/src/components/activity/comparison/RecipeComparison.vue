@@ -5,6 +5,7 @@ import { useItemsStore } from "@/store/items";
 import ComparisonTableShell from "./table/ComparisonTableShell.vue";
 import EmitLocationBubble from "@/components/common/EmitLocationBubble.vue";
 import { useSkillModifiers } from "@/composables/useSkillModifiers";
+import { useComparisonRows } from "@/composables/useComparisonRows";
 import { useFineMaterials } from "@/composables/useFineMaterialsCalculations";
 import { n } from "@/utils/number";
 import EmitServiceBubble from "@/components/common/EmitServiceBubble.vue";
@@ -81,62 +82,40 @@ const resultHasCO = computed(() => {
   );
 });
 
-const tableRows = computed(() => {
-  const getBothValues = (
-    key,
-    isPercent = false,
-    negative = false,
-    modifyValue = (item) => item,
-  ) => {
-    const multi = isPercent ? 100 : 1;
-    const v1 = sm1[key].value * multi;
-    const v2 = sm2[key].value * multi;
-
-    return {
-      left: `${n(modifyValue(v1), 2)}${isPercent ? "%" : ""}`,
-      right: `${n(modifyValue(v2), 2)}${isPercent ? "%" : ""}`,
-      comp: negative ? v1 - v2 : v2 - v1,
-    };
-  };
-
-  const basicStatsRows = [
+const basicRows = useComparisonRows(
+  sm1,
+  sm2,
+  computed(() => [
     {
       title: "Work Efficiency",
-      ...getBothValues("workEfficiency", true, true),
+      key: "workEfficiency",
+      isPercent: true,
+      negative: true,
     },
-    {
-      title: "Steps per action",
-      ...getBothValues("stepsPerAction"),
-    },
+    { title: "Steps per action", key: "stepsPerAction" },
     {
       title: "Steps per item",
-      ...getBothValues(
-        "stepsPerRewardRoll",
-        false,
-        false,
-        (item) => item / rewardCount.value,
-      ),
+      key: "stepsPerRewardRoll",
+      modifyValue: (v) => v / rewardCount.value,
     },
-    {
-      title: "Crafts per material",
-      ...getBothValues("craftsPerMaterial", false, true),
-    },
-  ];
+    { title: "Crafts per material", key: "craftsPerMaterial", negative: true },
+  ]),
+);
 
+const xpPerStepRows = computed(() => {
   const sm1XpBySkill = Object.fromEntries(
-    sm1["xpPerStep"].value.map((r) => [r.skill, r.value]),
+    sm1.xpPerStep.value.map((r) => [r.skill, r.value]),
   );
   const sm2XpBySkill = Object.fromEntries(
-    sm2["xpPerStep"].value.map((r) => [r.skill, r.value]),
+    sm2.xpPerStep.value.map((r) => [r.skill, r.value]),
   );
   const allXpSkills = [
     ...new Set([
-      ...sm1["xpPerStep"].value.map((r) => r.skill),
-      ...sm2["xpPerStep"].value.map((r) => r.skill),
+      ...sm1.xpPerStep.value.map((r) => r.skill),
+      ...sm2.xpPerStep.value.map((r) => r.skill),
     ]),
   ];
-
-  const xpPerStepRows = allXpSkills.map((skill) => {
+  return allXpSkills.map((skill) => {
     const v1 = (sm1XpBySkill[skill] ?? 0) * xpRewardsMultiplier.value;
     const v2 = (sm2XpBySkill[skill] ?? 0) * xpRewardsMultiplier.value;
     return {
@@ -146,9 +125,9 @@ const tableRows = computed(() => {
       comp: v1 - v2,
     };
   });
-
-  return [...basicStatsRows, ...xpPerStepRows];
 });
+
+const tableRows = computed(() => [...basicRows.value, ...xpPerStepRows.value]);
 
 const updateLocation = ({ location, index, gearSetIndex }) => {
   if (gearSetIndex === 0) {
