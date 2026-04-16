@@ -31,6 +31,7 @@ import type { LevelBonusAttr } from "@/domain/levelBonus";
  * All three sources (gear, level-bonus, service) satisfy this interface.
  */
 export type EffectiveAttrEntry = {
+  id: string;
   requirements: Requirement[];
   stats: Stat[];
   customText: string;

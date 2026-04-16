@@ -1,37 +1,21 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import { injectEffectiveAttrs } from "@/composables/context/injectShared";
 import WsIcon from "@/components/primitives/WsIcon.vue";
 import { n } from "@/utils/number";
+import { buildStatSourceList } from "@/domain/stats/statSourceList";
+import type { StatDefinition } from "@/domain/types/stat";
 
-const props = defineProps({
-  stat: {
-    type: Object,
-    required: true,
-  },
-  isPercent: Boolean,
-});
+const props = defineProps<{
+  stat: StatDefinition;
+  isPercent?: boolean;
+}>();
 
 const { effectiveAttrs, allAttrs } = injectEffectiveAttrs();
 
 const statList = computed(() => {
   const effectiveAttrIds = effectiveAttrs.value.map((attr) => attr.id);
-
-  return allAttrs.value
-    .filter((attr) => {
-      const { stat: statId, isPercent: percent } = attr.stats[0];
-      return statId === props.stat.id && percent === props.isPercent;
-    })
-    .flatMap(({ stats, item, id }) => {
-      return { stat: stats[0], item, effective: effectiveAttrIds.includes(id) };
-    })
-    .sort((a, b) => {
-      if (a.effective !== b.effective) {
-        return a.effective ? -1 : 1;
-      }
-
-      return b.stat.value - a.stat.value;
-    });
+  return buildStatSourceList(allAttrs.value, effectiveAttrIds, props.stat.id, props.isPercent ?? false);
 });
 </script>
 

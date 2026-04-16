@@ -55,7 +55,7 @@ const {
   ? useSkillModifiers(props.context as unknown as SkillModifiersContext)
   : injectSkillModifiers();
 const { useFine, fineMode } = props.context
-  ? useFineMaterials(props.context as FineMaterialsContext)
+  ? useFineMaterials(props.context as unknown as FineMaterialsContext)
   : injectFineMaterials();
 
 // Build recipe params once so both the total and the breakdown reuse them.
