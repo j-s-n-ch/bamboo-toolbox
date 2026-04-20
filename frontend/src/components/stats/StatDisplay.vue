@@ -7,6 +7,7 @@ import StatSourceDisplay from "@/components/stats/StatSourceDisplay.vue";
 import {
   sumStatValues,
   computeApplicableTotal,
+  roundStatValue,
 } from "@/domain/stats/statAggregation";
 import type { StatDefinition } from "@/domain/types/stat";
 
@@ -28,8 +29,7 @@ const filterStat = (attr: { stats: Array<{ stat: string; isPercent: boolean }> }
 const sumTotal = computed(() => {
   const statAttrs = allAttrs.value.filter(filterStat);
   const total = sumStatValues(statAttrs.map((attr) => attr.stats[0]));
-  const roundedValue =
-    Math.round(props.isPercent ? 10000 * total : 100 * total) / 100;
+  const roundedValue = roundStatValue(total, props.isPercent ?? false);
   const value = roundedValue <= 0 ? roundedValue : `+${roundedValue}`;
   return props.isPercent ? `${value}%` : value;
 });
@@ -41,8 +41,7 @@ const sumApplicable = computed(() => {
     props.isPercent,
   );
   const isNegative = Math.abs(negative) > Math.abs(positive);
-  const roundedVal =
-    Math.round(props.isPercent ? 10000 * sum : 100 * sum) / 100;
+  const roundedVal = roundStatValue(sum, props.isPercent ?? false);
   const signedVal = roundedVal <= 0 ? roundedVal : `+${roundedVal}`;
   const value = props.isPercent ? `${signedVal}%` : signedVal;
   return { value, isNegative };

@@ -3,13 +3,12 @@ import { computed } from "vue";
 import ComparisonTableShell from "./table/ComparisonTableShell.vue";
 import WsIcon from "@/components/primitives/WsIcon.vue";
 import { useLootTables, type LootTablesContext } from "@/composables/useLootTables";
-import type { DropItemInfo } from "@/domain/lootTables/dropInfo";
-import { icons } from "@/constants/iconPaths";
 import { snakeToTitle } from "@/utils/string";
 import AggregateDrops from "../drops/aggregate/AggregateDrops.vue";
 import DropStepColumn from "./table/DropStepColumn.vue";
-import { partitionDropKeys } from "@/domain/comparison/dropsComparison";
+import { compareDrops, type DropStepValues } from "@/domain/comparison/dropsComparison";
 import type { BaseContext } from "@/composables/context/useBaseContext";
+import { icons } from "@/constants/iconPaths";
 
 const props = defineProps<{
   gs1Ctx: BaseContext;
@@ -19,67 +18,18 @@ const props = defineProps<{
 const { dropItemInfoMap: drops1 } = useLootTables(props.gs1Ctx as unknown as LootTablesContext);
 const { dropItemInfoMap: drops2 } = useLootTables(props.gs2Ctx as unknown as LootTablesContext);
 
-const dropsMap = computed(() => {
-  const A = drops1.value;
-  const B = drops2.value;
+const toData = (v: DropStepValues | null) =>
+  v ? { item: v.stepsPerItem, normal: v.stepsPerNormal, fine: v.stepsPerFine, rare: v.stepsPerRare } : {};
 
-  const { both, onlyA, onlyB } = partitionDropKeys(A, B);
-
-  const getItemInfo = (source: Record<string, DropItemInfo>, key: string) => {
-    const info = source[key];
-    return {
-      name: snakeToTitle(info.id),
-      icon: info.icon,
-      item: info.stepsPerItem,
-      normal: info.stepsPerNormal,
-      fine: info.stepsPerFine,
-      rare: info.stepsPerRare,
-    };
-  };
-
-  const bothItems = both.map((key) => {
-    const item = getItemInfo(A, key);
-    const item2 = getItemInfo(B, key);
-
-    const comp = item.item - item2.item;
-    const normalComp = item.normal - item2.normal;
-    const fineComp = item.fine - item2.fine;
-    const rareComp = item.rare - item2.rare;
-
-    return {
-      item: {
-        name: item.name,
-        icon: item.icon,
-        comp,
-        normalComp,
-        fineComp,
-        rareComp,
-      },
-      g1: item,
-      g2: item2,
-    };
-  });
-
-  const aItems = onlyA.map((key) => {
-    const item = getItemInfo(A, key);
-    return {
-      item,
-      g1: item,
-      g2: {},
-    };
-  });
-
-  const bItems = onlyB.map((key) => {
-    const item = getItemInfo(B, key);
-    return {
-      item,
-      g1: {},
-      g2: item,
-    };
-  });
-
-  return [...bothItems, ...aItems, ...bItems];
-});
+const dropsMap = computed(() =>
+  compareDrops(drops1.value, drops2.value).map(
+    ({ id, icon, comp, normalComp, fineComp, rareComp, g1, g2 }) => ({
+      item: { name: snakeToTitle(id), icon, comp, normalComp, fineComp, rareComp },
+      g1: toData(g1),
+      g2: toData(g2),
+    }),
+  ),
+);
 </script>
 
 <template>

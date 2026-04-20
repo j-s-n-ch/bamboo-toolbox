@@ -16,7 +16,12 @@ import type { SkillModifiersContext } from "@/composables/useSkillModifiers";
 import type { RequirementContext } from "@/composables/useRequirements";
 import { icons } from "@/constants/iconPaths";
 import { n } from "@/utils/number";
-import { calculateRouteStepSummary } from "@/domain/travel/routeStepSummary";
+import {
+  calculateRouteStepSummary,
+  aggregateRouteStats,
+  mapSegmentRequirements,
+} from "@/domain/travel/routeStepSummary";
+import type { Requirement } from "@/domain/types/common";
 import type { LocationSummary } from "@/domain/types/location";
 
 const playerStore = usePlayerStore();
@@ -127,12 +132,7 @@ const stats = (segment: RouteSegment) => {
 };
 
 const statsRow = computed(() => {
-  const segmentStats = segments.value.map(({ stats }) => stats);
-  const segmentWE = segmentStats.map(({ workEfficiency }) => workEfficiency);
-  const weRange = [Math.min(...segmentWE), Math.max(...segmentWE)];
-
-  const segmentsDA = segmentStats.map(({ doubleAction }) => doubleAction);
-  const daRange = [Math.min(...segmentsDA), Math.max(...segmentsDA)];
+  const { weRange, daRange } = aggregateRouteStats(segments.value);
 
   const getRangeText = (range: number[], isPercent = true) => {
     const multi = isPercent ? 100 : 1;
@@ -174,21 +174,13 @@ const statsRow = computed(() => {
 });
 
 const reqs = computed(() => {
-  const segmentRequirements = segments.value.map(
-    ({ requirements, context }) => {
-      return { requirements, context };
-    },
+  const mapped = mapSegmentRequirements(
+    segments.value.map(({ requirements, context }) => ({ requirements, context })),
+    (req, ctx) => checkRequirements([req as Requirement], ctx as RequirementContext),
   );
-  const requirementsActive = segmentRequirements.map(
-    ({ requirements, context }) =>
-      requirements.map((reqs) => checkRequirements([reqs], context as RequirementContext)),
+  return mapped.map(({ requirements, active }) =>
+    requirements.length ? mapRequirementsText(requirements, active) : [],
   );
-
-  return segmentRequirements.map(({ requirements }, idx) => {
-    if (requirements.length) {
-      return mapRequirementsText(requirements, requirementsActive[idx]);
-    } else return [];
-  });
 });
 
 const missingRequirements = computed(() => {

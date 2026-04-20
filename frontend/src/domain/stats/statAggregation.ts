@@ -40,6 +40,21 @@ export function sumStatValues(stats: { value: number }[]): number {
 }
 
 /**
+ * Rounds a stat value to 2 decimal places for display.
+ *
+ * Percent values are stored as 0–1 (e.g. 0.05 = 5%). Multiplying by 10 000
+ * before rounding and dividing by 100 after gives 2 dp in percentage units.
+ * Flat values are already in display units; multiply by 100 / divide by 100
+ * achieves the same 2-dp rounding.
+ *
+ * @param value      Raw stat value.
+ * @param isPercent  When true the value is in 0–1 range and needs ×100 scaling.
+ */
+export function roundStatValue(value: number, isPercent: boolean): number {
+  return Math.round(isPercent ? 10000 * value : 100 * value) / 100;
+}
+
+/**
  * Returns the stat bucket (sum / positive / negative) for a given stat type
  * and percent flag from a `totalsByStat` map.
  *

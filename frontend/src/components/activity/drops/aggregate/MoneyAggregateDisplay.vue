@@ -15,7 +15,7 @@ import { useSkillModifiers, type SkillModifiersContext } from "@/composables/use
 import { useFineMaterials, type FineMaterialsContext } from "@/composables/useFineMaterialsCalculations";
 import type { RecipeDetail } from "@/domain/types/recipe";
 import { getOutcomeOdds } from "@/domain/quality/qualityOutcomeOdds";
-import { getLevelRequirementsMap } from "@/domain/requirements/requirementUtils";
+import { getRecipeLevel } from "@/domain/recipe/recipeUtils";
 import {
   computeGoldTotal,
   computeRecipeValue,
@@ -54,9 +54,11 @@ const recipeParams = computed((): RecipeValueParams | undefined => {
 
   const { materials, itemRewards } = ctx.source.value as RecipeDetail;
   const recipe = ctx.recipe.value as RecipeDetail;
-  const levelMap = getLevelRequirementsMap(recipe.requirements);
-  const level = Object.values(levelMap)[0];
-  const craftingOdds = getOutcomeOdds(level, qualityOutcome.value, fineMode.value);
+  const craftingOdds = getOutcomeOdds(
+    getRecipeLevel(recipe.requirements),
+    qualityOutcome.value,
+    fineMode.value,
+  );
 
   return {
     materials,
