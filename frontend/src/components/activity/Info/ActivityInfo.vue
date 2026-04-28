@@ -21,15 +21,14 @@ import { isEmpty } from "@/utils/isEmpty";
 import { n } from "@/utils/number";
 import { icons } from "@/constants/iconPaths";
 import { resolveActivityInputs } from "@/domain/activity/activityInputs";
+import {
+  roundToQuarterPercent,
+  computeStepsPerRep,
+  classifyRequirements,
+  TRAVEL_ACTIVITY_ID,
+  type FactionActivityReward,
+} from "@/domain/activity/activityInfoSections";
 import type { ActivityDetail } from "@/domain/types/activity";
-import type { Requirement } from "@/domain/types/common";
-
-// Shape of a faction-based activity reward
-interface FactionActivityReward {
-  runtimeType: string;
-  faction: string;
-  amount: number;
-}
 
 interface SectionRow {
   label: string;
@@ -72,8 +71,9 @@ const sections = computed(() => {
   const { id, workRequired, requirements, rewards, options, abilities } =
     activity;
   const levelRequirementsMap = getLevelRequirementsMap(requirements);
+  const { other: otherReqs } = classifyRequirements(requirements);
 
-  const isTravel = id === "travelling";
+  const isTravel = id === TRAVEL_ACTIVITY_ID;
   const showRewards = rewards && rewards.length > 0;
 
   const inputs = resolveActivityInputs(options, {
@@ -121,9 +121,7 @@ const sections = computed(() => {
             uncappedWorkEfficiency.value * 100,
           )}%`,
           `Max Work Efficiency: ${n(maxWorkEfficiency.value * 100, 0)}%`,
-          `Max benefit at: ${
-            Math.ceil(effectiveMaxWorkEfficiency.value * 400) / 4
-          }%`,
+          `Max benefit at: ${roundToQuarterPercent(effectiveMaxWorkEfficiency.value)}%`,
         ].join("\n"),
         iconPath: icons.WE,
         borderClass:
@@ -150,7 +148,7 @@ const sections = computed(() => {
   if (showRewards) {
     const factionReward = rewards[0] as unknown as FactionActivityReward;
     const rewardsFaction = playerStore.factionsMap[factionReward.faction];
-    const stepsPerRep = n((1 / factionReward.amount) * stepsPerAction.value, 0);
+    const stepsPerRep = n(computeStepsPerRep(factionReward.amount, stepsPerAction.value), 0);
 
     statsRow.items.push({
       text: `+${factionReward.amount} / ${stepsPerRep}`,
@@ -170,10 +168,6 @@ const sections = computed(() => {
     })),
     itemProps: (item) => ({ ...item }),
   };
-
-  const otherReqs: Requirement[] = (requirements ?? []).filter(
-    ({ type }) => type !== "skillLevel",
-  );
 
   const requirementsRow: SectionRow = {
     label: "Requirements",

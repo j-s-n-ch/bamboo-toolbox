@@ -5,6 +5,7 @@ import ComparisonTableShell from "./table/ComparisonTableShell.vue";
 import EmitLocationBubble from "@/components/common/EmitLocationBubble.vue";
 import { useSkillModifiers, type SkillModifiersContext } from "@/composables/useSkillModifiers";
 import { useComparisonRows } from "@/composables/useComparisonRows";
+import { buildXpComparisonRows } from "@/domain/comparison/comparisonRows";
 import { n } from "@/utils/number";
 import type { ComputedRef } from "vue";
 import type { BaseContext } from "@/composables/context/useBaseContext";
@@ -59,16 +60,14 @@ const basicRows = useComparisonRows(sm1 as unknown as Record<string, ComputedRef
 ]);
 
 const xpPerStepRows = computed(() =>
-  sm1.xpPerStep.value.map(({ skill, value }, idx) => {
-    const v1 = value;
-    const v2 = sm2.xpPerStep.value[idx].value;
-    return {
-      title: `${skill !== "xp" ? skill : "total"} xp`,
+  buildXpComparisonRows(sm1.xpPerStep.value, sm2.xpPerStep.value).map(
+    ({ title, v1, v2, comp }) => ({
+      title,
       left: n(v1, 2),
       right: n(v2, 2),
-      comp: v1 - v2,
-    };
-  }),
+      comp,
+    }),
+  ),
 );
 
 const tableRows = computed(() => [...basicRows.value, ...xpPerStepRows.value]);

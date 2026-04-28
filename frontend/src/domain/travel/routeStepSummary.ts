@@ -1,9 +1,12 @@
 /**
  * Purpose:
- * Pure function for computing total route step summary from a list of segments.
+ * Pure functions for computing total route step summary and stats ranges
+ * from a list of route segments.
  *
  * Responsibilities:
  * - Sum totalAverage, totalMin, totalMax steps across all route segments.
+ * - Compute WE and DA ranges across segments.
+ * - Map per-segment requirements to active/inactive display data.
  *
  * Does NOT:
  * - Import any Vue / reactive APIs.
@@ -13,6 +16,7 @@
 
 import { stepsPerNode, averageStepsPerRoute } from "@/domain/travel/routing";
 import type { RouteSegmentStats } from "@/domain/types/route";
+import type { Requirement } from "@/domain/types/common";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -22,6 +26,26 @@ import type { RouteSegmentStats } from "@/domain/types/route";
 export type SegmentForSummary = {
   distance: number;
   stats: RouteSegmentStats;
+};
+
+/** WE and DA ranges aggregated across all route segments. */
+export type RouteStatsRanges = {
+  /** [min, max] work efficiency across all segments (0–1 scale). */
+  weRange: [number, number];
+  /** [min, max] double-action probability across all segments (0–1 scale). */
+  daRange: [number, number];
+};
+
+/** A segment's requirement data ready for requirement-check processing. */
+export type SegmentWithRequirements = {
+  requirements: Requirement[];
+  context: unknown;
+};
+
+/** Per-segment requirements mapped to active/inactive flags. */
+export type MappedSegmentRequirements = {
+  requirements: Requirement[];
+  active: boolean[];
 };
 
 /** Computed step totals across all segments of a route. */
@@ -37,6 +61,40 @@ export type RouteStepSummary = {
 // ---------------------------------------------------------------------------
 // Function
 // ---------------------------------------------------------------------------
+
+/**
+ * Computes WE and DA ranges across all route segments.
+ *
+ * Returns `[0, 0]` ranges when `segments` is empty.
+ */
+export function aggregateRouteStats(
+  segments: SegmentForSummary[],
+): RouteStatsRanges {
+  if (segments.length === 0) return { weRange: [0, 0], daRange: [0, 0] };
+  const weValues = segments.map(({ stats }) => stats.workEfficiency);
+  const daValues = segments.map(({ stats }) => stats.doubleAction);
+  return {
+    weRange: [Math.min(...weValues), Math.max(...weValues)],
+    daRange: [Math.min(...daValues), Math.max(...daValues)],
+  };
+}
+
+/**
+ * Maps per-segment requirements to active/inactive flags using the provided
+ * check function.
+ *
+ * @param segments  Segments with their requirement lists and route contexts.
+ * @param checkFn   Returns true when a single requirement is satisfied.
+ */
+export function mapSegmentRequirements(
+  segments: SegmentWithRequirements[],
+  checkFn: (req: Requirement, context: unknown) => boolean,
+): MappedSegmentRequirements[] {
+  return segments.map(({ requirements, context }) => ({
+    requirements,
+    active: requirements.map((req) => checkFn(req, context)),
+  }));
+}
 
 /**
  * Computes aggregated step totals across all route segments.

@@ -1,6 +1,10 @@
-import { describe, it, expect } from "vitest";
-import { calculateRouteStepSummary } from "@/domain/travel/routeStepSummary";
-import type { SegmentForSummary } from "@/domain/travel/routeStepSummary";
+import { describe, it, expect, vi } from "vitest";
+import {
+  calculateRouteStepSummary,
+  aggregateRouteStats,
+  mapSegmentRequirements,
+} from "@/domain/travel/routeStepSummary";
+import type { SegmentForSummary, SegmentWithRequirements } from "@/domain/travel/routeStepSummary";
 import type { RouteSegmentStats } from "@/domain/types/route";
 
 // ---------------------------------------------------------------------------
@@ -139,6 +143,77 @@ describe("calculateRouteStepSummary — multiple segments", () => {
     ]);
     expect(result.totalMin).toBe(150);  // 100 + 50
     expect(result.totalMax).toBe(200);  // 100 + 100
+  });
+});
+
+// ---------------------------------------------------------------------------
+// aggregateRouteStats
+// ---------------------------------------------------------------------------
+
+describe("aggregateRouteStats", () => {
+  it("returns [0,0] ranges for empty segments", () => {
+    expect(aggregateRouteStats([])).toEqual({ weRange: [0, 0], daRange: [0, 0] });
+  });
+
+  it("returns identical min/max for a single segment", () => {
+    const result = aggregateRouteStats([makeSegment(100, { workEfficiency: 0.4, doubleAction: 0.2 })]);
+    expect(result.weRange).toEqual([0.4, 0.4]);
+    expect(result.daRange).toEqual([0.2, 0.2]);
+  });
+
+  it("computes correct min and max across multiple segments", () => {
+    const result = aggregateRouteStats([
+      makeSegment(100, { workEfficiency: 0.1, doubleAction: 0.5 }),
+      makeSegment(100, { workEfficiency: 0.6, doubleAction: 0.1 }),
+      makeSegment(100, { workEfficiency: 0.3, doubleAction: 0.8 }),
+    ]);
+    expect(result.weRange).toEqual([0.1, 0.6]);
+    expect(result.daRange).toEqual([0.1, 0.8]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// mapSegmentRequirements
+// ---------------------------------------------------------------------------
+
+describe("mapSegmentRequirements", () => {
+  const fakeReq = (id: string) => ({ type: "level", id } as unknown as import("@/domain/types/common").Requirement);
+
+  it("returns empty active arrays for segments with no requirements", () => {
+    const segs: SegmentWithRequirements[] = [{ requirements: [], context: {} }];
+    const result = mapSegmentRequirements(segs, vi.fn());
+    expect(result).toEqual([{ requirements: [], active: [] }]);
+  });
+
+  it("calls checkFn once per requirement with the segment context", () => {
+    const checkFn = vi.fn().mockReturnValue(true);
+    const ctx = { skills: {} };
+    const req = fakeReq("agility");
+    const segs: SegmentWithRequirements[] = [{ requirements: [req], context: ctx }];
+    mapSegmentRequirements(segs, checkFn);
+    expect(checkFn).toHaveBeenCalledWith(req, ctx);
+  });
+
+  it("maps check results to active flags", () => {
+    const reqA = fakeReq("a");
+    const reqB = fakeReq("b");
+    const checkFn = vi.fn().mockImplementation((req) => req.id === "a");
+    const segs: SegmentWithRequirements[] = [
+      { requirements: [reqA, reqB], context: {} },
+    ];
+    const result = mapSegmentRequirements(segs, checkFn);
+    expect(result[0].active).toEqual([true, false]);
+  });
+
+  it("handles multiple segments independently", () => {
+    const checkFn = vi.fn().mockReturnValueOnce(true).mockReturnValueOnce(false);
+    const segs: SegmentWithRequirements[] = [
+      { requirements: [fakeReq("x")], context: {} },
+      { requirements: [fakeReq("y")], context: {} },
+    ];
+    const result = mapSegmentRequirements(segs, checkFn);
+    expect(result[0].active).toEqual([true]);
+    expect(result[1].active).toEqual([false]);
   });
 });
 

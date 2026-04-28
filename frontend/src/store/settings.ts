@@ -93,7 +93,7 @@ export const DEBUG_SETTING_KEYS = [
 // ---------------------------------------------------------------------------
 
 /** A plain boolean toggle (checkbox only, no display dropdown). */
-function makeBoolSetting(
+function makeCheckboxSetting(
   label: string,
   value: boolean,
   display = 0,
@@ -114,9 +114,9 @@ function makeDisplaySetting(
   return { label, display, displayOptions, value, showEnable: false };
 }
 
-/** A debug-category toggle: disabled by default, display column hidden. */
-function makeDebugSetting(label: string): Setting<boolean> {
-  return { label, display: 0, showDisplay: false, value: false };
+/** A boolean toggle: disabled by default, display column hidden. */
+function makeBoolSetting(label: string, value = false): Setting<boolean> {
+  return { label, display: 0, showDisplay: false, value };
 }
 
 // ---------------------------------------------------------------------------
@@ -374,22 +374,22 @@ export const useSettingsStore = defineStore("settingsStore", {
     defaultSettingsData(): Record<SettingsGroupName, SettingsRecord> {
       return {
         gearSettings: Object.fromEntries([
-          ["showOwned", makeBoolSetting("Show only owned items", true, 1)],
+          ["showOwned", makeCheckboxSetting("Show only owned items", true, 1)],
           [
             "showUseful",
-            makeBoolSetting("Show items with applicable stats", true, 1),
+            makeCheckboxSetting("Show items with applicable stats", true, 1),
           ],
           [
             "openStatRequirements",
-            makeDebugSetting("Open stat requirements by default"),
+            makeBoolSetting("Open stat requirements by default"),
           ],
           [
             "showUnmetRequirements",
-            makeDebugSetting("Show items with unmet requirements"),
+            makeBoolSetting("Show items with unmet requirements"),
           ],
           [
             "hideInventoryAttr",
-            makeDebugSetting("Hide items with only inventory space"),
+            makeBoolSetting("Hide items with only inventory space"),
           ],
           [
             "undoRedo",
@@ -421,14 +421,14 @@ export const useSettingsStore = defineStore("settingsStore", {
         ]),
 
         activitySettings: Object.fromEntries([
-          ["showCombined", makeBoolSetting("Show combined drops", true, 1)],
+          ["showCombined", makeCheckboxSetting("Show combined drops", true, 1)],
           [
             "hideOwnedCollectibles",
-            makeBoolSetting("Hide owned collectibles", true, 1),
+            makeCheckboxSetting("Hide owned collectibles", true, 1),
           ],
           [
             "hideUnmetLevelActivities",
-            makeDebugSetting("Hide activities with unmet level requirements"),
+            makeBoolSetting("Hide activities with unmet level requirements"),
           ],
           [
             "shownDropRate",
@@ -444,7 +444,7 @@ export const useSettingsStore = defineStore("settingsStore", {
           ],
           [
             "showChestLootTables",
-            makeDebugSetting("Show chest loot tables"),
+            makeBoolSetting("Show chest loot tables", true),
           ],
         ]),
 
@@ -464,7 +464,7 @@ export const useSettingsStore = defineStore("settingsStore", {
               ["debugURL", "URL encoding & decoding"],
               ["debugOptimiser", "Optimiser operations"],
             ] as [string, string][]
-          ).map(([key, label]) => [key, makeDebugSetting(label)]),
+          ).map(([key, label]) => [key, makeBoolSetting(label)]),
         ),
       };
     },

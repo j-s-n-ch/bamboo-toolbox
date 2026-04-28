@@ -9,6 +9,19 @@
  * - Mutate inputs.
  */
 
+import type { QualityOutcomeResult } from "@/domain/quality/qualityOutcomeOdds";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export type EnrichedQualityOutcome = QualityOutcomeResult & {
+  /** Probability of at least one success across `crafts` attempts. */
+  odds1: number;
+  /** Expected number of successes across `crafts` attempts. */
+  avg: number;
+};
+
 // ---------------------------------------------------------------------------
 // Functions
 // ---------------------------------------------------------------------------
@@ -24,4 +37,21 @@
  */
 export function chanceOfAtLeastOne(p: number, n: number): number {
   return 1 - (1 - p) ** n;
+}
+
+/**
+ * Adds per-N-crafts statistics to each quality outcome entry.
+ *
+ * @param odds    Base quality outcome array from `getOutcomeOdds`.
+ * @param crafts  Number of crafting attempts to simulate.
+ */
+export function enrichOdds(
+  odds: QualityOutcomeResult[],
+  crafts: number,
+): EnrichedQualityOutcome[] {
+  return odds.map((item) => ({
+    ...item,
+    odds1: chanceOfAtLeastOne(item.value, crafts),
+    avg: crafts * item.value,
+  }));
 }

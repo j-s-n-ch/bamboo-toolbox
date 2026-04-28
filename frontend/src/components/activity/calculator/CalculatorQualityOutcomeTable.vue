@@ -3,13 +3,13 @@ import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useActivityStore } from "@/store/activity";
 import {
-  injectRequirements,
   injectSkillModifiers,
   injectFineMaterials,
 } from "@/composables/context/injectShared";
 import WsLabel from "@/components/primitives/WsLabel.vue";
 import { getOutcomeOdds } from "@/domain/quality/qualityOutcomeOdds";
-import { chanceOfAtLeastOne } from "@/domain/quality/expectedOutcomes";
+import { enrichOdds } from "@/domain/quality/expectedOutcomes";
+import { getRecipeLevel } from "@/domain/recipe/recipeUtils";
 import { n } from "@/utils/number";
 import type { RecipeDetail } from "@/domain/types/recipe";
 
@@ -17,25 +17,19 @@ const props = defineProps<{ crafts: number }>();
 
 const activityStore = useActivityStore();
 const { recipe } = storeToRefs(activityStore);
-const { getLevelRequirementsMap } = injectRequirements();
 const { qualityOutcome } = injectSkillModifiers();
 const { fineMode } = injectFineMaterials();
 
-const craftingOdds = computed(() => {
-  const levelMap = getLevelRequirementsMap((recipe.value as RecipeDetail).requirements);
-  const level = Object.values(levelMap)[0];
-
-  const odds = getOutcomeOdds(
-    level,
-    qualityOutcome.value,
-    fineMode.value,
-  );
-  return odds.map((item) => ({
-    ...item,
-    odds1: chanceOfAtLeastOne(item.value, props.crafts),
-    avg: props.crafts * item.value,
-  }));
-});
+const craftingOdds = computed(() =>
+  enrichOdds(
+    getOutcomeOdds(
+      getRecipeLevel((recipe.value as RecipeDetail).requirements),
+      qualityOutcome.value,
+      fineMode.value,
+    ),
+    props.crafts,
+  ),
+);
 </script>
 
 <template>

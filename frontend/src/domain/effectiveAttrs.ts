@@ -37,6 +37,8 @@ export type EffectiveAttrEntry = {
   customText: string;
   statText: string;
   skillText: string;
+  /** Present when built from an Attribute spread that carries a custom icon. */
+  customIcon?: string | null;
   item: { id: string; name: string; icon: string; quality?: string };
 };
 

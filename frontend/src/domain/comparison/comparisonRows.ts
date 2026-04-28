@@ -1,6 +1,7 @@
 /**
  * Purpose:
- * Pure functions for building comparison table row data from two raw scalar values.
+ * Pure functions for building comparison table row data from two raw scalar values
+ * and for diffing XP-per-step arrays across two gear sets.
  *
  * Responsibilities:
  * - Apply isPercent scaling and modifyValue transformation.
@@ -13,9 +14,22 @@
  * - Access any stores or global state.
  */
 
+import type { XpPerStep } from "@/domain/skillModifiers";
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
+/**
+ * A single XP-per-step comparison row with raw (unformatted) values.
+ * Positive `comp` means gear set 1 gives more XP per step (better for set 1).
+ */
+export type XpComparisonRow = {
+  title: string;
+  v1: number;
+  v2: number;
+  comp: number;
+};
 
 export type ComparisonRowInput = {
   /** Row header label. */
@@ -99,4 +113,46 @@ export function buildComparisonRows(
   inputs: ComparisonRowInput[],
 ): ComparisonRowResult[] {
   return inputs.map(buildComparisonRow);
+}
+
+/**
+ * Diffs two XP-per-step arrays across gear sets, merging by skill name so
+ * that a unique-item XP skill in only one set is shown with 0 on the other side.
+ *
+ * Row order: skills from set 1 in their original order, followed by any
+ * skills that appear only in set 2.
+ *
+ * The "total xp" row (skill === "xp") is included whenever either set has it,
+ * which correctly handles the case where one set's unique item triggers the
+ * total row while the other set's single-skill activity does not.
+ *
+ * Positive `comp` means set 1 has more XP per step (better for set 1).
+ *
+ * @param xpPerStep1  XpPerStep array from gear set 1's skill modifiers.
+ * @param xpPerStep2  XpPerStep array from gear set 2's skill modifiers.
+ */
+export function buildXpComparisonRows(
+  xpPerStep1: XpPerStep[],
+  xpPerStep2: XpPerStep[],
+): XpComparisonRow[] {
+  const rows = new Map<string, { skillText: string; v1: number; v2: number }>();
+
+  for (const { skill, skillText, value } of xpPerStep1) {
+    rows.set(skill, { skillText, v1: value, v2: 0 });
+  }
+  for (const { skill, skillText, value } of xpPerStep2) {
+    const existing = rows.get(skill);
+    if (existing) {
+      existing.v2 = value;
+    } else {
+      rows.set(skill, { skillText, v1: 0, v2: value });
+    }
+  }
+
+  return Array.from(rows.entries()).map(([, { skillText, v1, v2 }]) => ({
+    title: `${skillText} xp`,
+    v1,
+    v2,
+    comp: v1 - v2,
+  }));
 }
