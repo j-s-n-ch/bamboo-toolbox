@@ -10,6 +10,8 @@ import {
   type XpPerStep,
 } from "@/domain/skillModifiers";
 
+import { useRequirements, type RequirementContext } from "./useRequirements";
+
 export type { SkillModifiersSource, XpReward, XpPerStep };
 
 // ---------------------------------------------------------------------------
@@ -59,14 +61,36 @@ export function useSkillModifiers(ctx: SkillModifiersContext): {
   xpPerStep: ComputedRef<XpPerStep[]>;
 } {
   const { totalsByStat } = useEffectiveAttrs(ctx as EffectiveAttrsContext);
+  const { checkRequirements } = useRequirements(ctx as unknown as RequirementContext);
 
-  const modifiers = computed(() =>
-    calculateSkillModifiers(
+  const modifiers = computed(() => {
+    const res = calculateSkillModifiers(
       totalsByStat.value,
       ctx.source.value,
       ctx.activitySelected.value,
-    )
-  );
+    );
+
+    if (typeof window !== "undefined" && ctx.source.value) {
+      console.log(`[Tinker Debug] Active Source: ${ctx.source.value.id}`);
+      if (ctx.service?.value) {
+        const serviceReqsMet = ctx.service.value.requirements
+          ? checkRequirements(ctx.service.value.requirements, ctx as unknown as RequirementContext)
+          : true;
+        console.log(`  • Service Station: ${ctx.service.value.name} (${ctx.service.value.id})`);
+        console.log(`  • Service Requirements Met: ${serviceReqsMet}`);
+      }
+      console.log(`  • Work Efficiency: ${(res.uncappedWorkEfficiency * 100).toFixed(1)}% / ${(res.maxWorkEfficiency * 100).toFixed(1)}%`);
+      console.log(`  • Steps per action: ${res.stepsPerCompletion.toFixed(1)}${res.uncappedStepsPerCompletion !== res.stepsPerCompletion ? ` (Uncapped: ${res.uncappedStepsPerCompletion.toFixed(1)})` : ""}`);
+      const rewardCount = ctx.recipe.value && 'itemRewards' in ctx.recipe.value ? Object.values(ctx.recipe.value.itemRewards)[0] as number : 1;
+      console.log(`  • Steps per item: ${(res.stepsPerRewardRoll / rewardCount).toFixed(2)}`);
+      console.log(`  • Crafts / Mat: ${res.craftsPerMaterial.toFixed(3)}`);
+      console.log(`  • Double Action Chance: ${(res.doubleAction * 100).toFixed(1)}%`);
+      console.log(`  • Double Reward Chance: ${(res.doubleRewards * 100).toFixed(1)}%`);
+      console.log(`  • No Materials Consumed Chance: ${(res.noMaterialsConsumed * 100).toFixed(1)}%`);
+    }
+
+    return res;
+  });
 
   return {
     maxWorkEfficiency: computed(() => modifiers.value.maxWorkEfficiency),

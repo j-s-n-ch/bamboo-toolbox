@@ -6,11 +6,39 @@
  * - Contain any logic.
  */
 
+import type { Requirement } from "./requirement";
+
 // ---------------------------------------------------------------------------
 // Requirements
 // ---------------------------------------------------------------------------
 
-export type { Requirement } from "@/domain/types/requirement";
+export type { Requirement };
+
+/** Minimal shape required from each equipped item for requirement evaluation. */
+export type RequirementItem = {
+  id: string;
+  keywords?: string[];
+  requirements?: Requirement[];
+  /** Some items carry abilities; can be a raw ID string or an object. */
+  abilities?: (string | { ability: string })[];
+};
+
+/** A route segment - only the location fields needed for requirement checks. */
+export type RequirementSegment = {
+  from: {
+    keywords: string[];
+    faction: string;
+    subFactions?: string[];
+  };
+};
+
+/** Activity/recipe source for activityType requirement checks. */
+export type RequirementSource = {
+  id: string;
+  keywords: string[];
+  relatedSkillsList?: string[];
+  relatedSkills?: string[];
+};
 
 // ---------------------------------------------------------------------------
 // Loot table references (used by activities, recipes, etc.)

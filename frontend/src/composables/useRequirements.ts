@@ -4,7 +4,7 @@ import { useActivityStore } from "@/store/activity";
 import { usePlayerStore } from "@/store/player";
 import { useItemsStore } from "@/store/items";
 import { useDataStore } from "@/store/data";
-import type { Requirement } from "@/domain/types/common";
+import type { Requirement, RequirementItem, RequirementSegment, RequirementSource } from "@/domain/types/common";
 import type { ActivityDetail } from "@/domain/types/activity";
 import type { ActivityNone } from "@/domain/constants/activityNone";
 import type { RecipeDetail } from "@/domain/types/recipe";
@@ -16,6 +16,10 @@ import {
   getLevelRequirementsMap,
   mergeRequirements,
 } from "@/domain/requirements/requirementUtils";
+import {
+  checkRequirement as pureCheckRequirement,
+  checkRequirements as pureCheckRequirements,
+} from "@/domain/requirements/checkRequirement";
 import icons from "@/constants/iconPaths";
 import { capitalize } from "@/utils/string";
 import { ItemDetail } from "@/domain/types";
@@ -28,29 +32,7 @@ export { getLevelRequirementsMap, mergeRequirements };
 // Context types
 // ---------------------------------------------------------------------------
 
-/** Minimal shape required from each equipped item for requirement evaluation. */
-export type RequirementItem = {
-  id: string;
-  keywords?: string[];
-  requirements?: Requirement[];
-  /** Some items carry abilities; can be a raw ID string or an object. */
-  abilities?: (string | { ability: string })[];
-};
 
-/** A route segment - only the location fields needed for requirement checks. */
-export type RequirementSegment = {
-  from: {
-    keywords: string[];
-    faction: string;
-    subFactions?: string[];
-  };
-};
-
-/** Activity/recipe source for activityType requirement checks. */
-export type RequirementSource = {
-  id: string;
-  keywords: string[];
-};
 
 /**
  * All reactive references the composable reads when evaluating requirements.
@@ -70,7 +52,7 @@ export type RequirementContext = {
   factionReputation: Ref<Record<string, number> | null>;
   source: Ref<RequirementSource | null>;
   allGearItems: Ref<Record<string, { name: string; icon: string }>>;
-  inputItem: Ref<ItemDetail>;
+  inputItem?: Ref<ItemDetail>;
 };
 
 /** A single rendered requirement entry ready for display in the UI. */
@@ -101,12 +83,28 @@ export function useRequirements(ctx: RequirementContext) {
   // Requirement checking
   // -------------------------------------------------------------------------
 
+  const getContextValue = (context: RequirementContext): any => ({
+    equippedGear: context.equippedGear.value,
+    characterLevel: context.characterLevel.value,
+    skillLevels: context.skillLevels.value,
+    achievementPoints: context.achievementPoints.value,
+    factionReputation: context.factionReputation.value,
+    source: context.source.value,
+    activity: context.activity.value,
+    recipe: context.recipe.value,
+    location: context.location.value,
+    segments: context.segments.value,
+    skillsMap: playerStore.skillsMap,
+    ownedItems: itemsStore.ownedItems,
+    service: context.service?.value ?? activityStore.service,
+    inputItem: context.inputItem?.value,
+  });
+
   const checkRequirements = (
     reqs: Requirement[] | null | undefined,
     context: RequirementContext = ctx,
   ): boolean => {
-    if (!reqs || !reqs.length) return true;
-    return reqs.every((req) => checkRequirement(req, context));
+    return pureCheckRequirements(reqs, getContextValue(context));
   };
 
   const canBeEquipped = (
@@ -118,268 +116,7 @@ export function useRequirements(ctx: RequirementContext) {
     req: Requirement,
     context: RequirementContext = ctx,
   ): boolean => {
-    const { opposite } = req;
-
-    const getEquippedKeywordCounts = () => {
-      return context?.equippedGear?.value
-        ? context.equippedGear.value
-            .filter(
-              (val): val is RequirementItem & { keywords: string[] } =>
-                "keywords" in val,
-            )
-            .flatMap(({ keywords }) => keywords)
-            .reduce<Record<string, number>>((acc, val) => {
-              acc[val] = (acc[val] || 0) + 1;
-              return acc;
-            }, {})
-        : {};
-    };
-
-    let value = false;
-
-    switch (req.type) {
-      case "mainSkill": {
-        const { skill } = req.requirement;
-        const activity = context.activity.value as ActivityDetail | null;
-        const recipe = context.recipe.value as RecipeDetail | null;
-        if (activity?.relatedSkillsList)
-          value = activity.relatedSkillsList[0] === skill;
-        if (recipe?.relatedSkills) value = recipe.relatedSkills[0] === skill;
-        break;
-      }
-
-      case "mainSkillType": {
-        const { type: reqType } = req.requirement;
-        const activity = context.activity.value as ActivityDetail | null;
-        const recipe = context.recipe.value as RecipeDetail | null;
-        if (activity?.relatedSkillsList)
-          value =
-            playerStore.skillsMap[activity.relatedSkillsList[0]]?.type ===
-            reqType;
-        if (recipe?.relatedSkills)
-          value =
-            playerStore.skillsMap[recipe.relatedSkills[0]]?.type === reqType;
-        break;
-      }
-
-      case "locationHasKeywords": {
-        const { keywords } = req.requirement;
-        if (context.location.value) {
-          value =
-            intersect(context.location.value.keywords, keywords).length ===
-            keywords.length;
-        } else if (context.activity.value) {
-          const locationKeywords = context.segments.value.map(
-            ({ from }) => from.keywords,
-          );
-          value = locationKeywords.some(
-            (kw) => intersect(kw, keywords).length === keywords.length,
-          );
-        }
-        break;
-      }
-
-      case "achievementPoint":
-        value = context.achievementPoints.value >= req.requirement.value;
-        break;
-
-      case "distinctKeywordItemsEquipped": {
-        const { keywords, quantity } = req.requirement;
-        value = keywords.every(
-          (kw) => getEquippedKeywordCounts()[kw] >= quantity,
-        );
-        break;
-      }
-
-      case "distinctKeywordItemInInventory": {
-        value = true;
-        break;
-      }
-
-      case "historyData":
-        value = true;
-        break;
-
-      case "realm": {
-        const { realm } = req.requirement;
-        if (context.location.value) {
-          value =
-            context.location.value.faction === realm ||
-            context.location.value.subFactions?.includes(realm) === true;
-        } else if (context.activity.value) {
-          const factionInfo = context.segments.value.map(({ from }) => ({
-            faction: from.faction,
-            subFactions: from.subFactions,
-          }));
-          value = factionInfo.some(
-            ({ faction, subFactions }) =>
-              faction === realm || subFactions?.includes(realm) === true,
-          );
-        }
-        break;
-      }
-
-      case "traveling": {
-        const activity = context.activity.value;
-        if (activity) value = activity.id === "travelling";
-        break;
-      }
-
-      case "service": {
-        const selectedService = context.service?.value ?? activityStore.service;
-        if (!selectedService) {
-          value = false;
-          break;
-        }
-
-        const { keywords, serviceKeyword, tier } = req.requirement;
-        const reqKeywords = keywords && keywords.length ? [...keywords] : [];
-        if (serviceKeyword) reqKeywords.push(serviceKeyword);
-
-        const selectedTierIndex = serviceTiers.indexOf(
-          selectedService.tier as (typeof serviceTiers)[number],
-        );
-        const reqTierIndex = serviceTiers.indexOf(
-          tier as (typeof serviceTiers)[number],
-        );
-
-        const tierOk =
-          selectedTierIndex >= 0 && reqTierIndex >= 0
-            ? selectedTierIndex >= reqTierIndex
-            : selectedService.tier === tier;
-        const keywordsOk = reqKeywords.every((kw) =>
-          selectedService.keywords.includes(kw),
-        );
-
-        value = tierOk && keywordsOk;
-        break;
-      }
-
-      case "gameData": {
-        const factionReputation = context.factionReputation.value;
-        if (factionReputation) {
-          const { data, gameDataId } = req.requirement;
-          const rep = (JSON.parse(data) as { double?: number }).double ?? 0;
-          value = factionReputation[gameDataId] >= rep;
-        }
-        break;
-      }
-
-      case "characterLevel": {
-        const { level } = req.requirement;
-        value = context.characterLevel.value >= level;
-        break;
-      }
-
-      case "skillLevel": {
-        const { skill, level } = req.requirement;
-        value = context.skillLevels.value[skill] >= level;
-        break;
-      }
-
-      case "skillTypeLevel": {
-        const { type, relativeLevel } = req.requirement;
-        const skillsByType = Object.entries(playerStore.skillsMap).filter(
-          ([, s]) => s.type === type,
-        );
-        const skillIds = skillsByType.map(([id]) => id);
-        const maximum = 100 * skillsByType.length;
-        const required = relativeLevel * maximum;
-        const current = skillIds.reduce(
-          (a, id) => a + context.skillLevels.value[id] - 1,
-          0,
-        );
-        value = Math.floor(current) >= Math.floor(required);
-        break;
-      }
-
-      case "activityType": {
-        const source = context.source.value;
-        if (source) {
-          const { activity: reqActivity, keywords: reqKeywords } =
-            req.requirement;
-          const activityMatches = !reqActivity || source.id === reqActivity;
-          const keywordsMatches =
-            !reqKeywords?.length ||
-            reqKeywords.every((kw) => source.keywords?.includes(kw));
-          value = activityMatches && keywordsMatches;
-        }
-        break;
-      }
-
-      case "totalSkillLevel":
-        value =
-          Object.values(playerStore.skillLevels).reduce((a, b) => a + b, 0) >=
-          req.requirement.levels;
-        break;
-
-      case "totalSkillLevelUps":
-        value =
-          Object.values(playerStore.skillLevels).reduce(
-            (a, b) => a + b - 1,
-            0,
-          ) >= req.requirement.levels;
-        break;
-
-      case "itemAnywhereWithYou":
-      case "itemAnywhere":
-        value = req.requirement.item in itemsStore.ownedItems;
-        break;
-
-      case "keywordEquipped":
-        value = context.equippedGear.value.some((gear) =>
-          gear.keywords?.includes(req.requirement.keyword),
-        );
-        break;
-
-      case "keywordWithLevelEquipped": {
-        const { keyword, skill, level } = req.requirement;
-        value = context.equippedGear.value.some((gear) => {
-          const kwCheck = gear.keywords?.includes(keyword);
-          const levelReqs = getLevelRequirementsMap(gear.requirements);
-          const levelCheck = skill in levelReqs && levelReqs[skill] >= level;
-          return kwCheck && levelCheck;
-        });
-        break;
-      }
-
-      case "inputKeywordWithLevel": {
-        if (
-          !(
-            context.inputItem.value && "requirements" in context.inputItem.value
-          )
-        )
-          break;
-
-        const { skill, level } = req.requirement;
-        const levelReqs = getLevelRequirementsMap(
-          context.inputItem.value.requirements,
-        );
-        value = levelReqs[skill] >= level;
-        break;
-      }
-
-      case "itemEquipped":
-        value = context.equippedGear.value.some(
-          ({ id }) => id === req.requirement.item,
-        );
-        break;
-
-      case "abilityAvailable": {
-        const { ability } = req.requirement;
-        value = context.equippedGear.value.some(({ abilities }) =>
-          abilities
-            ?.flatMap((a) => (typeof a === "object" ? a.ability : a))
-            .includes(ability),
-        );
-        break;
-      }
-
-      default:
-        console.error("unhandled requirement", req);
-    }
-
-    return opposite ? !value : value;
+    return pureCheckRequirement(req, getContextValue(context));
   };
 
   // -------------------------------------------------------------------------

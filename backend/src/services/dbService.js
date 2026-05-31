@@ -93,7 +93,13 @@ async function markUserActiveThrottled(userUuid) {
 export async function ensureUser(userUuid) {
   let user = await prisma.user.findUnique({ where: { userUuid } });
   if (!user) {
-    user = await prisma.user.create({ data: { userUuid } });
+    try {
+      user = await prisma.user.create({ data: { userUuid } });
+    } catch (e) {
+      // If user creation failed because another parallel request created it, find it
+      user = await prisma.user.findUnique({ where: { userUuid } });
+      if (!user) throw e;
+    }
   }
 
   // Fire-and-forget activity update
